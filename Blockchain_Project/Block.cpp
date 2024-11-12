@@ -8,6 +8,11 @@ Block::Block(int index, const std::string& previousHash)
 	_hash = calculateHash();
 }
 
+Block::~Block()
+{
+	_transactions.clear();
+}
+
 void Block::addTransaction(const Transaction& transaction)
 {
 	_transactions.push_back(transaction);
@@ -23,7 +28,7 @@ std::string Block::calculateHash() const
 		ss << tx.getTransactionID();
 	}
 
-	// TO-DO: change to use SHA-256 cryptographic function
+	// TODO: change to use SHA-256 cryptographic function
 	return ss.str();
 }
 
@@ -41,6 +46,21 @@ void Block::displayBlock() const
 		tx.displayTransaction();
 		std::cout << "-------------------------" << std::endl;
 	}
+}
+
+std::string Block::getHash() const
+{
+	return _hash;
+}
+
+void Block::setHash(const std::string& hash)
+{
+	_hash = hash;
+}
+
+std::string Block::getPreviousHash() const
+{
+	return _previousHash;
 }
 
 

@@ -13,6 +13,7 @@ public:
 	void displayTransaction() const;
 
 	std::string getTransactionID() const;
+
 private:
 	std::string _sender;
 	std::string _receiver;

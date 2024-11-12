@@ -4,7 +4,7 @@ class Blockchain
 {
 public:
 	Blockchain();
-	~Blockchain() {};
+	~Blockchain();
 
 	// Get the latest Block in the chain
 	Block getLatestBlock() const;

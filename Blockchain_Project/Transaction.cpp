@@ -21,7 +21,7 @@ std::string Transaction::getTransactionID() const
 	return _transactionID;
 }
 
-// TO-DO: Change to use hash functions
+// TODO: Change to use hash functions
 std::string Transaction::generateTransactionID()
 {
 	return _sender + _receiver + std::to_string(_amount) + std::to_string(_timestamp);

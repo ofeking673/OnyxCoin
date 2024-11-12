@@ -7,12 +7,18 @@ class Block
 {
 public:
 	Block(int index, const std::string& previousHash);
-	~Block() {};
+	~Block();
 
 	void addTransaction(const Transaction& transaction);
 	std::string calculateHash() const;
 
 	void displayBlock() const;
+
+	std::string getHash() const;
+	std::string getPreviousHash() const;
+	void setHash(const std::string& hash);
+
+
 private:
 	int _index;
 	time_t _timestamp;
