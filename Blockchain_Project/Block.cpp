@@ -34,9 +34,11 @@ std::string Block::calculateHash() const
 
 void Block::displayBlock() const
 {
+	std::string time = HelperT::timeToStr(_timestamp);
+
 	std::cout <<
 		"Block #" << _index << std::endl <<
-		"Timestamp: " << std::ctime(&_timestamp) << std::endl <<
+		"Timestamp: " << time << std::endl <<
 		"Previous Hash: " << _previousHash << std::endl <<
 		"Hash: " << _hash << std::endl <<
 		"Transactions: " << std::endl;

@@ -11,9 +11,11 @@ Transaction::Transaction(const std::string& sender, const std::string receiver, 
 
 void Transaction::displayTransaction() const
 {
+	std::string time = HelperT::timeToStr(_timestamp);
+
 	std::cout << "Transaction ID: " << _transactionID << std::endl;
 	std::cout << _sender << " -> " << _receiver << " : " << _amount << std::endl;
-	std::cout << "Timestamp: " << std::ctime(&_timestamp) << std::endl;
+	std::cout << "Timestamp: " << time << std::endl;
 }
 
 std::string Transaction::getTransactionID() const

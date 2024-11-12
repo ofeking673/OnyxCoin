@@ -18,6 +18,11 @@ Block Blockchain::getLatestBlock() const
 	return _chain.back();
 }
 
+void Blockchain::addTransaction(const Transaction& tx)
+{
+	_pendingTransactions.push_back(tx);
+}
+
 void Blockchain::minePendingTransaction(const std::string& minerAddress)
 {
 	// TODO: Consensus PBFT
@@ -40,7 +45,7 @@ void Blockchain::minePendingTransaction(const std::string& minerAddress)
 	_pendingTransactions.clear();
 }
 
-void Blockchain::displayChain() const
+void Blockchain::displayBlockchain() const
 {
 	for (const auto& block : _chain)
 	{
