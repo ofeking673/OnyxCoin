@@ -18,6 +18,6 @@ private:
 	time_t _timestamp;
 	std::vector<Transaction> _transactions;
 	std::string _previousHash;
-	std::string hash;
+	std::string _hash;
 };
 

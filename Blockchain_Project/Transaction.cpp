@@ -16,6 +16,11 @@ void Transaction::displayTransaction() const
 	std::cout << "Timestamp: " << std::ctime(&_timestamp) << std::endl;
 }
 
+std::string Transaction::getTransactionID() const
+{
+	return _transactionID;
+}
+
 // TO-DO: Change to use hash functions
 std::string Transaction::generateTransactionID()
 {
