@@ -23,6 +23,11 @@ cpp_int KeyGenerator::generatePrivate() {
     return num;
 }
 
+cpp_int KeyGenerator::cat(cpp_int x, cpp_int y)
+{
+    return cpp_int(x.str() + y.str());
+}
+
 Point* KeyGenerator::ECAdd(Point* pnt1, Point* pnt2)
 {
     if (pnt1->is_infinity()) return pnt2;

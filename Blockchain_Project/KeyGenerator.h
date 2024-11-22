@@ -51,6 +51,9 @@ public:
     static cpp_int mod(cpp_int a, cpp_int m) {
         return (a % m + m) % m;
     }
+
+    static cpp_int cat(cpp_int x, cpp_int y);
+
 	cpp_int PCurve;
     Point* GPoint;
 	cpp_int n;

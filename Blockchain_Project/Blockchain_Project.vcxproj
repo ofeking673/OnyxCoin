@@ -127,17 +127,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Base58.h" />
+    <ClInclude Include="BIP39SeedMaker.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Blockchain.h" />
+    <ClInclude Include="ECDSASigner.h" />
     <ClInclude Include="HelperT.h" />
+    <ClInclude Include="KeyGenerator.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="SHA256.h" />
     <ClInclude Include="Transaction.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Base58.cpp" />
+    <ClCompile Include="BIP39SeedMaker.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Blockchain.cpp" />
+    <ClCompile Include="BlockChainPOC.cpp" />
+    <ClCompile Include="ECDSASigner.cpp" />
     <ClCompile Include="HelperT.cpp" />
+    <ClCompile Include="KeyGenerator.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Point.cpp" />
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="Transaction.cpp" />
   </ItemGroup>
