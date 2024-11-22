@@ -3,7 +3,7 @@
 std::string BIP39SeedMaker::checksum(cpp_int v)
 {
     int binSize = binary(v).size();
-    std::string hash = sha.digest(binary(v));
+    std::string hash = sha.digest(cppIntToHex(v));
     std::string hashBin = binary(cpp_int("0x"+hash));
     std::cout << hashBin.substr(0, (binSize / 32)) << std::endl;
     return hashBin.substr(0, (binSize/32));
@@ -48,4 +48,11 @@ std::string BIP39SeedMaker::transformToSeed(cpp_int v)
     seed.pop_back();
 
     return seed;
+}
+
+std::string BIP39SeedMaker::cppIntToHex(const cpp_int& value)
+{
+    std::stringstream ss;
+    ss << std::hex << value;
+    return ss.str();
 }

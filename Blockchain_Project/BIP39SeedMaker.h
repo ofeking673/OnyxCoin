@@ -12,6 +12,7 @@ public:
 	std::string binary(cpp_int v);
     std::vector<int> splitToGroups(std::string binary);
     std::string transformToSeed(cpp_int v);
+    std::string cppIntToHex(const cpp_int& value);
 
     std::vector<std::string> wordlist = {
         "abandon","ability","able","about","above","absent","absorb","abstract","absurd","abuse",
