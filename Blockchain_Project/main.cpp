@@ -62,6 +62,5 @@ int main()
 	BIP39SeedMaker seeder;
 	std::cout << seeder.transformToSeed(cpp_int("0x26219df363d0b3d313f77f5f0abe4b82"));
 
-
 	return 0;
 }
