@@ -1,5 +1,6 @@
 #include "BIP39SeedMaker.h"
 
+
 std::string BIP39SeedMaker::checksum(cpp_int v)
 {
     int binSize = binary(v).size();
@@ -21,7 +22,7 @@ std::string BIP39SeedMaker::binary(cpp_int v)
 {
     std::string bin;
     std::stringstream ss;
-    ss << std::hex << std::setw(32) << std::setfill('0') << v;
+    ss << std::hex << v;
     for (char c : ss.str()) {
         int digit = (c >= '0' && c <= '9') ? c - '0' : (c - 'a' + 10);
         bin += std::bitset<4>(digit).to_string();
@@ -42,7 +43,7 @@ std::vector<int> BIP39SeedMaker::splitToGroups(std::string binary)
 std::string BIP39SeedMaker::transformToSeed(cpp_int v)
 {
     std::string bin = binary(v) + checksum(v); // OK
-    std::cout << bin << std::endl;
+    std::cout << binary(v) << std::endl;
     auto ans = splitToGroups(bin); // OK
     std::string seed;
     for (int i : ans) {
@@ -85,6 +86,7 @@ unsigned char BIP39SeedMaker::hexCharToByte(char c)
     }
 }
 
+
 // Function to convert a hex string to raw bytes
 std::string BIP39SeedMaker::convertHexStrToBytes(const std::string& hex)
 {
@@ -108,3 +110,31 @@ std::string BIP39SeedMaker::convertHexStrToBytes(const std::string& hex)
     return bytes;
 }
 
+cpp_int BIP39SeedMaker::binToInt(std::string bin)
+{
+    cpp_int num = 0;
+    for (char c : bin) {
+        num = (num * 2) + (c - '0');
+    }
+    return num;
+}
+
+std::string BIP39SeedMaker::reverseSeed(std::string seed)
+{
+    std::istringstream ss(seed);
+    std::stringstream s;
+    std::string word;
+    std::string bin;
+    int i = 0;
+    while(ss >> word) {
+        int index = std::find(wordlist.begin(), wordlist.end(), word) - wordlist.begin();
+        
+        s << std::setw(11) << std::setfill('0') << binary(index).substr(1); //binary returns a 12 bit number, 4 * 3
+        std::cout << s.str() << std::endl;
+        bin += s.str();
+    }
+
+    std::string checksum = bin.substr(128);
+    bin = bin.substr(0, 128);
+    return cppIntToHex(binToInt(bin));
+}

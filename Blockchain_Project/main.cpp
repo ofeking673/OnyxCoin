@@ -60,7 +60,8 @@ int main()
 	//std::cout << b.base58(pub);
 
 	BIP39SeedMaker seeder;
-	std::cout << seeder.transformToSeed(cpp_int("0x26219df363d0b3d313f77f5f0abe4b82"));
-
+	std::string seed = seeder.transformToSeed(cpp_int("0x26219df363d0b3d313f77f5f0abe4b82"));
+	std::cout << seed << std::endl << std::endl;
+	std::cout << seeder.reverseSeed(seed);
 	return 0;
 }

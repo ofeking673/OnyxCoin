@@ -17,6 +17,9 @@ public:
     std::string convertHexStrToBytes(const std::string& hex);
     unsigned char hexCharToByte(char c);
 
+    cpp_int binToInt(std::string bin);
+    std::string reverseSeed(std::string seed);
+
     std::vector<std::string> wordlist = {
         "abandon","ability","able","about","above","absent","absorb","abstract","absurd","abuse",
 "access","accident","account","accuse","achieve","acid","acoustic","acquire","across","act",
