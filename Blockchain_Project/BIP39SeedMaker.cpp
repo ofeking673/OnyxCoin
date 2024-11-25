@@ -43,11 +43,9 @@ std::vector<int> BIP39SeedMaker::splitToGroups(std::string binary)
 std::string BIP39SeedMaker::transformToSeed(cpp_int v)
 {
     std::string bin = binary(v) + checksum(v); // OK
-    std::cout << binary(v) << std::endl;
     auto ans = splitToGroups(bin); // OK
     std::string seed;
     for (int i : ans) {
-        std::cout << i << std::endl;
         seed += wordlist[i] + " ";
     }
 
@@ -130,7 +128,6 @@ std::string BIP39SeedMaker::reverseSeed(std::string seed)
         int index = std::find(wordlist.begin(), wordlist.end(), word) - wordlist.begin();
         
         s << std::setw(11) << std::setfill('0') << binary(index).substr(1); //binary returns a 12 bit number, 4 * 3
-        std::cout << s.str() << std::endl;
         bin += s.str();
     }
 
