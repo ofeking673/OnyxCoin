@@ -129,6 +129,7 @@ std::string BIP39SeedMaker::reverseSeed(std::string seed)
         
         s << std::setw(11) << std::setfill('0') << binary(index).substr(1); //binary returns a 12 bit number, 4 * 3
         bin += s.str();
+        s.str("");
     }
 
     std::string checksum = bin.substr(128);
