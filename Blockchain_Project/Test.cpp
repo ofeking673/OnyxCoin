@@ -85,3 +85,64 @@ void Test::testECDSA()
 
 	std::cout << "ECDSA Message signing and verification works perfectly!\n";
 }
+
+void Test::testBlake2b()
+{
+	// 1 - ""
+	const char* input1 = "";
+	std::string expected1 = "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce";
+	uint8_t hash1[Crypto::Blake2b::HASH_SIZE];
+
+	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input1), strlen(input1), hash1);
+
+	std::string hexHash1 = Crypto::Blake2b::bytesToHex(hash1, Crypto::Blake2b::HASH_SIZE);
+
+	assert(hexHash1 == expected1);
+
+	// 2 - "a"
+	const char* input2 = "a";
+	std::string expected2 = "333fcb4ee1aa7c115355ec66ceac917c8bfd815bf7587d325aec1864edd24e34d5abe2c6b1b5ee3face62fed78dbef802f2a85cb91d455a8f5249d330853cb3c";
+	uint8_t hash2[Crypto::Blake2b::HASH_SIZE];
+
+	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input2), strlen(input2), hash2);
+
+	std::string hexHash2 = Crypto::Blake2b::bytesToHex(hash2, Crypto::Blake2b::HASH_SIZE);
+
+	assert(hexHash2 == expected2);
+
+	// 3 - "abc"
+	const char* input3 = "abc";
+	std::string expected3 = "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923";
+	uint8_t hash3[Crypto::Blake2b::HASH_SIZE];
+
+	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input3), strlen(input3), hash3);
+
+	std::string hexHash3 = Crypto::Blake2b::bytesToHex(hash3, Crypto::Blake2b::HASH_SIZE);
+
+	assert(hexHash3 == expected3);
+
+	// 4 - "5a db 63"
+	const char* input4 = "5a db 63";
+	std::string expected4 = "5a9036635ef0b5be93eb45542a3d5e1921d0fa6e88dba01919a8ea4632ac290f15b78600b6ab588f424f07395d51f9e03653c84662e0874abef0d4e999b36fe1";
+	uint8_t hash4[Crypto::Blake2b::HASH_SIZE];
+
+	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input4), strlen(input4), hash4);
+
+	std::string hexHash4 = Crypto::Blake2b::bytesToHex(hash4, Crypto::Blake2b::HASH_SIZE);
+
+	assert(hexHash4 == expected4);
+
+	// 5 - "The quick brown fox jumps over the lazy dog"
+	const char* input5 = "The quick brown fox jumps over the lazy dog";
+	std::string expected5 = "a8add4bdddfd93e4877d2746e62817b116364a1fa7bc148d95090bc7333b3673f82401cf7aa2e4cb1ecd90296e3f14cb5413f8ed77be73045b13914cdcd6a918";
+	uint8_t hash5[Crypto::Blake2b::HASH_SIZE];
+
+	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input5), strlen(input5), hash5);
+
+	std::string hexHash5 = Crypto::Blake2b::bytesToHex(hash5, Crypto::Blake2b::HASH_SIZE);
+
+	assert(hexHash5 == expected5);
+
+
+	std::cout << "Blake2b works well" << std::endl;
+}

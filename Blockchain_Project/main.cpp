@@ -60,12 +60,12 @@ int main()
 	//Base58 b;
 	//std::cout << b.base58(pub);
 
-	BIP39SeedMaker seeder;
-	std::string seed = seeder.transformToSeed(cpp_int("0x26219df363d0b3d313f77f5f0abe4b82"));
-	std::cout << seed << std::endl << std::endl;
-	std::cout << seeder.reverseSeed(seed);
+	//BIP39SeedMaker seeder;
+	//std::string seed = seeder.transformToSeed(cpp_int("0x26219df363d0b3d313f77f5f0abe4b82"));
+	//std::cout << seed << std::endl << std::endl;
+	//std::cout << seeder.reverseSeed(seed);
 
-	/*Test t;
-	t.testECDSA();*/
+	Test t;
+	t.testBlake2b();
 	return 0;
 }
