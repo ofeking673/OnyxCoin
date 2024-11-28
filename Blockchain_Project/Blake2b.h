@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>
 #include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 namespace Crypto
 {
@@ -34,14 +36,6 @@ namespace Crypto
         /// <param name="hash">Output buffer to store the hash. Must be at least HASH_SIZE bytes.</param>
         void final(uint8_t* hash);
 
-        /**
-         * @brief 
-         *
-         * @param data 
-         * @param len 
-         * @param hash 
-         */
-
         /// <summary>
         /// Computes the Blake2b hash of the given data in one step.
         /// </summary>
@@ -50,10 +44,12 @@ namespace Crypto
         /// <param name="hash">Output buffer to store the hash. Must be at least HASH_SIZE bytes.</param>
         static void hash(const uint8_t* data, size_t len, uint8_t* hash);
 
+        // Helper function to convert byte array to hex string
+        static std::string bytesToHex(const uint8_t* bytes, size_t length);
     private:
         // Internal state
         std::array<uint64_t, 8> state_;
-        uint64_t total_length_ = 0;
+        uint64_t total_bytes_ = 0;
         std::vector<uint8_t> buffer_;
 
         // Blake2b constants
@@ -72,6 +68,18 @@ namespace Crypto
             {14,10, 4, 8, 9,15,13, 6, 1,12, 0, 2,11, 7, 5, 3 }
         } };
 
+        // Blake2b Initialization Vector
+        static constexpr std::array<uint64_t, 8> IV_ = {
+            0x6a09e667f3bcc908ULL,
+            0xbb67ae8584caa73bULL,
+            0x3c6ef372fe94f82bULL,
+            0xa54ff53a5f1d36f1ULL,
+            0x510e527fade682d1ULL,
+            0x9b05688c2b3e6c1fULL,
+            0x1f83d9abfb41bd6bULL,
+            0x5be0cd19137e2179ULL
+        };
+
         /// <summary>
         /// Compress function as defined in the Blake2b specification.
         /// </summary>
@@ -79,18 +87,6 @@ namespace Crypto
         /// <param name="block_len">Length of the block in bytes.</param>
         /// <param name="is_last">Indicates if this is the final block.</param>
         void compress(const uint8_t* block, size_t block_len, bool is_last);
-
-        /**
-         * @brief 
-         *
-         * @param v 
-         * @param a 
-         * @param b 
-         * @param c 
-         * @param d 
-         * @param x 
-         * @param y 
-         */
 
         /// <summary>
         /// G mixing function as defined in the Blake2b specification.
