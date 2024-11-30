@@ -146,3 +146,107 @@ void Test::testBlake2b()
 
 	std::cout << "Blake2b works well" << std::endl;
 }
+
+//// Helper function to convert hex string to byte vector
+//std::vector<uint8_t> Test::hexStringToBytes(const std::string& hex)
+//{
+//	std::vector<uint8_t> bytes;
+//	std::istringstream hexStream(hex);
+//	std::string byteString;
+//	while (std::getline(hexStream, byteString, ' ')) {
+//		if (!byteString.empty()) {
+//			uint8_t byte = static_cast<uint8_t>(std::stoul(byteString, nullptr, 16));
+//			bytes.push_back(byte);
+//		}
+//	}
+//	return bytes;
+//}
+
+// Helper function to convert byte vector to hex string
+std::string Test::bytesToHexString(const std::vector<uint8_t>& bytes)
+{
+	std::ostringstream hexStream;
+	for (size_t i = 0; i < bytes.size(); ++i) {
+		hexStream << std::hex << std::setw(2) << std::setfill('0') << (int)bytes[i];
+	}
+	return hexStream.str();
+}
+
+void Test::testArgon2()
+{
+	// Test Vector 1
+	{
+		std::cout << "Running Test Vector 1..." << std::endl;
+
+		std::string password = "password";
+		std::string salt = "somesalt";
+
+		// Expected output (hex string)
+		std::string expectedHex = "c1bc4d00af5ae21bebc081ad618694850511146225d8d3a070ed95b983b8d474";
+
+		// Initialize Argon2 instance
+		//Argon2(Type type = Argon2id, uint32_t timeCost = 3, uint32_t memoryCost = 8192, uint32_t parallelism = 1, uint32_t hashLength = 32);
+		Crypto::Argon2 argon2;
+
+		// Derive the key
+		std::vector<uint8_t> saltBytes(salt.begin(), salt.end());
+		std::vector<uint8_t> derivedKey = argon2.deriveKey(password, saltBytes);
+
+		// Convert derived key to hex string
+		std::string derivedHex = bytesToHexString(derivedKey);
+
+		// Compare derived key with expected output
+		if (derivedHex == expectedHex) {
+			std::cout << "Test Vector 1 passed." << std::endl;
+		}
+		else {
+			std::cout << "Test Vector 1 failed." << std::endl;
+			std::cout << "Expected: " << expectedHex << std::endl;
+			std::cout << "Got:      " << derivedHex << std::endl;
+		}
+
+		std::cout << std::endl;
+	}
+
+	// Test Vector 2
+	{
+		std::cout << "Running Test Vector 2..." << std::endl;
+
+		std::string password = "password";
+		std::string salt = "somesalt";
+		uint32_t parallelism = 4;
+		uint32_t memoryCost = 32; // Number of 1KB blocks (32 KiB total)
+		uint32_t timeCost = 3;
+		uint32_t hashLength = 32;
+		Crypto::Argon2::Type type = Crypto::Argon2::Argon2id;
+
+		// Expected output (hex string)
+		std::string expectedHex =
+			"89 e9 42 ff 1f 77 25 4c "
+			"86 7a f3 6c 15 e3 6d 8e "
+			"c8 2a 4e e4 8f 70 88 4f "
+			"5d c3 54 c7 57 37 90 25";
+
+		// Initialize Argon2 instance
+		Crypto::Argon2 argon2(type, timeCost, memoryCost, parallelism, hashLength);
+
+		// Derive the key
+		std::vector<uint8_t> saltBytes(salt.begin(), salt.end());
+		std::vector<uint8_t> derivedKey = argon2.deriveKey(password, saltBytes);
+
+		// Convert derived key to hex string
+		std::string derivedHex = bytesToHexString(derivedKey);
+
+		// Compare derived key with expected output
+		if (derivedHex == expectedHex) {
+			std::cout << "Test Vector 2 passed." << std::endl;
+		}
+		else {
+			std::cout << "Test Vector 2 failed." << std::endl;
+			std::cout << "Expected: " << expectedHex << std::endl;
+			std::cout << "Got:      " << derivedHex << std::endl;
+		}
+
+		std::cout << std::endl;
+	}
+}

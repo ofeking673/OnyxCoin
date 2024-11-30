@@ -1,8 +1,9 @@
 #include "Blake2b.h"
 
-Crypto::Blake2b::Blake2b(const std::vector<uint8_t>& key)
+Crypto::Blake2b::Blake2b(size_t outlen, const std::vector<uint8_t>&key) 
+    : outlen_(outlen)
 {
-    if (key.size() > 64) 
+    if (key.size() > 64)
     {
         throw std::invalid_argument("Key length exceeds maximum of 64 bytes");
     }
@@ -23,7 +24,7 @@ Crypto::Blake2b::Blake2b(const std::vector<uint8_t>& key)
 
 
     // If a key is provided, process it as the first block
-    if (!key.empty()) 
+    if (!key.empty())
     {
         std::vector<uint8_t> block(BLOCK_SIZE, 0);
         std::copy(key.begin(), key.end(), block.begin());
@@ -77,11 +78,11 @@ void Crypto::Blake2b::final(uint8_t* hash)
     }
 }
 
-void Crypto::Blake2b::hash(const uint8_t* data, size_t len, uint8_t* hash)
+void Crypto::Blake2b::hash(const uint8_t* data, size_t len, uint8_t* hash, size_t outlen)
 {
-    Blake2b hasher;
-    hasher.update(data, len);
-    hasher.final(hash);
+    Blake2b blake2b(outlen);
+    blake2b.update(data, len);
+    blake2b.final(hash);
 }
 
 std::string Crypto::Blake2b::bytesToHex(const uint8_t* bytes, size_t length)

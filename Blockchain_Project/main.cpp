@@ -66,6 +66,6 @@ int main()
 	//std::cout << seeder.reverseSeed(seed);
 
 	Test t;
-	t.testBlake2b();
+	t.testArgon2();
 	return 0;
 }

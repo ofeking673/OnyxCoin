@@ -1,114 +1,103 @@
 #pragma once
 
-#include <string>
-#include <vector>
 #include <cstdint>
+#include <vector>
+#include <string>
+#include "Blake2b.h"
 
-// Enum to specify the type of Argon2 algorithm
-enum class Argon2Type {
-    Argon2d,   // Data-dependent memory access
-    Argon2i,   // Data-independent memory access
-    Argon2id   // Hybrid of Argon2i and Argon2d
-};
-
-class Argon2
+namespace Crypto
 {
-public:
-    /// <summary>
-    /// Constructor to initialize Argon2 with default or custom parameters.
-    /// </summary>
-    /// <param name="timeCost">Number of iterations (time cost).</param>
-    /// <param name="memoryCost">Memory usage in kilobytes (memory cost).</param>
-    /// <param name="parallelism">Degree of parallelism (number of threads).</param>
-    /// <param name="hashLength">Desired length of the output hash in bytes.</param>
-    /// <param name="type">Type of Argon2 algorithm to use.</param>
-    Argon2(
-        uint32_t timeCost = 2,
-        uint32_t memoryCost = 65536, // Default: 64 MB
-        uint32_t parallelism = 1,
-        uint32_t hashLength = 32,
-        Argon2Type type = Argon2Type::Argon2id
-    );
+    class Argon2
+    {
+    public:
+        // Argon2 Type Enumeration
+        enum Type
+        {
+            Argon2d = 0,
+            Argon2i = 1,
+            Argon2id = 2
+        };
 
-    // Destructor
-    ~Argon2();
+        /**
+         * @brief Constructor with custom parameters for key derivation.
+         *        Initializes parameters suitable for AES-256-CBC when no arguments are provided.
+         * @param type Argon2 variant (Argon2d, Argon2i, Argon2id)
+         * @param timeCost Number of iterations (default: 3)
+         * @param memoryCost Memory usage in kibibytes (default: 8192)
+         * @param parallelism Degree of parallelism (number of threads) (default: 1)
+         * @param hashLength Length of the derived key in bytes (default: 32 for AES-256)
+         */
+        Argon2(Type type = Argon2id, uint32_t timeCost = 3, uint32_t memoryCost = 8192, uint32_t parallelism = 1, uint32_t hashLength = 32);
 
-    // Delete copy constructor and assignment operator to prevent copying
-    Argon2(const Argon2&) = delete;
-    Argon2& operator=(const Argon2&) = delete;
+        /**
+         * @brief Derives a cryptographic key from the given password and salt.
+         * @param password The input password.
+         * @param salt The cryptographic salt.
+         * @return A vector containing the derived key.
+         */
+        std::vector<uint8_t> deriveKey(const std::string& password, const std::vector<uint8_t>& salt);
 
-    // Sets the time cost parameter.
-    void setTimeCost(uint32_t timeCost);
+    private:
+        // Argon2 Parameters
+        Type type_;
+        uint32_t timeCost_;      // Number of iterations
+        uint32_t memoryCost_;    // Memory usage in kibibytes
+        uint32_t parallelism_;   // Degree of parallelism
+        uint32_t hashLength_;    // Length of the derived key in bytes
 
-    // Sets the memory cost parameter (Memory usage in kilobytes).
-    void setMemoryCost(uint32_t memoryCost);
+        // Memory Block Structure
+        struct Block
+        {
+            uint64_t v[128];
+        };
 
-    // Sets the degree of parallelism (Number of threads).
-    void setParallelism(uint32_t parallelism);
+        // Memory Segments
+        std::vector<Block> memory_;
 
-    // Sets the desired hash length.
-    void setHashLength(uint32_t hashLength);
+        // Instance Variables
+        uint32_t lanes_;
+        uint32_t segmentLength_;
+        uint32_t laneLength_;
 
-    // Sets the Argon2 algorithm type (Argon2d, Argon2i, Argon2id).
-    void setType(Argon2Type type);
+        // Pre-hashing digest
+        uint8_t initialHash_[Blake2b::HASH_SIZE];
 
-    /// <summary>
-    /// Hashes the provided password with the given salt.
-    /// </summary>
-    /// <param name="password">The input password to hash</param>
-    /// <param name="salt">A unique salt value.</param>
-    /// <param name="outHash">A vector to store the resulting hash.</param>
-    /// <returns>true if hashing is successful, false otherwise.</returns>
-    bool hashPassword(
-        const std::string& password,
-        const std::string& salt,
-        std::vector<uint8_t>& outHash
-    );
-
-    /// <summary>
-    /// Verifies a password against a given hash and salt.
-    /// </summary>
-    /// <param name="password">The input password to verify.</param>
-    /// <param name="salt">The salt used during hashing.</param>
-    /// <param name="hash">The hash to compare against.</param>
-    /// <returns>true if the password is correct, false otherwise.</returns>
-    bool verifyHash(
-        const std::string& password,
-        const std::string& salt,
-        const std::vector<uint8_t>& hash
-    );
-
-private:
-    // Argon2 configuration parameters
-    uint32_t m_timeCost;
-    uint32_t m_memoryCost;
-    uint32_t m_parallelism;
-    uint32_t m_hashLength;
-    Argon2Type m_type;
+        // Internal Functions
+        void initialize(const std::string& password, const std::vector<uint8_t>& salt);
+        void fillMemoryBlocks();
+        void finalize(std::vector<uint8_t>& output);
 
 
-    /// <summary>
-    /// Initializes internal structures required for Argon2.
-    /// </summary>
-    /// <returns>true if initialization is successful, false otherwise.</returns>
-    bool initialize();
 
-    /// <summary>
-    /// Allocates and initializes the memory blocks used by Argon2.
-    /// </summary>
-    /// <returns>true if memory is successfully allocated and initialized, false otherwise.</returns>
-    bool allocateMemory();
+        // FillMemoryBlocks helper functions
 
-    /// <summary>
-    /// Executes the core Argon2 hashing algorithm.
-    /// </summary>
-    /// <param name="password">The input password.</param>
-    /// <param name="salt">The salt value.</param>
-    /// <param name="outHash">The output hash.</param>
-    /// <returns>true if hashing is successful, false otherwise.</returns>
-    bool executeHash(
-        const std::string& password,
-        const std::string& salt,
-        std::vector<uint8_t>& outHash
-    );
-};
+
+        Block zeroBlock_;
+        Block inputBlock_;
+        Block addressBlock_;
+        size_t addressBlockIndex_; // Index within addressBlock_
+
+        void fillSegment(uint32_t pass, uint32_t lane, uint32_t segment);
+        uint64_t computePseudoRandom(uint32_t pass, uint32_t lane, uint32_t index, uint32_t positionInSegment, uint32_t segment);
+        void computeRefBlockIndices(uint64_t pseudoRandom, uint32_t pass, uint32_t lane, uint32_t index, uint32_t segment, uint32_t& refLane, uint32_t& refIndex);
+        void compressionFunction(const Block& block1, const Block& block2, Block& result);
+
+        // G function as per Argon2 specification
+        void G(const Block& X, const Block& Y, Block& Z);
+
+        // Permutation function P
+        void P(Block& R);
+
+        // Blake2b G function used in Argon2
+        void G_Blake(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t& d);
+
+        // Rotation function
+        static uint64_t rotr64(uint64_t x, uint64_t n);
+
+        void initializeAddressBlocks();
+        uint64_t generateAddress();
+        void initializeInputBlock(uint32_t pass, uint32_t lane, uint32_t segment);
+
+
+    };
+}

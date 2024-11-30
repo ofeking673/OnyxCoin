@@ -21,7 +21,7 @@ namespace Crypto
         /// Constructs a Blake2b instance with an optional key for authentication.
         /// </summary>
         /// <param name="key">Optional secret key for keyed hashing (authentication).</param>
-        explicit Blake2b(const std::vector<uint8_t>& key = {});
+        explicit Blake2b(const size_t outlen = 64, const std::vector<uint8_t>& key = {});
 
         /// <summary>
         /// Updates the hash with additional data.
@@ -35,15 +35,16 @@ namespace Crypto
         /// </summary>
         /// <param name="hash">Output buffer to store the hash. Must be at least HASH_SIZE bytes.</param>
         void final(uint8_t* hash);
-
+        
         /// <summary>
         /// Computes the Blake2b hash of the given data in one step.
         /// </summary>
         /// <param name="data">Pointer to the data to hash.</param>
         /// <param name="len">Length of the data in bytes.</param>
         /// <param name="hash">Output buffer to store the hash. Must be at least HASH_SIZE bytes.</param>
-        static void hash(const uint8_t* data, size_t len, uint8_t* hash);
-
+        /// <param name="outlen">Output hash len</param>
+        static void hash(const uint8_t* data, size_t len, uint8_t* hash, size_t outlen = 64);
+        
         // Helper function to convert byte array to hex string
         static std::string bytesToHex(const uint8_t* bytes, size_t length);
     private:
@@ -51,6 +52,7 @@ namespace Crypto
         std::array<uint64_t, 8> state_;
         uint64_t total_bytes_ = 0;
         std::vector<uint8_t> buffer_;
+        size_t outlen_;
 
         // Blake2b constants
         static constexpr std::array<std::array<size_t, 16>, 12> sigma_ = { {
