@@ -1,6 +1,6 @@
 #include "Blake2b.h"
 
-Crypto::Blake2b::Blake2b(size_t outlen, const std::vector<uint8_t>&key) 
+Blake2b::Blake2b(size_t outlen, const std::vector<uint8_t>&key) 
     : outlen_(outlen)
 {
     if (key.size() > 64)
@@ -32,7 +32,7 @@ Crypto::Blake2b::Blake2b(size_t outlen, const std::vector<uint8_t>&key)
     }
 }
 
-void Crypto::Blake2b::update(const uint8_t* data, size_t len)
+void Blake2b::update(const uint8_t* data, size_t len)
 {
     size_t offset = 0;
 
@@ -54,7 +54,7 @@ void Crypto::Blake2b::update(const uint8_t* data, size_t len)
     }
 }
 
-void Crypto::Blake2b::final(uint8_t* hash)
+void Blake2b::final(uint8_t* hash)
 {
     // Pad the remaining data
     if (!buffer_.empty())
@@ -78,14 +78,14 @@ void Crypto::Blake2b::final(uint8_t* hash)
     }
 }
 
-void Crypto::Blake2b::hash(const uint8_t* data, size_t len, uint8_t* hash, size_t outlen)
+void Blake2b::hash(const uint8_t* data, size_t len, uint8_t* hash, size_t outlen)
 {
     Blake2b blake2b(outlen);
     blake2b.update(data, len);
     blake2b.final(hash);
 }
 
-std::string Crypto::Blake2b::bytesToHex(const uint8_t* bytes, size_t length)
+std::string Blake2b::bytesToHex(const uint8_t* bytes, size_t length)
 {
     std::ostringstream oss;
     for (size_t i = 0; i < length; ++i)
@@ -93,7 +93,7 @@ std::string Crypto::Blake2b::bytesToHex(const uint8_t* bytes, size_t length)
     return oss.str();
 }
 
-void Crypto::Blake2b::compress(const uint8_t* block, size_t block_len, bool is_last)
+void Blake2b::compress(const uint8_t* block, size_t block_len, bool is_last)
 {
     // Convert block to 16 little-endian 64-bit words
     std::array<uint64_t, 16> m;
@@ -124,14 +124,14 @@ void Crypto::Blake2b::compress(const uint8_t* block, size_t block_len, bool is_l
     for (size_t round = 0; round < 12; ++round)
     {
         const auto& s = sigma_[round];
-        G(v, 0, 4, 8, 12, m[s[0]], m[s[1]]);
-        G(v, 1, 5, 9, 13, m[s[2]], m[s[3]]);
-        G(v, 2, 6, 10, 14, m[s[4]], m[s[5]]);
-        G(v, 3, 7, 11, 15, m[s[6]], m[s[7]]);
-        G(v, 0, 5, 10, 15, m[s[8]], m[s[9]]);
-        G(v, 1, 6, 11, 12, m[s[10]], m[s[11]]);
-        G(v, 2, 7, 8, 13, m[s[12]], m[s[13]]);
-        G(v, 3, 4, 9, 14, m[s[14]], m[s[15]]);
+        GblakeFunction(v, 0, 4, 8, 12, m[s[0]], m[s[1]]);
+        GblakeFunction(v, 1, 5, 9, 13, m[s[2]], m[s[3]]);
+        GblakeFunction(v, 2, 6, 10, 14, m[s[4]], m[s[5]]);
+        GblakeFunction(v, 3, 7, 11, 15, m[s[6]], m[s[7]]);
+        GblakeFunction(v, 0, 5, 10, 15, m[s[8]], m[s[9]]);
+        GblakeFunction(v, 1, 6, 11, 12, m[s[10]], m[s[11]]);
+        GblakeFunction(v, 2, 7, 8, 13, m[s[12]], m[s[13]]);
+        GblakeFunction(v, 3, 4, 9, 14, m[s[14]], m[s[15]]);
     }
 
     // Update the state
@@ -141,7 +141,7 @@ void Crypto::Blake2b::compress(const uint8_t* block, size_t block_len, bool is_l
     }
 }
 
-void Crypto::Blake2b::G(std::array<uint64_t, 16>& v, size_t a, size_t b, size_t c, size_t d, uint64_t x, uint64_t y)
+void Blake2b::GblakeFunction(std::array<uint64_t, 16>& v, size_t a, size_t b, size_t c, size_t d, uint64_t x, uint64_t y)
 {
     v[a] = v[a] + v[b] + x;
     v[d] = rotr64(v[d] ^ v[a], 32);
@@ -153,12 +153,12 @@ void Crypto::Blake2b::G(std::array<uint64_t, 16>& v, size_t a, size_t b, size_t 
     v[b] = rotr64(v[b] ^ v[c], 63);
 }
 
-uint64_t Crypto::Blake2b::rotr64(uint64_t x, size_t n)
+uint64_t Blake2b::rotr64(uint64_t x, size_t n)
 {
     return (x >> n) | (x << (64 - n));
 }
 
-uint64_t Crypto::Blake2b::from_bytes(const uint8_t* bytes)
+uint64_t Blake2b::from_bytes(const uint8_t* bytes)
 {
     uint64_t value = 0;
     for (size_t i = 0; i < 8; ++i)
@@ -168,7 +168,7 @@ uint64_t Crypto::Blake2b::from_bytes(const uint8_t* bytes)
     return value;
 }
 
-void Crypto::Blake2b::to_bytes(uint64_t value, uint8_t* bytes)
+void Blake2b::to_bytes(uint64_t value, uint8_t* bytes)
 {
     for (size_t i = 0; i < 8; ++i)
     {

@@ -1,6 +1,6 @@
 #include "Argon2.h"
 
-Crypto::Argon2::Argon2(Type type, uint32_t timeCost, uint32_t memoryCost, uint32_t parallelism, uint32_t hashLength)
+Argon2::Argon2(Type type, uint32_t timeCost, uint32_t memoryCost, uint32_t parallelism, uint32_t hashLength)
     : type_(type), timeCost_(timeCost), parallelism_(parallelism), hashLength_(hashLength) {
 
     lanes_ = parallelism_;
@@ -28,7 +28,7 @@ Crypto::Argon2::Argon2(Type type, uint32_t timeCost, uint32_t memoryCost, uint32
     memory_.resize(memoryCost_);
 }
 
-std::vector<uint8_t> Crypto::Argon2::deriveKey(const std::string& password, const std::vector<uint8_t>& salt)
+std::vector<uint8_t> Argon2::deriveKey(const std::string& password, const std::vector<uint8_t>& salt)
 {
     // Initialize internal state with the password and salt
     initialize(password, salt);
@@ -46,7 +46,7 @@ std::vector<uint8_t> Crypto::Argon2::deriveKey(const std::string& password, cons
     return output;
 }
 
-void Crypto::Argon2::initialize(const std::string& password, const std::vector<uint8_t>& salt)
+void Argon2::initialize(const std::string& password, const std::vector<uint8_t>& salt)
 {
     // Argon2 version number
     const uint32_t version = 0x13;
@@ -111,7 +111,7 @@ void Crypto::Argon2::initialize(const std::string& password, const std::vector<u
     // Additional initialization steps (if any) can be added here
 }
 
-void Crypto::Argon2::fillMemoryBlocks()
+void Argon2::fillMemoryBlocks()
 {
     // Number of passes (iterations)
     const uint32_t passes = timeCost_;
@@ -133,13 +133,13 @@ void Crypto::Argon2::fillMemoryBlocks()
     }
 }
 
-void Crypto::Argon2::finalize(std::vector<uint8_t>& output)
+void Argon2::finalize(std::vector<uint8_t>& output)
 {
     // Ensure the output vector has the correct size
     output.resize(hashLength_);
 
     // Initialize a block to zeros
-    Block blockhash;
+    MemoryBlock blockhash;
     for (size_t i = 0; i < 128; ++i)
     {
         blockhash.v[i] = 0;
@@ -150,7 +150,7 @@ void Crypto::Argon2::finalize(std::vector<uint8_t>& output)
     {
         // Get the last block in the lane
         uint32_t lastBlockIndex = l * laneLength_ + (laneLength_ - 1);
-        const Block& lastBlock = memory_[lastBlockIndex];
+        const MemoryBlock& lastBlock = memory_[lastBlockIndex];
 
         // XOR into blockhash
         for (size_t i = 0; i < 128; ++i)
@@ -175,7 +175,7 @@ void Crypto::Argon2::finalize(std::vector<uint8_t>& output)
     Blake2b::hash(blockhashBytes.data(), blockhashBytes.size(), output.data(), hashLength_);
 }
 
-void Crypto::Argon2::fillSegment(uint32_t pass, uint32_t lane, uint32_t segment)
+void Argon2::fillSegment(uint32_t pass, uint32_t lane, uint32_t segment)
 {
     uint32_t startingIndex;
     if (pass == 0 && segment == 0) {
@@ -201,7 +201,12 @@ void Crypto::Argon2::fillSegment(uint32_t pass, uint32_t lane, uint32_t segment)
     // For each index within the segment
     for (uint32_t i = startingIndex; i < segmentLength; ++i) {
         index = segment * segmentLength + i;
-        uint32_t globalIndex = (lane * laneLength_ + index) % memoryCost_;
+        // **Removed modulo operation here**
+        uint32_t globalIndex = lane * laneLength_ + index;
+
+        // **Corrected assertions**
+        assert(globalIndex < memory_.size());
+        assert(index < laneLength_);
 
         // Compute the pseudo-random value and reference block index
         uint64_t pseudoRandom = computePseudoRandom(pass, lane, index, i, segment);
@@ -209,22 +214,28 @@ void Crypto::Argon2::fillSegment(uint32_t pass, uint32_t lane, uint32_t segment)
         computeRefBlockIndices(pseudoRandom, pass, lane, index, segment, refLane, refIndex);
 
         // Retrieve the reference block and previous block
-        const Block& prevBlock = memory_[(globalIndex - 1 + memoryCost_) % memoryCost_];
-        const Block& refBlock = memory_[(refLane * laneLength_ + refIndex) % memoryCost_];
+        uint32_t prevIndex = (globalIndex == 0) ? memory_.size() - 1 : globalIndex - 1;
+        const MemoryBlock& prevBlock = memory_[prevIndex];
+
+        uint32_t refGlobalIndex = refLane * laneLength_ + refIndex;
+        // **Added assertion to ensure refGlobalIndex is within bounds**
+        assert(refGlobalIndex < memory_.size());
+        const MemoryBlock& refBlock = memory_[refGlobalIndex];
 
         // Compute the new block
-        Block& currentBlock = memory_[globalIndex];
+        MemoryBlock& currentBlock = memory_[globalIndex];
         compressionFunction(prevBlock, refBlock, currentBlock);
     }
 }
 
-uint64_t Crypto::Argon2::computePseudoRandom(uint32_t pass, uint32_t lane, uint32_t index, uint32_t positionInSegment, uint32_t segment)
+
+uint64_t Argon2::computePseudoRandom(uint32_t pass, uint32_t lane, uint32_t index, uint32_t positionInSegment, uint32_t segment)
 {
     if (type_ == Argon2d || (type_ == Argon2id && pass != 0)) {
         // Use the previous block's first 64 bits
         uint32_t laneLength = this->laneLength_;
         uint32_t globalIndex = (lane * laneLength + index) % memoryCost_;
-        const Block& prevBlock = memory_[(globalIndex - 1 + memoryCost_) % memoryCost_];
+        const MemoryBlock& prevBlock = memory_[(globalIndex - 1 + memoryCost_) % memoryCost_];
         return prevBlock.v[0];
     }
     else {
@@ -233,7 +244,7 @@ uint64_t Crypto::Argon2::computePseudoRandom(uint32_t pass, uint32_t lane, uint3
     }
 }
 
-void Crypto::Argon2::computeRefBlockIndices(uint64_t pseudoRandom, uint32_t pass, uint32_t lane, uint32_t index, uint32_t segment, uint32_t& refLane, uint32_t& refIndex)
+void Argon2::computeRefBlockIndices(uint64_t pseudoRandom, uint32_t pass, uint32_t lane, uint32_t index, uint32_t segment, uint32_t& refLane, uint32_t& refIndex)
 {
     uint32_t lanes = lanes_;
     uint32_t segmentLength = segmentLength_;
@@ -246,18 +257,22 @@ void Crypto::Argon2::computeRefBlockIndices(uint64_t pseudoRandom, uint32_t pass
     uint64_t referenceAreaSize;
     if (pass == 0) {
         if (segment == 0) {
-            // In the first segment of the first pass, we can only reference previous positions in the same segment
+            // In the first segment of the first pass, reference within the same segment
             referenceAreaSize = position;
         }
         else {
-            // In other segments, we can reference all blocks in previous segments plus the blocks before the current position
+            // In other segments, reference all blocks in previous segments plus the current position
             referenceAreaSize = segment * segmentLength + position;
         }
     }
     else {
-        // In subsequent passes, we can reference all blocks except the current segment in the current pass
+        // In subsequent passes, reference within the entire lane except the current segment
         referenceAreaSize = laneLength_ - segmentLength + position;
     }
+
+    // **Start of Change: Constrain referenceAreaSize to laneLength_**
+    referenceAreaSize = std::min(referenceAreaSize, static_cast<uint64_t>(laneLength_));
+    // **End of Change**
 
     // Ensure referenceAreaSize is not zero to prevent division by zero
     if (referenceAreaSize == 0) {
@@ -275,16 +290,17 @@ void Crypto::Argon2::computeRefBlockIndices(uint64_t pseudoRandom, uint32_t pass
     }
 }
 
-void Crypto::Argon2::compressionFunction(const Block& block1, const Block& block2, Block& result)
+
+void Argon2::compressionFunction(const MemoryBlock& block1, const MemoryBlock& block2, MemoryBlock& result)
 {
     // Apply the G function directly to block1 and block2
-    G(block1, block2, result);
+    Gfunction(block1, block2, result);
 }
 
-void Crypto::Argon2::G(const Block& X, const Block& Y, Block& Z)
+void Argon2::Gfunction(const MemoryBlock& X, const MemoryBlock& Y, MemoryBlock& Z)
 {
-    Block R;
-    Block R_original;
+    MemoryBlock R;
+    MemoryBlock R_original;
 
     // Step 1: Compute R = X XOR Y
     for (size_t i = 0; i < 128; ++i) {
@@ -305,7 +321,7 @@ void Crypto::Argon2::G(const Block& X, const Block& Y, Block& Z)
     }
 }
 
-void Crypto::Argon2::P(Block& R)
+void Argon2::P(MemoryBlock& R)
 {
     // Treat R as an 8x16 matrix Q
     uint64_t Q[8][16];
@@ -346,7 +362,7 @@ void Crypto::Argon2::P(Block& R)
     }
 }
 
-void Crypto::Argon2::G_Blake(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t& d)
+void Argon2::G_Blake(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t& d)
 {
     a = a + b;
     d ^= a;
@@ -365,30 +381,30 @@ void Crypto::Argon2::G_Blake(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t& d)
     b = rotr64(b, 63);
 }
 
-uint64_t Crypto::Argon2::rotr64(uint64_t x, uint64_t n)
+uint64_t Argon2::rotr64(uint64_t x, uint64_t n)
 {
     return (x >> n) | (x << (64 - n));
 }
 
-void Crypto::Argon2::initializeAddressBlocks()
+void Argon2::initializeAddressBlocks()
 {
     // Initialize zeroBlock_ to zeros
-    zeroBlock_ = Block(); // Default constructor initializes all elements to zero
+    zeroBlock_ = MemoryBlock(); // Default constructor initializes all elements to zero
 
     // Initialize inputBlock_ to zeros
-    inputBlock_ = Block();
+    inputBlock_ = MemoryBlock();
 
     // inputBlock_ initialization as per Argon2 specification
     // The initial values will be set during address generation
     // For now, we can leave inputBlock_ as zeros
 }
 
-uint64_t Crypto::Argon2::generateAddress()
+uint64_t Argon2::generateAddress()
 {
     if (addressBlockIndex_ >= 128) {
         // Generate a new address block
         // G(inputBlock_, zeroBlock_, addressBlock_)
-        G(inputBlock_, zeroBlock_, addressBlock_);
+        Gfunction(inputBlock_, zeroBlock_, addressBlock_);
 
         // Increment the counter in inputBlock_
         inputBlock_.v[6]++;
@@ -404,10 +420,10 @@ uint64_t Crypto::Argon2::generateAddress()
     return pseudoRandom;
 }
 
-void Crypto::Argon2::initializeInputBlock(uint32_t pass, uint32_t lane, uint32_t segment)
+void Argon2::initializeInputBlock(uint32_t pass, uint32_t lane, uint32_t segment)
 {
     // Zero the inputBlock_
-    inputBlock_ = Block();
+    inputBlock_ = MemoryBlock();
 
     // Set the parameters as per the Argon2 specification
     inputBlock_.v[0] = pass;

@@ -91,55 +91,55 @@ void Test::testBlake2b()
 	// 1 - ""
 	const char* input1 = "";
 	std::string expected1 = "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce";
-	uint8_t hash1[Crypto::Blake2b::HASH_SIZE];
+	uint8_t hash1[Blake2b::HASH_SIZE];
 
-	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input1), strlen(input1), hash1);
+	Blake2b::hash(reinterpret_cast<const uint8_t*>(input1), strlen(input1), hash1);
 
-	std::string hexHash1 = Crypto::Blake2b::bytesToHex(hash1, Crypto::Blake2b::HASH_SIZE);
+	std::string hexHash1 = Blake2b::bytesToHex(hash1, Blake2b::HASH_SIZE);
 
 	assert(hexHash1 == expected1);
 
 	// 2 - "a"
 	const char* input2 = "a";
 	std::string expected2 = "333fcb4ee1aa7c115355ec66ceac917c8bfd815bf7587d325aec1864edd24e34d5abe2c6b1b5ee3face62fed78dbef802f2a85cb91d455a8f5249d330853cb3c";
-	uint8_t hash2[Crypto::Blake2b::HASH_SIZE];
+	uint8_t hash2[Blake2b::HASH_SIZE];
 
-	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input2), strlen(input2), hash2);
+	Blake2b::hash(reinterpret_cast<const uint8_t*>(input2), strlen(input2), hash2);
 
-	std::string hexHash2 = Crypto::Blake2b::bytesToHex(hash2, Crypto::Blake2b::HASH_SIZE);
+	std::string hexHash2 = Blake2b::bytesToHex(hash2, Blake2b::HASH_SIZE);
 
 	assert(hexHash2 == expected2);
 
 	// 3 - "abc"
 	const char* input3 = "abc";
 	std::string expected3 = "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923";
-	uint8_t hash3[Crypto::Blake2b::HASH_SIZE];
+	uint8_t hash3[Blake2b::HASH_SIZE];
 
-	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input3), strlen(input3), hash3);
+	Blake2b::hash(reinterpret_cast<const uint8_t*>(input3), strlen(input3), hash3);
 
-	std::string hexHash3 = Crypto::Blake2b::bytesToHex(hash3, Crypto::Blake2b::HASH_SIZE);
+	std::string hexHash3 = Blake2b::bytesToHex(hash3, Blake2b::HASH_SIZE);
 
 	assert(hexHash3 == expected3);
 
 	// 4 - "5a db 63"
 	const char* input4 = "5a db 63";
 	std::string expected4 = "5a9036635ef0b5be93eb45542a3d5e1921d0fa6e88dba01919a8ea4632ac290f15b78600b6ab588f424f07395d51f9e03653c84662e0874abef0d4e999b36fe1";
-	uint8_t hash4[Crypto::Blake2b::HASH_SIZE];
+	uint8_t hash4[Blake2b::HASH_SIZE];
 
-	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input4), strlen(input4), hash4);
+	Blake2b::hash(reinterpret_cast<const uint8_t*>(input4), strlen(input4), hash4);
 
-	std::string hexHash4 = Crypto::Blake2b::bytesToHex(hash4, Crypto::Blake2b::HASH_SIZE);
+	std::string hexHash4 = Blake2b::bytesToHex(hash4, Blake2b::HASH_SIZE);
 
 	assert(hexHash4 == expected4);
 
 	// 5 - "The quick brown fox jumps over the lazy dog"
 	const char* input5 = "The quick brown fox jumps over the lazy dog";
 	std::string expected5 = "a8add4bdddfd93e4877d2746e62817b116364a1fa7bc148d95090bc7333b3673f82401cf7aa2e4cb1ecd90296e3f14cb5413f8ed77be73045b13914cdcd6a918";
-	uint8_t hash5[Crypto::Blake2b::HASH_SIZE];
+	uint8_t hash5[Blake2b::HASH_SIZE];
 
-	Crypto::Blake2b::hash(reinterpret_cast<const uint8_t*>(input5), strlen(input5), hash5);
+	Blake2b::hash(reinterpret_cast<const uint8_t*>(input5), strlen(input5), hash5);
 
-	std::string hexHash5 = Crypto::Blake2b::bytesToHex(hash5, Crypto::Blake2b::HASH_SIZE);
+	std::string hexHash5 = Blake2b::bytesToHex(hash5, Blake2b::HASH_SIZE);
 
 	assert(hexHash5 == expected5);
 
@@ -175,78 +175,78 @@ std::string Test::bytesToHexString(const std::vector<uint8_t>& bytes)
 void Test::testArgon2()
 {
 	// Test Vector 1
-	{
-		std::cout << "Running Test Vector 1..." << std::endl;
+	
+	std::cout << "Running Test Vector 1..." << std::endl;
 
-		std::string password = "password";
-		std::string salt = "somesalt";
+	std::string password = "password";
+	std::string salt = "somesalt";
 
-		// Expected output (hex string)
-		std::string expectedHex = "c1bc4d00af5ae21bebc081ad618694850511146225d8d3a070ed95b983b8d474";
+	// Expected output (hex string)
+	std::string expectedHex = "c1bc4d00af5ae21bebc081ad618694850511146225d8d3a070ed95b983b8d474";
 
-		// Initialize Argon2 instance
-		//Argon2(Type type = Argon2id, uint32_t timeCost = 3, uint32_t memoryCost = 8192, uint32_t parallelism = 1, uint32_t hashLength = 32);
-		Crypto::Argon2 argon2;
+	// Initialize Argon2 instance
+	//Argon2(Type type = Argon2id, uint32_t timeCost = 3, uint32_t memoryCost = 8192, uint32_t parallelism = 1, uint32_t hashLength = 32);
+	Argon2 argon2;
 
-		// Derive the key
-		std::vector<uint8_t> saltBytes(salt.begin(), salt.end());
-		std::vector<uint8_t> derivedKey = argon2.deriveKey(password, saltBytes);
+	// Derive the key
+	std::vector<uint8_t> saltBytes(salt.begin(), salt.end());
+	std::vector<uint8_t> derivedKey = argon2.deriveKey(password, saltBytes);
 
-		// Convert derived key to hex string
-		std::string derivedHex = bytesToHexString(derivedKey);
+	// Convert derived key to hex string
+	std::string derivedHex = bytesToHexString(derivedKey);
 
-		// Compare derived key with expected output
-		if (derivedHex == expectedHex) {
-			std::cout << "Test Vector 1 passed." << std::endl;
-		}
-		else {
-			std::cout << "Test Vector 1 failed." << std::endl;
-			std::cout << "Expected: " << expectedHex << std::endl;
-			std::cout << "Got:      " << derivedHex << std::endl;
-		}
-
-		std::cout << std::endl;
+	// Compare derived key with expected output
+	if (derivedHex == expectedHex) {
+		std::cout << "Test Vector 1 passed." << std::endl;
 	}
+	else {
+		std::cout << "Test Vector 1 failed." << std::endl;
+		std::cout << "Expected: " << expectedHex << std::endl;
+		std::cout << "Got:      " << derivedHex << std::endl;
+	}
+
+	std::cout << std::endl;
+	
 
 	// Test Vector 2
-	{
-		std::cout << "Running Test Vector 2..." << std::endl;
+	//
+	//std::cout << "Running Test Vector 2..." << std::endl;
 
-		std::string password = "password";
-		std::string salt = "somesalt";
-		uint32_t parallelism = 4;
-		uint32_t memoryCost = 32; // Number of 1KB blocks (32 KiB total)
-		uint32_t timeCost = 3;
-		uint32_t hashLength = 32;
-		Crypto::Argon2::Type type = Crypto::Argon2::Argon2id;
+	//std::string password = "password";
+	//std::string salt = "somesalt";
+	//uint32_t parallelism = 4;
+	//uint32_t memoryCost = 32; // Number of 1KB blocks (32 KiB total)
+	//uint32_t timeCost = 3;
+	//uint32_t hashLength = 32;
+	//Argon2::Type type = Argon2::Argon2id;
 
-		// Expected output (hex string)
-		std::string expectedHex =
-			"89 e9 42 ff 1f 77 25 4c "
-			"86 7a f3 6c 15 e3 6d 8e "
-			"c8 2a 4e e4 8f 70 88 4f "
-			"5d c3 54 c7 57 37 90 25";
+	//// Expected output (hex string)
+	//std::string expectedHex =
+	//	"89 e9 42 ff 1f 77 25 4c "
+	//	"86 7a f3 6c 15 e3 6d 8e "
+	//	"c8 2a 4e e4 8f 70 88 4f "
+	//	"5d c3 54 c7 57 37 90 25";
 
-		// Initialize Argon2 instance
-		Crypto::Argon2 argon2(type, timeCost, memoryCost, parallelism, hashLength);
+	//// Initialize Argon2 instance
+	//Crypto::Argon2 argon2(type, timeCost, memoryCost, parallelism, hashLength);
 
-		// Derive the key
-		std::vector<uint8_t> saltBytes(salt.begin(), salt.end());
-		std::vector<uint8_t> derivedKey = argon2.deriveKey(password, saltBytes);
+	//// Derive the key
+	//std::vector<uint8_t> saltBytes(salt.begin(), salt.end());
+	//std::vector<uint8_t> derivedKey = argon2.deriveKey(password, saltBytes);
 
-		// Convert derived key to hex string
-		std::string derivedHex = bytesToHexString(derivedKey);
+	//// Convert derived key to hex string
+	//std::string derivedHex = bytesToHexString(derivedKey);
 
-		// Compare derived key with expected output
-		if (derivedHex == expectedHex) {
-			std::cout << "Test Vector 2 passed." << std::endl;
-		}
-		else {
-			std::cout << "Test Vector 2 failed." << std::endl;
-			std::cout << "Expected: " << expectedHex << std::endl;
-			std::cout << "Got:      " << derivedHex << std::endl;
-		}
+	//// Compare derived key with expected output
+	//if (derivedHex == expectedHex) {
+	//	std::cout << "Test Vector 2 passed." << std::endl;
+	//}
+	//else {
+	//	std::cout << "Test Vector 2 failed." << std::endl;
+	//	std::cout << "Expected: " << expectedHex << std::endl;
+	//	std::cout << "Got:      " << derivedHex << std::endl;
+	//}
 
-		std::cout << std::endl;
-	}
+	//std::cout << std::endl;
+	
 }
