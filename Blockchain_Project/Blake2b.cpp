@@ -13,14 +13,13 @@ Blake2b::Blake2b(size_t outlen, const std::vector<uint8_t>&key)
 
     // Parameter block: digest length, key length, fanout, depth, etc.
     uint64_t param = 0;
-    param |= (uint64_t)HASH_SIZE;      // digest length
+    param |= ((uint64_t)outlen_ & 0xFF);      // digest length
     param |= ((uint64_t)key.size() << 8);  // key length
     param |= ((uint64_t)1 << 16);          // fanout
     param |= ((uint64_t)1 << 24);          // depth
     // The rest are zeros
 
     state_[0] ^= param;
-
 
 
     // If a key is provided, process it as the first block
@@ -72,9 +71,20 @@ void Blake2b::final(uint8_t* hash)
     }
 
     // Serialize the state to produce the final hash
-    for (size_t i = 0; i < 8; ++i)
+    // Serialize only up to outlen_ bytes
+    size_t full_words = outlen_ / 8;
+    size_t remaining = outlen_ % 8;
+
+    for (size_t i = 0; i < full_words; ++i)
     {
         to_bytes(state_[i], hash + i * 8);
+    }
+
+    if (remaining > 0)
+    {
+        uint8_t temp[8];
+        to_bytes(state_[full_words], temp);
+        std::copy(temp, temp + remaining, hash + full_words * 8);
     }
 }
 

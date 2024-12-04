@@ -143,7 +143,62 @@ void Test::testBlake2b()
 
 	assert(hexHash5 == expected5);
 
+	{ // Hash output 32 bytes
+			// 1 - ""
+		const char* input1 = "";
+		std::string expected1 = "0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8";
+		uint8_t hash1[32];
 
+		Blake2b::hash(reinterpret_cast<const uint8_t*>(input1), strlen(input1), hash1, 32);
+
+		std::string hexHash1 = Blake2b::bytesToHex(hash1, 32);
+
+		assert(hexHash1 == expected1);
+
+		// 2 - "a"
+		const char* input2 = "a";
+		std::string expected2 = "8928aae63c84d87ea098564d1e03ad813f107add474e56aedd286349c0c03ea4";
+		uint8_t hash2[32];
+
+		Blake2b::hash(reinterpret_cast<const uint8_t*>(input2), strlen(input2), hash2, 32);
+
+		std::string hexHash2 = Blake2b::bytesToHex(hash2, 32);
+
+		assert(hexHash2 == expected2);
+
+		// 3 - "abc"
+		const char* input3 = "abc";
+		std::string expected3 = "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319";
+		uint8_t hash3[32];
+
+		Blake2b::hash(reinterpret_cast<const uint8_t*>(input3), strlen(input3), hash3, 32);
+
+		std::string hexHash3 = Blake2b::bytesToHex(hash3, 32);
+
+		assert(hexHash3 == expected3);
+
+		// 4 - "5a db 63"
+		const char* input4 = "5a db 63";
+		std::string expected4 = "684dcf65dcb29274778bfc42771c635c0bb00eb701e98af735202ecc840b07f8";
+		uint8_t hash4[32];
+
+		Blake2b::hash(reinterpret_cast<const uint8_t*>(input4), strlen(input4), hash4, 32);
+
+		std::string hexHash4 = Blake2b::bytesToHex(hash4, 32);
+
+		assert(hexHash4 == expected4);
+
+		// 5 - "The quick brown fox jumps over the lazy dog"
+		const char* input5 = "The quick brown fox jumps over the lazy dog";
+		std::string expected5 = "01718cec35cd3d796dd00020e0bfecb473ad23457d063b75eff29c0ffa2e58a9";
+		uint8_t hash5[32];
+
+		Blake2b::hash(reinterpret_cast<const uint8_t*>(input5), strlen(input5), hash5, 32);
+
+		std::string hexHash5 = Blake2b::bytesToHex(hash5, 32);
+
+		assert(hexHash5 == expected5);
+	}
 	std::cout << "Blake2b works well" << std::endl;
 }
 
