@@ -1,29 +1,3 @@
-//#include "Blockchain.h"
-//
-//int main()
-//{
-//	//Blockchain myBlockchain;
-//
-//	//Transaction tx1("Alice", "Bob", 50);
-//	//Transaction tx2("Bob", "Charlie", 25);
-//
-//	//myBlockchain.addTransaction(tx1);
-//	//myBlockchain.addTransaction(tx2);
-//
-//	//myBlockchain.minePendingTransaction("Miner1");
-//	//
-//	//myBlockchain.displayBlockchain();
-//
-//	//if (myBlockchain.isChainValid())
-//	//{
-//	//	std::cout << "Blockchain is valid" << std::endl;
-//	//}
-//	//else
-//	//{
-//	//	std::cout << "Blockchain is invalid" << std::endl;
-//	//}
-//}
-
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -33,39 +7,30 @@
 #include "Base58.h"
 #include "BIP39SeedMaker.h"
 #include "Test.h"
+#include "AES256CBC.h"
 
 int main()
 {
-	KeyGenerator* keyGen = new KeyGenerator();
-	SHA256* sha = new SHA256();
-	ECDSASigner* sign = new ECDSASigner();
-	BIP39SeedMaker* bip = new BIP39SeedMaker();
+	//Blockchain myBlockchain;
 
+	//Transaction tx1("Alice", "Bob", 50);
+	//Transaction tx2("Bob", "Charlie", 25);
 
-	//cpp_int privateKey(keyGen->generatePrivate()); //Generate a new private key
+	//myBlockchain.addTransaction(tx1);
+	//myBlockchain.addTransaction(tx2);
 
-	//std::cout << "New private key: " << privateKey << std::endl;
+	//myBlockchain.minePendingTransaction("Miner1");
+	//
+	//myBlockchain.displayBlockchain();
 
-
-	//Point* publicKey = keyGen->ECMul(privateKey, keyGen->GPoint);
-	//std::cout << "Public key for that private key:\n  X: " << publicKey->_x << "\n  Y: " << publicKey->_y << std::endl << std::endl;
-	////   std::cout << "Extracting signature for message 'abc'...\n";
-	////   std::string str = "abc";
-	////   Point* rs = sign->signMessage(privateKey, str);
-	////   std::cout << "Signature values: R = " << rs->_x << " S = " << rs->_y <<std::endl << std::endl;
-	////   std::cout << "Is the message signed correctly? " << ((sign->verifySignature(rs, sha->digest(str), publicKey)) ? "Yes" : "No") << std::endl;
-
-	//cpp_int pub = KeyGenerator::cat(publicKey->_x, publicKey->_y);
-	//std::cout << pub << std::endl;
-	//Base58 b;
-	//std::cout << b.base58(pub);
-
-	BIP39SeedMaker seeder;
-	std::string seed = seeder.transformToSeed(cpp_int("0x26219df363d0b3d313f77f5f0abe4b82"));
-	std::cout << seed << std::endl << std::endl;
-	std::cout << seeder.reverseSeed(seed);
-
-	/*Test t;
-	t.testECDSA();*/
-	return 0;
+	//if (myBlockchain.isChainValid())
+	//{
+	//	std::cout << "Blockchain is valid" << std::endl;
+	//}
+	//else
+	//{
+	//	std::cout << "Blockchain is invalid" << std::endl;
+	//}
+	AES256CBC* aes = new AES256CBC("00000000000000000000000000000000");
+	std::cout << std::hex << cpp_int(aes->cbcEncrypt("111111111111111", std::vector<int>(16, 0x00)));
 }

@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AES256CBC.h" />
     <ClInclude Include="Base58.h" />
     <ClInclude Include="BIP39SeedMaker.h" />
     <ClInclude Include="Block.h" />
@@ -140,6 +141,7 @@
     <ClInclude Include="Transaction.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AES256CBC.cpp" />
     <ClCompile Include="Base58.cpp" />
     <ClCompile Include="BIP39SeedMaker.cpp" />
     <ClCompile Include="Block.cpp" />
