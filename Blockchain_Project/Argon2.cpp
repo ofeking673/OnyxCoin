@@ -104,9 +104,13 @@ void Argon2::initialize(const std::string& password, const std::vector<uint8_t>&
 
     // Initialize memory blocks to zero securely
     memory_.resize(memoryCost_);
+
     for (auto& block : memory_) {
         std::fill(std::begin(block.v), std::end(block.v), 0);
     }
+
+    // Initialize the first two blocks in each lane
+    initializeFirstBlocks();
 
     // Additional initialization steps (if any) can be added here
 }
@@ -175,6 +179,70 @@ void Argon2::finalize(std::vector<uint8_t>& output)
     Blake2b::hash(blockhashBytes.data(), blockhashBytes.size(), output.data(), hashLength_);
 }
 
+void Argon2::initializeFirstBlocks()
+{
+    // For each lane
+    for (uint32_t l = 0; l < lanes_; ++l) {
+        // For i in {0,1}
+        for (uint32_t i = 0; i < 2; ++i) {
+            // Create input buffer: initialHash_ || LE32(0) || LE32(lane) || LE32(i)
+            std::vector<uint8_t> input(Blake2b::HASH_SIZE + 12);
+
+            // Copy initialHash_ into input
+            std::copy(initialHash_, initialHash_ + Blake2b::HASH_SIZE, input.begin());
+
+            // Append LE32(0)
+            input[Blake2b::HASH_SIZE + 0] = 0;
+            input[Blake2b::HASH_SIZE + 1] = 0;
+            input[Blake2b::HASH_SIZE + 2] = 0;
+            input[Blake2b::HASH_SIZE + 3] = 0;
+
+            // Append LE32(lane)
+            input[Blake2b::HASH_SIZE + 4] = static_cast<uint8_t>(l & 0xFF);
+            input[Blake2b::HASH_SIZE + 5] = static_cast<uint8_t>((l >> 8) & 0xFF);
+            input[Blake2b::HASH_SIZE + 6] = static_cast<uint8_t>((l >> 16) & 0xFF);
+            input[Blake2b::HASH_SIZE + 7] = static_cast<uint8_t>((l >> 24) & 0xFF);
+
+            // Append LE32(i)
+            input[Blake2b::HASH_SIZE + 8] = static_cast<uint8_t>(i & 0xFF);
+            input[Blake2b::HASH_SIZE + 9] = static_cast<uint8_t>((i >> 8) & 0xFF);
+            input[Blake2b::HASH_SIZE + 10] = static_cast<uint8_t>((i >> 16) & 0xFF);
+            input[Blake2b::HASH_SIZE + 11] = static_cast<uint8_t>((i >> 24) & 0xFF);
+
+            // Compute H' function to get a 1024-byte block
+            std::vector<uint8_t> blockBytes(1024);
+            uint32_t blocksNeeded = 16; // 1024 bytes / 64 bytes per Blake2b hash
+
+            for (uint32_t j = 0; j < blocksNeeded; ++j) {
+                // Input for Blake2b: input || LE32(j)
+                std::vector<uint8_t> blkInput = input;
+                blkInput.push_back(static_cast<uint8_t>(j & 0xFF));
+                blkInput.push_back(static_cast<uint8_t>((j >> 8) & 0xFF));
+                blkInput.push_back(static_cast<uint8_t>((j >> 16) & 0xFF));
+                blkInput.push_back(static_cast<uint8_t>((j >> 24) & 0xFF));
+
+                // Compute Blake2b hash
+                uint8_t hash[Blake2b::HASH_SIZE];
+                Blake2b::hash(blkInput.data(), blkInput.size(), hash);
+
+                // Copy hash into blockBytes
+                std::copy(hash, hash + Blake2b::HASH_SIZE, blockBytes.begin() + j * Blake2b::HASH_SIZE);
+            }
+
+            // Copy blockBytes into the memory block
+            MemoryBlock& block = memory_[l * laneLength_ + i];
+            for (size_t k = 0; k < 128; ++k) {
+                uint64_t value = 0;
+                for (size_t b = 0; b < 8; ++b) {
+                    value |= static_cast<uint64_t>(blockBytes[k * 8 + b]) << (8 * b);
+                }
+                block.v[k] = value;
+            }
+        }
+    }
+}
+
+
 void Argon2::fillSegment(uint32_t pass, uint32_t lane, uint32_t segment)
 {
     uint32_t startingIndex;
@@ -200,9 +268,9 @@ void Argon2::fillSegment(uint32_t pass, uint32_t lane, uint32_t segment)
 
     // For each index within the segment
     for (uint32_t i = startingIndex; i < segmentLength; ++i) {
-        index = segment * segmentLength + i;
-        // **Removed modulo operation here**
+        index = (segment * segmentLength_ + i) % laneLength_; // **Added modulo operation**
         uint32_t globalIndex = lane * laneLength_ + index;
+
 
         // **Corrected assertions**
         assert(globalIndex < memory_.size());
@@ -281,6 +349,7 @@ void Argon2::computeRefBlockIndices(uint64_t pseudoRandom, uint32_t pass, uint32
 
     uint64_t relativePosition = pseudoRandom & 0xFFFFFFFF;
     refIndex = static_cast<uint32_t>((relativePosition * referenceAreaSize) >> 32);
+    refIndex = static_cast<uint32_t>((referenceAreaSize - 1) - refIndex); /////// This line causes same output
 
     // Adjust refIndex if necessary
     if (pass == 0 && segment == 0) {
@@ -335,22 +404,20 @@ void Argon2::P(MemoryBlock& R)
 
     // Perform 8 rounds
     for (size_t round = 0; round < 8; ++round) {
-        // Column step
-        for (size_t c = 0; c < 16; ++c) {
+       // Column step
+        for (size_t i = 0; i < 8; ++i) {
             // Apply G_Blake to columns
-            G_Blake(Q[0][c], Q[1][c], Q[2][c], Q[3][c]);
-            G_Blake(Q[4][c], Q[5][c], Q[6][c], Q[7][c]);
+            G_Blake(Q[i][0], Q[i][1], Q[i][2], Q[i][3]);
+            G_Blake(Q[i][4], Q[i][5], Q[i][6], Q[i][7]);
+            G_Blake(Q[i][8], Q[i][9], Q[i][10], Q[i][11]);
+            G_Blake(Q[i][12], Q[i][13], Q[i][14], Q[i][15]);
         }
 
-        // Diagonal step
-        for (size_t c = 0; c < 16; ++c) {
-            size_t c0 = c;
-            size_t c1 = (c + 1) % 16;
-            size_t c2 = (c + 2) % 16;
-            size_t c3 = (c + 3) % 16;
-
-            G_Blake(Q[0][c0], Q[1][c1], Q[2][c2], Q[3][c3]);
-            G_Blake(Q[4][c0], Q[5][c1], Q[6][c2], Q[7][c3]);
+        // Row step
+        for (size_t j = 0; j < 16; ++j) {
+            // Apply G_Blake to rows
+            G_Blake(Q[0][j], Q[1][j], Q[2][j], Q[3][j]);
+            G_Blake(Q[4][j], Q[5][j], Q[6][j], Q[7][j]);
         }
     }
 
@@ -361,6 +428,7 @@ void Argon2::P(MemoryBlock& R)
         }
     }
 }
+
 
 void Argon2::G_Blake(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t& d)
 {

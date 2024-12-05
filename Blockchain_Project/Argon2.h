@@ -63,7 +63,8 @@ private:
     void fillMemoryBlocks();
     void finalize(std::vector<uint8_t>& output);
 
-
+    // Intiallize helper functions
+    void initializeFirstBlocks();
 
     // FillMemoryBlocks helper functions
 
