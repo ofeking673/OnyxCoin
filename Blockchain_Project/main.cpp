@@ -32,5 +32,5 @@ int main()
 	//	std::cout << "Blockchain is invalid" << std::endl;
 	//}
 	AES256CBC* aes = new AES256CBC("00000000000000000000000000000000");
-	std::cout << std::hex << cpp_int(aes->cbcEncrypt("111111111111111", std::vector<int>(16, 0x00)));
+	std::cout << std::hex << cpp_int(aes->cbcEncrypt("111111111111111", std::vector<uint8_t>(16, 0)));
 }

@@ -8,26 +8,26 @@ class AES256CBC
 public:
     AES256CBC(std::string masterKey);
 
-    std::string cbcEncrypt(std::string plain_text, std::vector<int> iv);
-    std::vector<int> encrypt(std::vector<int> val);
-    std::vector<std::vector<std::vector<int>>> expand_key(std::string key);
-    std::vector<int> subVector(std::vector<int> v);
-    void sub_bytes(std::vector<std::vector<int>>& matrix);
-    void inv_sub_bytes(std::vector<std::vector<int>>& matrix);
+    std::string cbcEncrypt(std::string plain_text, std::vector<uint8_t> iv);
+    std::vector<uint8_t> encrypt(std::vector<uint8_t> val);
+    std::vector<std::vector<std::vector<uint8_t>>> expand_key(std::string key);
+    std::vector<uint8_t> subVector(std::vector<uint8_t> v);
+    void sub_bytes(std::vector<std::vector<uint8_t>>& matrix);
+    void inv_sub_bytes(std::vector<std::vector<uint8_t>>& matrix);
 
-    void shift_rows(std::vector<std::vector<int>>& matrix);
-    void inv_shift_rows(std::vector<std::vector<int>>& matrix);
+    void shift_rows(std::vector<std::vector<uint8_t>>& matrix);
+    void inv_shift_rows(std::vector<std::vector<uint8_t>>& matrix);
 
 
-    int gmul(int a, int b);
-    void mix_columns(std::vector<std::vector<int>>& matrix);
-    void mix_single_column(std::vector<int>& s, std::vector<std::vector<int>> mulVect);
-    void inv_mix_columns(std::vector<std::vector<int>>& matrix);
+    uint8_t gmul(uint8_t a, uint8_t b);
+    void mix_columns(std::vector<std::vector<uint8_t>>& matrix);
+    void mix_single_column(std::vector<uint8_t>& s, std::vector<std::vector<uint8_t>> mulVect);
+    void inv_mix_columns(std::vector<std::vector<uint8_t>>& matrix);
 
-    void add_round_key(std::vector<std::vector<int>>& matrix, std::vector<std::vector<int>> roundkey);
-    void inv_add_round_key(std::vector<std::vector<int>>& matrix);
+    void add_round_key(std::vector<std::vector<uint8_t>>& matrix, std::vector<std::vector<uint8_t>> roundkey);
+    void inv_add_round_key(std::vector<std::vector<uint8_t>>& matrix);
 
-    std::vector<int> s_box = { 0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
+    std::vector<uint8_t> s_box = { 0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
     0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
     0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,
     0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A, 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75,
@@ -43,7 +43,7 @@ public:
     0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E,
     0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,
     0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16 };
-    std::vector<int> inv_s_box = { 0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
+    std::vector<uint8_t> inv_s_box = { 0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
     0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
     0x54, 0x7B, 0x94, 0x32, 0xA6, 0xC2, 0x23, 0x3D, 0xEE, 0x4C, 0x95, 0x0B, 0x42, 0xFA, 0xC3, 0x4E,
     0x08, 0x2E, 0xA1, 0x66, 0x28, 0xD9, 0x24, 0xB2, 0x76, 0x5B, 0xA2, 0x49, 0x6D, 0x8B, 0xD1, 0x25,
@@ -59,26 +59,26 @@ public:
     0x60, 0x51, 0x7F, 0xA9, 0x19, 0xB5, 0x4A, 0x0D, 0x2D, 0xE5, 0x7A, 0x9F, 0x93, 0xC9, 0x9C, 0xEF,
     0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
     0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D };
-    std::vector<int> r_con = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
+    std::vector<uint8_t> r_con = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
     0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A,
     0x2F, 0x5E, 0xBC, 0x63, 0xC6, 0x97, 0x35, 0x6A,
     0xD4, 0xB3, 0x7D, 0xFA, 0xEF, 0xC5, 0x91, 0x39 };
 private:
-    std::vector<std::vector<int>> textToMatrix(std::string text);
-    std::vector<int> xorBytes(std::vector<int> s, std::vector<int> s2);
-    void incBytes(std::vector<int>& s);
+    std::vector<std::vector<uint8_t>> textToMatrix(std::string text);
+    std::vector<uint8_t> xorBytes(std::vector<uint8_t> s, std::vector<uint8_t> s2);
+    void incBytes(std::vector<uint8_t>& s);
     std::string pad(std::string plain);
     std::string unpad(std::string padded);
-    std::vector<std::vector<int>> splitToBlocks(std::string message, int block_size = 16, bool requirePadding = true);
-    std::vector<int> parseString(std::string v);
-    std::vector<int> parseMatrixToVector(std::vector<std::vector<int>> s);
-    std::vector<std::vector<int>> parseVectorToMatrix(std::vector<int> v);
-    std::string parseMatrix(std::vector<std::vector<int>> m);
-    std::vector<std::vector<int>> parseInitialKey(std::string key);
-    std::string ByteHex(int val);
-    std::string repeatString(std::string val, int amt);
+    std::vector<std::vector<uint8_t>> splitToBlocks(std::string message, uint8_t block_size = 16, bool requirePadding = true);
+    std::vector<uint8_t> parseString(std::string v);
+    std::vector<uint8_t> parseMatrixToVector(std::vector<std::vector<uint8_t>> s);
+    std::vector<std::vector<uint8_t>> parseVectorToMatrix(std::vector<uint8_t> v);
+    std::string parseMatrix(std::vector<std::vector<uint8_t>> m);
+    std::vector<std::vector<uint8_t>> parseInitialKey(std::string key);
+    std::string ByteHex(uint8_t val);
+    std::string repeatString(std::string val, uint8_t amt);
 
-    int nround = 14; //14 rounds for AES-256
-    std::vector<std::vector<std::vector<int>>> keyMatrix;
+    uint8_t nround = 14; //14 rounds for AES-256
+    std::vector<std::vector<std::vector<uint8_t>>> keyMatrix;
 };
 
