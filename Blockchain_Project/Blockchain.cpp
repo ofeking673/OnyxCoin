@@ -1,5 +1,7 @@
 #include "Blockchain.h"
 
+Blockchain* Blockchain::_instance = nullptr;
+
 Blockchain::Blockchain()
 {
 	// Create the genesis block
@@ -43,6 +45,17 @@ void Blockchain::minePendingTransaction(const std::string& minerAddress)
 
 	_chain.push_back(newBlock);
 	_pendingTransactions.clear();
+}
+
+std::string Blockchain::getCurrentBlockInfo()
+{
+	Block newBlock(_chain.size(), getLatestBlock().getHash());
+	for (const auto& tx : _pendingTransactions)
+	{
+		newBlock.addTransaction(tx);
+	}
+
+	return newBlock.getCurrentBlockInfo();
 }
 
 void Blockchain::displayBlockchain() const

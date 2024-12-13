@@ -1,16 +1,16 @@
 #pragma once
-#include "Point.h"
+#include "../Point.h"
 #include <bitset>
 #include <string>
 
 class AES256CBC
 {
 public:
-    AES256CBC(std::string masterKey);
+    AES256CBC(cpp_int masterKey);
 
     std::string cbcEncrypt(std::string plain_text, std::vector<uint8_t> iv);
     std::vector<uint8_t> encrypt(std::vector<uint8_t> val);
-    std::vector<std::vector<std::vector<uint8_t>>> expand_key(std::string key);
+    std::vector<std::vector<std::vector<uint8_t>>> expand_key(cpp_int key);
     std::vector<uint8_t> subVector(std::vector<uint8_t> v);
     void sub_bytes(std::vector<std::vector<uint8_t>>& matrix);
     void inv_sub_bytes(std::vector<std::vector<uint8_t>>& matrix);
@@ -66,19 +66,18 @@ public:
 private:
     std::vector<std::vector<uint8_t>> textToMatrix(std::string text);
     std::vector<uint8_t> xorBytes(std::vector<uint8_t> s, std::vector<uint8_t> s2);
-    void incBytes(std::vector<uint8_t>& s);
     std::string pad(std::string plain);
     std::string unpad(std::string padded);
-    std::vector<std::vector<uint8_t>> splitToBlocks(std::string message, uint8_t block_size = 16, bool requirePadding = true);
+    std::vector<std::vector<uint8_t>> splitToBlocks(std::string message);
     std::vector<uint8_t> parseString(std::string v);
     std::vector<uint8_t> parseMatrixToVector(std::vector<std::vector<uint8_t>> s);
     std::vector<std::vector<uint8_t>> parseVectorToMatrix(std::vector<uint8_t> v);
     std::string parseMatrix(std::vector<std::vector<uint8_t>> m);
-    std::vector<std::vector<uint8_t>> parseInitialKey(std::string key);
-    std::string ByteHex(uint8_t val);
+    std::vector<std::vector<uint8_t>> parseInitialKey(cpp_int key);
+    std::string ByteHex(int val);
     std::string repeatString(std::string val, uint8_t amt);
 
-    uint8_t nround = 14; //14 rounds for AES-256
+    int nround = 14; //14 rounds for AES-256
     std::vector<std::vector<std::vector<uint8_t>>> keyMatrix;
 };
 

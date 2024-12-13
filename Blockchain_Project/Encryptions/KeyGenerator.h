@@ -1,16 +1,11 @@
 ﻿#pragma once
 #include <iostream>
 #include <random>
-#include "Point.h"
+#include "../Point.h"
 #include "SHA256.h"
 
 //#define ACurve 0
 //#define BCurve 7
-
-#define h 1
-
-#define X 0
-#define Y 1
 
 class KeyGenerator
 {

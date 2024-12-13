@@ -20,3 +20,22 @@ std::string HelperT::timeToStr(const time_t& time)
 		return "0";
 	}
 }
+
+double HelperT::countBalance(std::string k)
+{
+	double bal = 0;
+	Blockchain* chain = Blockchain::getInstance();
+	for (auto& block : chain->getChain())
+	{
+		for (auto& trans : block._transactions) {
+			double amt = trans.getAmount();
+			if (trans.getSender() == k) {
+				bal -= amt;
+			}
+			if (trans.getReceiver() == k) {
+				bal += amt;
+			}
+		}
+	}
+	return bal;
+}

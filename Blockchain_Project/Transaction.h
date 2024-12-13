@@ -15,6 +15,9 @@ public:
 
 	std::string getTransactionID() const;
 
+	std::string getSender() const { return _sender; }
+	std::string getReceiver() const { return _receiver; }
+	double getAmount() const { return _amount; }
 private:
 	std::string _sender;
 	std::string _receiver;

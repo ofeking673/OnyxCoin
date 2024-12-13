@@ -10,7 +10,8 @@ public:
 	~Block();
 
 	void addTransaction(const Transaction& transaction);
-	std::string calculateHash() const;
+	std::string calculateHash();
+	std::string getCurrentBlockInfo(); //Mining purposes
 
 	void displayBlock() const;
 
@@ -18,11 +19,10 @@ public:
 	std::string getPreviousHash() const;
 	void setHash(const std::string& hash);
 
-
+	std::vector<Transaction> _transactions; // Make transactions public for later verifications, and balance calculations
 private:
 	int _index;
 	time_t _timestamp;
-	std::vector<Transaction> _transactions;
 	std::string _previousHash;
 	std::string _hash;
 	

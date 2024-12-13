@@ -1,5 +1,5 @@
 #pragma once
-#include "Point.h"
+#include "../Point.h"
 #include "SHA256.h"
 #include <bitset>
 #include <sstream>

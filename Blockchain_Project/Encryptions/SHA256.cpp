@@ -74,7 +74,7 @@ std::string SHA256::pad512bits(std::string value, bool isFinalBlock, int ExtraLe
 
 	if (!isFinalBlock)
 	{
-		if (512 - bit_length)
+		if (512 - bit_length) //If length is below 512 bits
 		{
 			if (!is1)
 			{
@@ -86,9 +86,8 @@ std::string SHA256::pad512bits(std::string value, bool isFinalBlock, int ExtraLe
 		else
 			value += std::string(512 - bit_length, '0');
 	}
-
-
-	if (isFinalBlock) {
+	else
+	{
 		std::string length_bits = std::bitset<64>(bit_length + ExtraLen).to_string(); //transfer bit length to binary
 
 		if (!is1)
