@@ -1,4 +1,7 @@
 #include "Server.h"
+/*
+MakeTransaction = 100,
+Mine = 200,*/
 
 Server::Server()
 {
@@ -18,8 +21,28 @@ void Server::HandleClient(SOCKET clientSock)
 			{
 				buf[i] = 0;
 			}
+			
 
 
 		}
+	} 
+	catch(std::exception& e) 
+	{
+		std::cout << __FUNCTION__ ": " << e.what() << std::endl;
 	}
 }
+
+void Server::mine(SOCKET clientSock, std::string pubKey)
+{
+	//Get the nonce and new hash from sock
+
+
+
+	//Blockchain* chain = Blockchain::getInstance();
+	////placeholder mining algorithm, will probably be configured and changed later.
+	//int nonce = 0;
+	//std::string data = chain->getCurrentBlockInfo();
+	//std::string hash = Blockchain::sha->digest(data);
+	
+}
+

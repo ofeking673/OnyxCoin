@@ -9,6 +9,5 @@ class Miner : public IClient
 public:
 	Miner(std::string key) { k = key; };
 	virtual void Action() override;
-	static SHA256* sha;
 };
 

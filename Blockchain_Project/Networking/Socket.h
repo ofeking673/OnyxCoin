@@ -3,6 +3,7 @@
 #include <thread>
 #include <iostream>
 #include "../json.hpp"
+#include "../Blockchain.h"
 //This is the base include for all socket related classes, So I'm defining everything here.
 enum Requests
 {

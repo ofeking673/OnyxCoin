@@ -20,13 +20,13 @@ void Block::addTransaction(const Transaction& transaction)
 	_transactions.push_back(transaction);
 }
 
-std::string Block::calculateHash()
+std::string Block::calculateHash() const
 {
 	// TODO: change to use SHA-256 cryptographic function
 	return _sha->digest(getCurrentBlockInfo());
 }
 
-std::string Block::getCurrentBlockInfo()
+std::string Block::getCurrentBlockInfo() const
 {
 	std::stringstream ss;
 

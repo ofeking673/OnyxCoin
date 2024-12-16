@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{14e33558-b0bd-4571-b567-a31cb3d36298}</ProjectGuid>
     <RootNamespace>BlockchainProject</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClInclude Include="Block.h" />
     <ClInclude Include="Blockchain.h" />
+    <ClInclude Include="Client.h" />
     <ClInclude Include="Encryptions\AES256CBC.h" />
     <ClInclude Include="Encryptions\Base58.h" />
     <ClInclude Include="Encryptions\BIP39SeedMaker.h" />
@@ -139,7 +140,10 @@
     <ClInclude Include="Encryptions\SHA256.h" />
     <ClInclude Include="Encryptions\Test.h" />
     <ClInclude Include="HelperT.h" />
+    <ClInclude Include="IClient.h" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="JsonPacketDeserializer.h" />
+    <ClInclude Include="Miner.h" />
     <ClInclude Include="Networking\ClientSocket.h" />
     <ClInclude Include="Networking\Socket.h" />
     <ClInclude Include="Networking\WSAInitializer.h" />
@@ -152,6 +156,7 @@
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Blockchain.cpp" />
     <ClCompile Include="BlockChainPOC.cpp" />
+    <ClCompile Include="Client.cpp" />
     <ClCompile Include="Encryptions\AES256CBC.cpp" />
     <ClCompile Include="Encryptions\Base58.cpp" />
     <ClCompile Include="Encryptions\BIP39SeedMaker.cpp" />
@@ -160,7 +165,10 @@
     <ClCompile Include="Encryptions\SHA256.cpp" />
     <ClCompile Include="Encryptions\Test.cpp" />
     <ClCompile Include="HelperT.cpp" />
+    <ClCompile Include="IClient.cpp" />
+    <ClCompile Include="JsonPacketDeserializer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Miner.cpp" />
     <ClCompile Include="Networking\ClientSocket.cpp" />
     <ClCompile Include="Networking\Socket.cpp" />
     <ClCompile Include="Networking\WSAInitializer.cpp" />

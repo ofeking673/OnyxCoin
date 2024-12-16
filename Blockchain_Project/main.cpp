@@ -23,8 +23,6 @@ int main()
 	Wallet wallet("abc");
 	wallet.InitializeTransaction("cba", 2);
 	
-	std::cout << HelperT::countBalance("cba");
-
 
 
 

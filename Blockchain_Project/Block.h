@@ -10,8 +10,8 @@ public:
 	~Block();
 
 	void addTransaction(const Transaction& transaction);
-	std::string calculateHash();
-	std::string getCurrentBlockInfo(); //Mining purposes
+	std::string calculateHash() const;
+	std::string getCurrentBlockInfo() const; //Mining purposes
 
 	void displayBlock() const;
 

@@ -1,7 +1,7 @@
 #include "Blockchain.h"
 
 Blockchain* Blockchain::_instance = nullptr;
-
+SHA256* Blockchain::sha = new SHA256();
 Blockchain::Blockchain()
 {
 	// Create the genesis block
