@@ -1,4 +1,9 @@
 #include "Server.h"
+
+// Define the static members
+std::map<SOCKET, std::string> Server::Users_;
+Socket* Server::serverSock_ = nullptr;
+
 /*
 MakeTransaction = 100,
 Mine = 200,*/

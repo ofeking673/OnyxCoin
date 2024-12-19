@@ -5,6 +5,7 @@
 #include "ECDSASigner.h"
 #include "Blake2b.h"
 #include "Argon2.h"
+#include "RIPEMD_160.h"
 
 class Test
 {
@@ -15,7 +16,7 @@ public:
 	void testECDSA();
 	void testBlake2b();
 	void testArgon2();
-
+	void testRIPEMD160();
 
 	//std::vector<uint8_t> hexStringToBytes(const std::string& hex);
 	std::string bytesToHexString(const std::vector<uint8_t>& bytes, size_t length);

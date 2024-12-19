@@ -289,3 +289,40 @@ void Test::testArgon2()
 		std::cout << std::endl;
 	}
 }
+
+void Test::testRIPEMD160()
+{
+	{
+		std::string input = "";
+		std::string expected = "9c1185a5c5e9fc54612808977ee8f548b2258d31";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "1 Incorrect ripemd160");
+	}
+
+	{
+		std::string input = "a";
+		std::string expected = "0bdc9d2d256b3ee9daae347be6f4dc835a467ffe";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "2 Incorrect ripemd160");
+	}
+
+	{
+		std::string input = "abc";
+		std::string expected = "8eb208f7e05d987a9b044a8e98c6b087f15a0bfc";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "3 Incorrect ripemd160");
+	}
+
+	{
+		std::string input = "The quick brown fox jumps over the lazy dog";
+		std::string expected = "37f332f68db77bd9d7edd4969571ad671cf9dd3b";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "4 Incorrect ripemd160");
+	}
+
+	std::cout << "RIPEMD-160 works well!" << std::endl;
+}

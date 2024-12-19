@@ -22,7 +22,8 @@ int main()
 	test.testBip39();
 	test.testEcc();
 	test.testECDSA();
-
+	test.testBlake2b();
+	test.testRIPEMD160();
 
 
 
