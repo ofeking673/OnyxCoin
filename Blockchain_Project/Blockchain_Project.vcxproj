@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AddressGenerator.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Blockchain.h" />
     <ClInclude Include="Client.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Wallet.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AddressGenerator.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Blockchain.cpp" />
     <ClCompile Include="BlockChainPOC.cpp" />
