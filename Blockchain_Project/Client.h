@@ -4,6 +4,8 @@
 
 class Client : public IClient
 {
-	virtual void Action() override;
+	Client(int port, std::string key) : IClient(key) {}
+	void initializeTransaction(std::string dstAddress, double amt);
+	
 };
 

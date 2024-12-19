@@ -17,14 +17,11 @@ int main()
 {
 	//WSAInitializer wsa; //initialize WSA for socket usage
 
-	
-	Blockchain* myBlockchain = Blockchain::getInstance();
-
-	Wallet wallet("abc");
-	wallet.InitializeTransaction("cba", 2);
-	
-
-
+	Test test;
+	test.testSha();
+	test.testBip39();
+	test.testEcc();
+	test.testECDSA();
 
 
 

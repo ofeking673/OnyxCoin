@@ -1,10 +1,11 @@
 #pragma once
 #include <iostream>
-
+#include "Networking/Socket.h"
 class IClient
 {
 public:
-	virtual void Action() = 0; //For client it will be transaction, for miner it will be submit hash
-	std::string k;
+	IClient(std::string key, int port) : _k(key), sock(port) {}
+	std::string _k;
+	Socket sock;
 };
 

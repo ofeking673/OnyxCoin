@@ -20,7 +20,8 @@ public:
 	void addTransaction(const Transaction& tx);
 
 	// Method to mine pending transactions and add a new block to the chain
-	void minePendingTransaction(const std::string& minerAddress);
+	//void minePendingTransaction(const std::string& minerAddress);
+	bool submitMiningHash(const std::string address, std::string finalHash, int nonce);
 	std::string getCurrentBlockInfo(); //For mining purposes, need to hash this and find the correct nonce.
 	void displayBlockchain() const;
 

@@ -143,6 +143,7 @@
     <ClInclude Include="IClient.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="JsonPacketDeserializer.h" />
+    <ClInclude Include="JsonPacketSerializer.h" />
     <ClInclude Include="Miner.h" />
     <ClInclude Include="Networking\ClientSocket.h" />
     <ClInclude Include="Networking\Socket.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="HelperT.cpp" />
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="JsonPacketDeserializer.cpp" />
+    <ClCompile Include="JsonPacketSerializer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Miner.cpp" />
     <ClCompile Include="Networking\ClientSocket.cpp" />

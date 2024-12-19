@@ -4,19 +4,10 @@
 #include <iostream>
 #include "../json.hpp"
 #include "../Blockchain.h"
-//This is the base include for all socket related classes, So I'm defining everything here.
-enum Requests
-{
-	MakeTransaction = 100,
-	Mine = 200,
-};
+#include "../JsonPacketSerializer.h"
 
-enum Response {
-	MakeTransactionSuccess = 101,
-	MakeTransactionFailed = 108,
-	MineSuccess = 201,
-	MineFailed = 208
-};
+//This is the base include for all socket related classes, So I'm defining everything here.
+
 
 using json = nlohmann::json;
 
@@ -32,5 +23,6 @@ public:
 	static std::string readFromSock(SOCKET sock);
 private:
 	SOCKET serverSocket_;
+	
 };
 

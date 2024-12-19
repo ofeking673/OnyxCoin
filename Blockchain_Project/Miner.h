@@ -7,7 +7,7 @@
 class Miner : public IClient
 {
 public:
-	Miner(std::string key) { k = key; };
-	virtual void Action() override;
+	Miner(std::string key, int port) : IClient(key, port) {}
+	void mine();
 };
 
