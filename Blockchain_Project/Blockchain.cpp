@@ -1,5 +1,7 @@
 #include "Blockchain.h"
 
+Blockchain* Blockchain::_instance = nullptr;
+SHA256* Blockchain::sha = new SHA256();
 Blockchain::Blockchain()
 {
 	// Create the genesis block
@@ -23,26 +25,29 @@ void Blockchain::addTransaction(const Transaction& tx)
 	_pendingTransactions.push_back(tx);
 }
 
-void Blockchain::minePendingTransaction(const std::string& minerAddress)
+bool Blockchain::submitMiningHash(const std::string address, std::string finalHash, int nonce)
 {
-	// TODO: Consensus PBFT
+	std::string hash = getCurrentBlockInfo() + std::to_string(nonce);
+	hash = sha->digest(hash);
+	
+	if (hash.starts_with('0') && hash == finalHash) {
+		Transaction reward("System", address, 10);
+		_pendingTransactions.clear();
+		_pendingTransactions.push_back(reward);
+		return true;
+	}
+	return false;
+}
 
+std::string Blockchain::getCurrentBlockInfo()
+{
 	Block newBlock(_chain.size(), getLatestBlock().getHash());
 	for (const auto& tx : _pendingTransactions)
 	{
 		newBlock.addTransaction(tx);
 	}
 
-	// TODO: Reward?
-	Transaction rewardTX("System", minerAddress, 100);
-	newBlock.addTransaction(rewardTX);
-	// ?
-
-	// Calculate and set the hash of the new block
-	newBlock.setHash(newBlock.calculateHash());
-
-	_chain.push_back(newBlock);
-	_pendingTransactions.clear();
+	return newBlock.getCurrentBlockInfo();
 }
 
 void Blockchain::displayBlockchain() const

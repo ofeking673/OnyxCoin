@@ -20,3 +20,10 @@ std::string HelperT::timeToStr(const time_t& time)
 		return "0";
 	}
 }
+
+std::string HelperT::padString(std::string src, int length)
+{
+	std::stringstream ss;
+	ss << std::setw(length) << std::setfill('0') << src;
+	return ss.str();
+}
