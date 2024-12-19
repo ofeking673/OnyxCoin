@@ -1,7 +1,8 @@
 #pragma once
-#include "Point.h"
 #include <vector>
-#include <iostream>;
+#include <iostream>
+#include "../Point.h"
+
 
 class Base58
 {

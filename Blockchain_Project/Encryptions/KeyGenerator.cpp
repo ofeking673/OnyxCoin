@@ -66,7 +66,7 @@ Point* KeyGenerator::ECMul(cpp_int privKey, Point* point)
 
     Point* Q = new Point(0, 0); //infinity point
     Point* pnt = new Point(point->_x, point->_y);
-    while(privKey != 0)
+    while(privKey != 0) //2 5 -> x2 +1 //101 -> 1 + 2x2
     {
         if (privKey % 2) {
             Q = ECAdd(Q, pnt);
