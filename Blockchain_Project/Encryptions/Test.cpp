@@ -326,3 +326,20 @@ void Test::testRIPEMD160()
 
 	std::cout << "RIPEMD-160 works well!" << std::endl;
 }
+
+void Test::testAddressGenerator()
+{
+	{
+		std::string output = AddressGenerator::generateAddress(cpp_int("0xd8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6"));
+		std::string expected = "6GzqttWiuPEFeq9CKBnExR2dWfeFPWkA";
+		assert(expected == output);
+	}
+
+	{
+		std::string output = AddressGenerator::generateAddress(cpp_int("0x00ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6"));
+		std::string expected = "6GtoDZ575yj77RcUsd6S7gdxg9fz6Zbd";
+		assert(expected == output);
+	}
+
+	std::cout << "Address generator works good!" << std::endl;
+}

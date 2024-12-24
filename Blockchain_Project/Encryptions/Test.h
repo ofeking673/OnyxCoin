@@ -6,6 +6,7 @@
 #include "Blake2b.h"
 #include "Argon2.h"
 #include "RIPEMD_160.h"
+#include "../AddressGenerator.h"
 
 class Test
 {
@@ -17,7 +18,7 @@ public:
 	void testBlake2b();
 	void testArgon2();
 	void testRIPEMD160();
-
+	void testAddressGenerator();
 	//std::vector<uint8_t> hexStringToBytes(const std::string& hex);
 	std::string bytesToHexString(const std::vector<uint8_t>& bytes, size_t length);
 };
