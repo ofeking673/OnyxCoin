@@ -10,14 +10,15 @@ Mine = 200,*/
 
 Server::Server()
 {
+	blockchain = Blockchain::getInstance();
 	serverSock_ = new Socket(8026);
 	serverSock_->WaitForClients(HandleClient);
 }
 
 void Server::HandleClient(SOCKET clientSock)
 {
-	std::string pubKey = Socket::readFromSock(clientSock);
-	Users_[clientSock] = pubKey;
+	std::string address = Socket::readFromSock(clientSock);
+	Users_[clientSock] = address;
 
 	try {
 		char buf[READ_SIZE];
@@ -27,7 +28,18 @@ void Server::HandleClient(SOCKET clientSock)
 				buf[i] = 0;
 			}
 			
+			std::string msg = serverSock_->readFromSock(clientSock);
+			json j = JsonPacketDeserializer::DeserializeRequest(msg);
 
+			switch (j.template get<Requests>())
+			{
+			case Mine:
+				mine(clientSock, address, j);
+			case MakeTransaction:
+				
+			default:
+				break;
+			}
 
 		}
 	} 
@@ -37,17 +49,28 @@ void Server::HandleClient(SOCKET clientSock)
 	}
 }
 
-void Server::mine(SOCKET clientSock, std::string pubKey)
+std::string Server::mine(SOCKET& clientSock, std::string& address, json j)
 {
 	//Get the nonce and new hash from sock
+	auto info = blockchain->getCurrentBlockInfo();
+	std::string expectedHash = j["hash"];
+	int nonce = j["nonce"];
+	std::string hash = Blockchain::sha->digest(info + std::to_string(nonce));
+	if (hash == expectedHash) {
+		//nonce is correct, mining is solved
+		blockchain->addTransaction(Transaction("System", address, 10));
+	}
+	std::string response = JsonPacketSerializer::serializeMiningResponse((hash == expectedHash), 1);
+	return response;
+}
 
-
-
-	//Blockchain* chain = Blockchain::getInstance();
-	////placeholder mining algorithm, will probably be configured and changed later.
-	//int nonce = 0;
-	//std::string data = chain->getCurrentBlockInfo();
-	//std::string hash = Blockchain::sha->digest(data);
-	
+SOCKET Server::findByKey(std::string& k)
+{
+	for (const auto& [socket, pair] : Users_) {
+		if (pair.first == k) {
+			return socket;
+		}
+	}
+	throw std::runtime_error(__FUNCTION__ ": Did not find socket for key: " + k);
 }
 

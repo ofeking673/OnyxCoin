@@ -8,6 +8,7 @@ public:
 	ECDSASigner();
 	Point* signMessage(cpp_int k, std::string message);
 	cpp_int generateNumber();
+	//the point, hashed message, and the public key to test against
 	bool verifySignature(Point* rs, std::string hexMessage, Point* publicKey);
 private:
 	SHA256* _sha;

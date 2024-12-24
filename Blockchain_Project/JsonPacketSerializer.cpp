@@ -28,3 +28,14 @@ std::string JsonPacketSerializer::serializeTransactionRequest(std::string srcAdd
 
     return json.dump();
 }
+
+std::string JsonPacketSerializer::serializeMiningResponse(bool success, int diff)
+{
+    json j;
+    j["status"] = (success) ? MineSuccess : MineFailed;
+    j["difficulty"] = diff;
+    j["reward"] = (diff < 2) ? diff * 2 : (diff * 1.5); //random reward i just made up (i think its pretty good)
+    //if diff is low, return a diff*2 , else give 1.5*diff
+    
+    return j.dump();
+}

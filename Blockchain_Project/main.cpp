@@ -15,17 +15,15 @@
 
 int main()
 {
-	//WSAInitializer wsa; //initialize WSA for socket usage
+	WSAInitializer wsa; //initialize WSA for socket usage
 
-	Test test;
-	test.testSha();
-	test.testBip39();
-	test.testEcc();
-	test.testECDSA();
-	test.testBlake2b();
-	test.testRIPEMD160();
-
-
+	//Test test;
+	//test.testSha();
+	//test.testBip39();
+	//test.testEcc();
+	//test.testECDSA();
+	//test.testBlake2b();
+	//test.testRIPEMD160();
 
 
 
@@ -33,23 +31,21 @@ int main()
 
 
 
-	//Transaction tx1("Alice", "Bob", 50);
-	//Transaction tx2("Bob", "Charlie", 25);
+	Blockchain* myBlockchain = Blockchain::getInstance();
+	
+	Transaction tx1("abc", "System", 50);
 
-	//myBlockchain.addTransaction(tx1);
-	//myBlockchain.addTransaction(tx2);
+	myBlockchain->addTransaction(tx1);
+	
+	myBlockchain->displayBlockchain();
 
-	//myBlockchain.minePendingTransaction("Miner1");
-	//
-	//myBlockchain.displayBlockchain();
-
-	//if (myBlockchain.isChainValid())
-	//{
-	//	std::cout << "Blockchain is valid" << std::endl;
-	//}
-	//else
-	//{
-	//	std::cout << "Blockchain is invalid" << std::endl;
-	//}
+	if (myBlockchain->isChainValid())
+	{
+		std::cout << "Blockchain is valid" << std::endl;
+	}
+	else
+	{
+		std::cout << "Blockchain is invalid" << std::endl;
+	}
 	
 }

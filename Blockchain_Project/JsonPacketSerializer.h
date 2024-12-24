@@ -22,6 +22,8 @@ public:
 	static std::string serializeMiningRequest(std::string srcAddr, std::string hash, int nonce);
 	static std::string serializeTransactionRequest(std::string srcAddr, std::string dstAddr, double amt);
 
+
+	static std::string serializeMiningResponse(bool success, int diff);
 private:
 	static Point* signMessage(std::string key, std::string message) {
 		ECDSASigner ecd;

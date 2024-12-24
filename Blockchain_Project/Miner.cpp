@@ -14,5 +14,8 @@ void Miner::mine()
 		hash = Blockchain::sha->digest(data + std::to_string(nonce));
 	}
 	std::cout << __FUNCTION__ ": Found correct hash! " << hash << std::endl;
-	chain->addTransaction(Transaction("System", this->_k, 10));
+	std::string ser = JsonPacketSerializer::serializeMiningRequest(this->_k, hash, nonce);
+	
+	std::string res = sock.sendAndRecv(ser);
+	std::cout << __FUNCTION__ ": Got response for mining request: " << res << std::endl;
 }

@@ -31,6 +31,11 @@ void Socket::WaitForClients(void(*func)(SOCKET)) const
 	}
 }
 
+void Socket::sendMessage(SOCKET sock, std::string& msg)
+{
+	send(sock, msg.c_str(), msg.size(), 0);
+}
+
 std::string Socket::readFromSock(SOCKET sock)
 {
 	char buf[READ_SIZE];

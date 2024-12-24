@@ -159,7 +159,6 @@
   <ItemGroup>
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Blockchain.cpp" />
-    <ClCompile Include="BlockChainPOC.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Encryptions\AES256CBC.cpp" />
     <ClCompile Include="Encryptions\Argon2.cpp" />
