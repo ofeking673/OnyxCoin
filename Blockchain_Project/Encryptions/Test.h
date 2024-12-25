@@ -7,6 +7,7 @@
 #include "Argon2.h"
 #include "RIPEMD_160.h"
 #include "../AddressGenerator.h"
+#include "../Wallet.h"
 
 class Test
 {
@@ -19,6 +20,7 @@ public:
 	void testArgon2();
 	void testRIPEMD160();
 	void testAddressGenerator();
+	void testWalletCreation();
 	//std::vector<uint8_t> hexStringToBytes(const std::string& hex);
 	std::string bytesToHexString(const std::vector<uint8_t>& bytes, size_t length);
 };

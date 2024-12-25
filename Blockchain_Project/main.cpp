@@ -17,14 +17,14 @@ int main()
 {
 	WSAInitializer wsa; //initialize WSA for socket usage
 
-	//Test test;
+	Test test;
 	//test.testSha();
 	//test.testBip39();
 	//test.testEcc();
 	//test.testECDSA();
 	//test.testBlake2b();
 	//test.testRIPEMD160();
-
+	test.testWalletCreation();
 
 
 
