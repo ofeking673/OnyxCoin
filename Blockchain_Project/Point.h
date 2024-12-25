@@ -20,6 +20,7 @@ public:
 		ss << std::hex << HelperT::padString(_x.convert_to<std::string>(), 32) + HelperT::padString(_y.convert_to<std::string>(), 32);
 		return ss.str();
 	}
+
 	static Point* parseString(std::string str) {
 		return new Point(cpp_int(str.substr(0, 32)), cpp_int(str.substr(32, 32)));
 	}

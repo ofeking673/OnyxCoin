@@ -1,7 +1,6 @@
 #include "Blockchain.h"
 
 Blockchain* Blockchain::_instance = nullptr;
-SHA256* Blockchain::sha = new SHA256();
 Blockchain::Blockchain()
 {
 	// Create the genesis block
@@ -28,7 +27,7 @@ void Blockchain::addTransaction(const Transaction& tx)
 bool Blockchain::submitMiningHash(const std::string address, std::string finalHash, int nonce)
 {
 	std::string hash = getCurrentBlockInfo() + std::to_string(nonce);
-	hash = sha->digest(hash);
+	hash = SHA256::digest(hash);
 	
 	if (hash.starts_with('0') && hash == finalHash) {
 		Transaction reward("System", address, 10);

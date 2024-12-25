@@ -11,7 +11,6 @@ public:
 	//the point, hashed message, and the public key to test against
 	bool verifySignature(Point* rs, std::string hexMessage, Point* publicKey);
 private:
-	SHA256* _sha;
 	KeyGenerator* key;
 };
 

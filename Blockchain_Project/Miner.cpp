@@ -11,7 +11,7 @@ void Miner::mine()
 	std::cout << __FUNCTION__ ": Currently mining for hash starting with '0'...\n";
 	while (!hash.starts_with('0')) { //a 1/16 chance
 		std::cout << __FUNCTION__ ": Current hash: " << hash << std::endl;
-		hash = Blockchain::sha->digest(data + std::to_string(nonce));
+		hash = SHA256::digest(data + std::to_string(nonce));
 	}
 	std::cout << __FUNCTION__ ": Found correct hash! " << hash << std::endl;
 	std::string ser = JsonPacketSerializer::serializeMiningRequest(this->_k, hash, nonce);

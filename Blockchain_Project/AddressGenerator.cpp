@@ -2,8 +2,6 @@
 
 std::string AddressGenerator::generateAddress(cpp_int publicKey)
 {
-
-	SHA256 sha256;
 	BIP39SeedMaker bip39;
 	Base58 base58;
 
@@ -11,11 +9,11 @@ std::string AddressGenerator::generateAddress(cpp_int publicKey)
 	std::string hexPublicKey = bip39.cppIntToHex(publicKey);
 	hexPublicKey = padHexTo32Bytes(hexPublicKey);
 
-	std::string publicKeyHash = RIPEMD_160::hash(sha256.digest(hexPublicKey));
+	std::string publicKeyHash = RIPEMD_160::hash(SHA256::digest(hexPublicKey));
 	std::string versionedPayload = versionByte + publicKeyHash;
 
 	// Checksum is first 4 bytes
-	std::string checksum = sha256.digest(sha256.digest(versionedPayload)); 
+	std::string checksum = SHA256::digest(SHA256::digest(versionedPayload)); 
 	checksum = checksum.substr(0, 4);
 
 	std::string hexToEncode = "0x" + versionedPayload + checksum;

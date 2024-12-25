@@ -10,7 +10,7 @@ std::string BIP39SeedMaker::checksum(cpp_int v)
     std::string hexBytes = convertHexStrToBytes(hexValue);
 
     // Hash the entropy raw bytes
-    std::string hash = sha.digest(hexBytes);
+    std::string hash = SHA256::digest(hexBytes);
     std::string hashBin = binary(cpp_int("0x"+hash));   
 
     // Return first 4 bits of hash

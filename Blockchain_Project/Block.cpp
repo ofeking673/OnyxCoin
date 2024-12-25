@@ -1,7 +1,5 @@
 #include "Block.h"
 
-SHA256* _sha = new SHA256();
-
 Block::Block(int index, const std::string& previousHash)
 {
 	_index = index;
@@ -23,7 +21,7 @@ void Block::addTransaction(const Transaction& transaction)
 std::string Block::calculateHash() const
 {
 	// TODO: change to use SHA-256 cryptographic function
-	return _sha->digest(getCurrentBlockInfo());
+	return SHA256::digest(getCurrentBlockInfo());
 }
 
 std::string Block::getCurrentBlockInfo() const

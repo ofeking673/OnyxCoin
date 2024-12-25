@@ -17,7 +17,7 @@ bool JsonPacketDeserializer::verifySignature(json j)
 
     Point* pnt = Point::parseString(j["signature"]);
     std::string pubKey = j["src"];
-    std::string hashedMessage = Blockchain::sha->digest(jsonDump);
+    std::string hashedMessage = SHA256::digest(jsonDump);
 
     ECDSASigner ecd;
     return ecd.verifySignature(pnt, hashedMessage, Point::parseString(pubKey));

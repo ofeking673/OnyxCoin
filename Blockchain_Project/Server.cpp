@@ -1,7 +1,7 @@
 #include "Server.h"
 
 // Define the static members
-std::map<SOCKET, std::string> Server::Users_;
+std::map<SOCKET, IClient*> Server::Users_; 
 Socket* Server::serverSock_ = nullptr;
 
 /*
@@ -18,7 +18,7 @@ Server::Server()
 void Server::HandleClient(SOCKET clientSock)
 {
 	std::string address = Socket::readFromSock(clientSock);
-	Users_[clientSock] = address;
+	Users_[clientSock] = new Client(2086, address);
 
 	try {
 		char buf[READ_SIZE];
@@ -35,12 +35,12 @@ void Server::HandleClient(SOCKET clientSock)
 			{
 			case Mine:
 				mine(clientSock, address, j);
+				break;
 			case MakeTransaction:
 				
 			default:
 				break;
 			}
-
 		}
 	} 
 	catch(std::exception& e) 
@@ -55,7 +55,7 @@ std::string Server::mine(SOCKET& clientSock, std::string& address, json j)
 	auto info = blockchain->getCurrentBlockInfo();
 	std::string expectedHash = j["hash"];
 	int nonce = j["nonce"];
-	std::string hash = Blockchain::sha->digest(info + std::to_string(nonce));
+	std::string hash = SHA256::digest(info + std::to_string(nonce));
 	if (hash == expectedHash) {
 		//nonce is correct, mining is solved
 		blockchain->addTransaction(Transaction("System", address, 10));
@@ -64,13 +64,13 @@ std::string Server::mine(SOCKET& clientSock, std::string& address, json j)
 	return response;
 }
 
-SOCKET Server::findByKey(std::string& k)
-{
-	for (const auto& [socket, pair] : Users_) {
-		if (pair.first == k) {
-			return socket;
-		}
-	}
-	throw std::runtime_error(__FUNCTION__ ": Did not find socket for key: " + k);
-}
+//SOCKET Server::findByKey(std::string& k)
+//{
+//	for (const auto& [socket, pair] : Users_) {
+//		if (pair.first == k) {
+//			return socket;
+//		}
+//	}
+//	throw std::runtime_error(__FUNCTION__ ": Did not find socket for key: " + k);
+//}
 
