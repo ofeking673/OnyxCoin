@@ -11,7 +11,7 @@ public:
 	static std::string mine(SOCKET& clientSock, std::string& address, json j);
 	SOCKET findByKey(std::string& k);
 private:
-	static std::map<SOCKET, std::pair<std::string, IClient*>> Users_;
+	static std::map<SOCKET, IClient*> Users_;
 	static Socket* serverSock_;
 	static Blockchain* blockchain;
 };

@@ -28,7 +28,6 @@ public:
 	// Method to validate the chain
 	bool isChainValid() const;
 	const std::vector<Block> getChain() { return _chain; }; //this is not a pointer nor a reference to avoid changing the chain, Thus this is a read only chain.
-	static SHA256* sha;
 private:
 	Blockchain();
 	static Blockchain* _instance;

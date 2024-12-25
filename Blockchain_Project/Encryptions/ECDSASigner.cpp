@@ -1,13 +1,12 @@
 #include "ECDSASigner.h"
 
 ECDSASigner::ECDSASigner() {
-    _sha = new SHA256();
     key = new KeyGenerator();
 }
 
 Point* ECDSASigner::signMessage(cpp_int priv_key, std::string message)
 {
-    std::string e = _sha->digest(message);
+    std::string e = SHA256::digest(message);
     cpp_int k;
     Point* R;
     cpp_int r;

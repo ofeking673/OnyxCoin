@@ -23,6 +23,5 @@ public:
 	static std::string readFromSock(SOCKET sock);
 private:
 	SOCKET serverSocket_;
-	
 };
 
