@@ -7,9 +7,11 @@ void Test::testSha()
 	const std::string emptyHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 	const std::string a56Hash = "b35439a4ac6f0948b6d6f9e3c6af0f5f590ce20f1bde7090ef7970686ec6738a";
 
-	assert(abcHash == SHA256::digest("abc"));
-	assert(emptyHash == SHA256::digest(""));
-	assert(a56Hash == SHA256::digest("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+	SHA256 hash;
+
+	assert(abcHash == hash.digest("abc"));
+	assert(emptyHash == hash.digest(""));
+	assert(a56Hash == hash.digest("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
 
 	//If it ran, Congratulations!
 	std::cout << "Hash runs as needed!\n";
@@ -73,12 +75,13 @@ void Test::testECDSA()
 	//Using a random private key!
 	KeyGenerator k;
 	ECDSASigner e;
+	SHA256 hash;
 
 	cpp_int priv = k.generatePrivate();
 	Point* pub = k.ECMul(priv, k.GPoint);
 	Point* rs = e.signMessage(priv, "abc");
 
-	assert(e.verifySignature(rs, SHA256::digest("abc"), pub));
+	assert(e.verifySignature(rs, hash.digest("abc"), pub));
 
 	std::cout << "ECDSA Message signing and verification works perfectly!\n";
 }
