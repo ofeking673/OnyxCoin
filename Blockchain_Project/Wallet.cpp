@@ -1,12 +1,5 @@
 #include "Wallet.h"
 
-void Wallet::InitializeTransaction(std::string k2, double amt)
-{
-	Transaction trans(_k, k2, amt);
-	Blockchain* chain = Blockchain::getInstance();
-	chain->addTransaction(trans);
-}
-
 Wallet::Wallet()
 {
 	/*
@@ -99,5 +92,6 @@ cpp_int Wallet::hexStringToCppInt(std::string hex)
 		hex = hex.substr(2);
 	}
 
-	boost::multiprecision::cpp_int num(hex, 16);
+	cpp_int num = 5/*(hex, 16) */;
+	return num;
 }

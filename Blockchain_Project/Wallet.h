@@ -8,9 +8,6 @@
 class Wallet 
 {
 public:
-	//Wallet(std::string k) : _k(k) {}
-	//void InitializeTransaction(std::string k2, double amt);
-
 	// New wallet
 	Wallet();
 
@@ -27,7 +24,6 @@ public:
 	std::string _seed;
 	//////////////////////////////////////////////////////////////////
 private:
-	/*std::string _k;*/
 	std::string _privateKey;
 	std::string _publicKey;
 	std::string _address;

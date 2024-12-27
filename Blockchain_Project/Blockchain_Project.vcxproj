@@ -152,9 +152,13 @@
     <ClInclude Include="Networking\ClientSocket.h" />
     <ClInclude Include="Networking\Socket.h" />
     <ClInclude Include="Networking\WSAInitializer.h" />
+    <ClInclude Include="OutPoint.h" />
+    <ClInclude Include="OutPointHash.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="Transaction.h" />
+    <ClInclude Include="TxInput.h" />
+    <ClInclude Include="TxOutput.h" />
     <ClInclude Include="Wallet.h" />
   </ItemGroup>
   <ItemGroup>
@@ -181,9 +185,13 @@
     <ClCompile Include="Networking\ClientSocket.cpp" />
     <ClCompile Include="Networking\Socket.cpp" />
     <ClCompile Include="Networking\WSAInitializer.cpp" />
+    <ClCompile Include="OutPoint.cpp" />
+    <ClCompile Include="OutPointHash.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="Transaction.cpp" />
+    <ClCompile Include="TxInput.cpp" />
+    <ClCompile Include="TxOutput.cpp" />
     <ClCompile Include="Wallet.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

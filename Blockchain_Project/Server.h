@@ -9,7 +9,7 @@ public:
 	Server();
 	static void HandleClient(SOCKET clientSock);
 	static std::string mine(SOCKET& clientSock, std::string& address, json j);
-	SOCKET findByKey(std::string& k);
+	SOCKET findByKey(std::string& k) { return SOCKET(); }; // TO-DO: Real Implementation
 private:
 	static std::map<SOCKET, IClient*> Users_;
 	static Socket* serverSock_;

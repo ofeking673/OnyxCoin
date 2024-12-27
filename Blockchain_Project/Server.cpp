@@ -3,6 +3,7 @@
 // Define the static members
 std::map<SOCKET, IClient*> Server::Users_; 
 Socket* Server::serverSock_ = nullptr;
+Blockchain* Server::blockchain = nullptr;
 
 /*
 MakeTransaction = 100,

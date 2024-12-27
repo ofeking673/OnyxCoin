@@ -31,21 +31,21 @@ int main()
 
 
 
-	Blockchain* myBlockchain = Blockchain::getInstance();
-	
-	Transaction tx1("abc", "System", 50);
+	//Blockchain* myBlockchain = Blockchain::getInstance();
+	//
+	//Transaction tx1("abc", "System", 50);
 
-	myBlockchain->addTransaction(tx1);
-	
-	myBlockchain->displayBlockchain();
+	//myBlockchain->addTransaction(tx1);
+	//
+	//myBlockchain->displayBlockchain();
 
-	if (myBlockchain->isChainValid())
-	{
-		std::cout << "Blockchain is valid" << std::endl;
-	}
-	else
-	{
-		std::cout << "Blockchain is invalid" << std::endl;
-	}
+	//if (myBlockchain->isChainValid())
+	//{
+	//	std::cout << "Blockchain is valid" << std::endl;
+	//}
+	//else
+	//{
+	//	std::cout << "Blockchain is invalid" << std::endl;
+	//}
 	
 }
