@@ -16,40 +16,42 @@
 class Transaction
 {
 public:
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="inputs">Vector of input transactions to use</param>
-	/// <param name="outputs">Vector of output transactions to create</param>
+	// Construct a transaction from given inputs and outputs
 	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs);
-	~Transaction() {};
 
-	// TO-DO: Remove!!! Only to fix errors for now
-	//////////////////////////////////////////////
-	Transaction(std::string, std::string, int) {};
-	//////////////////////////////////////////////
+	~Transaction() = default;
 
-	/// <summary>
-	/// Display transaction
-	/// </summary>
-	void displayTransaction() const;
+	// Return all inputs
+	std::vector<TxInput> getInputs() const;
 
-	/// <summary>
-	/// Get transaction ID
-	/// </summary>
-	/// <returns>Transaction ID</returns>
+	// Return all outputs
+	std::vector<TxOutput> getOutputs() const;
+
+	// Get transaction ID (the unique identifier)
 	std::string getTransactionID() const;
 
+	// Print or log transaction details
+	void displayTransaction() const;
+
+	// Return the timestamp
+	time_t getTimestamp() const;
+
+	// Add a new input
+	void addInput(const TxInput& input);
+
+	// Add a new output
+	void addOutput(const TxOutput& output);
+
+	void signTransaction(const std::string& privateKey);
+	bool verifyTransactionSignature(const std::string& publicKey);
+
 private:
+	// Helper for generating transaction ID
+	std::string generateTransactionID();
+
+
 	std::vector<TxInput> _inputs;
 	std::vector<TxOutput> _outputs;
-	time_t _timestamp;
-	std::string _transactionID;
-
-	/// <summary>
-	/// Generates the transaction ID
-	/// </summary>
-	/// <returns>Transaction ID</returns>
-	std::string generateTransactionID();
+	time_t                _timestamp;
+	std::string           _transactionID;
 };
-
