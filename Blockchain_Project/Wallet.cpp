@@ -1,4 +1,5 @@
 #include "Wallet.h"
+#include <algorithm>
 
 Wallet::Wallet()
 {
@@ -36,7 +37,7 @@ Wallet::Wallet()
 	_address = AddressGenerator::generateAddress(publicKey);
 }
 
-Wallet::Wallet(std::string seed, bool seedInitialize)
+Wallet::Wallet(const std::string& seed, bool seedInitialize)
 {
 	KeyGenerator keyGenerator;
 	BIP39SeedMaker bip39;
@@ -56,7 +57,7 @@ Wallet::Wallet(std::string seed, bool seedInitialize)
 	_address = AddressGenerator::generateAddress(publicKey);
 }
 
-Wallet::Wallet(std::string privateKey)
+Wallet::Wallet(const std::string& privateKey)
 {
 	/*
 	Calculate public key
@@ -79,19 +80,117 @@ Wallet::Wallet(std::string privateKey)
 	_address = AddressGenerator::generateAddress(publicKey);
 }
 
+
+
+// Getters
+std::string Wallet::getAddress() const
+{
+	return _address;
+}
+
+std::string Wallet::getPublicKey() const
+{
+	return _publicKey;
+}
+
+std::string Wallet::getPrivateKey() const
+{
+	return _privateKey;
+}
+
+uint64_t Wallet::getBalance() const
+{
+	size_t balance = 0;
+	for (const auto& utxo : myUTXOs)
+	{
+		balance += utxo.second.getValue();
+	}
+	return balance;
+}
+
+
+
+
+
+
+/*
+ * Internal function to pick the right set of UTXOs to spend for a given amount.
+ *   1) Sort myUTXOs by value (ascending).
+ *   2) Iterate from smallest to largest, accumulating until we've reached or exceeded 'amount'.
+ */
+std::vector<OutPoint> Wallet::selectUTXOs(uint64_t amount) const
+{
+	// Create a vector to hold all (OutPoint, value) pairs
+	std::vector<std::pair<OutPoint, uint64_t>> utxos;
+	utxos.reserve(myUTXOs.size());
+
+	// Populate the vector
+	for (const auto& kv : myUTXOs)
+	{
+		const OutPoint& outpoint = kv.first;
+		const UTXOData& data = kv.second;
+		utxos.emplace_back(outpoint, data.getValue());
+	}
+
+	// Sort by ascending value
+	std::sort(utxos.begin(), utxos.end(),
+		[](const auto& a, const auto& b) {
+			return a.second < b.second;
+		});
+
+	uint64_t accumulated = 0;
+	std::vector<OutPoint> selected;
+
+	// Pick UTXOs from smallest to largest
+	for (const auto& [outpoint, value] : utxos)
+	{
+		selected.push_back(outpoint);
+		accumulated += value;
+
+		if (accumulated >= amount)
+		{
+			break;
+		}
+	}
+
+	// If we couldn't accumulate enough, throw or handle the error
+	if (accumulated < amount)
+	{
+		std::cout << "Insufficient funds in the wallet to select the requested amount." << std::endl;
+		return std::vector<OutPoint>(); // Returns empty vector
+	}
+
+	return selected;
+}
+
+
+
+
 std::string Wallet::cppIntToHexString(cpp_int v)
 {
 	std::string hexStr = v.str(16);
 	return hexStr;
 }
 
-cpp_int Wallet::hexStringToCppInt(std::string hex)
+cpp_int Wallet::hexStringToCppInt(const std::string& hex)
 {
+	std::string hexStr;
 	// Remove "0x" prefix if present
 	if (hex.find("0x") == 0 || hex.find("0X") == 0) {
-		hex = hex.substr(2);
+		hexStr = hex.substr(2);
 	}
 
-	cpp_int num = 5/*(hex, 16) */;
+	cpp_int num = (hexStr, 16);
 	return num;
 }
+
+
+
+
+
+
+
+
+
+
+

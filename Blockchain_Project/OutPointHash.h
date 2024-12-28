@@ -2,17 +2,11 @@
 #include "OutPoint.h"
 
 // A custom hash for OutPoint so it can be used in unordered map
-class OutPointHash
+struct OutPointHash
 {
-public:
-	OutPointHash(const OutPoint& op)
+	size_t operator()(const OutPoint& op) const
 	{
 		std::hash<std::string> str_hash;
-		_hash = (str_hash(op.getTxID()) ^ (std::hash<uint32_t>()(op.getIndex()) << 1));
+		return str_hash(op.getTxID()) ^ (std::hash<uint32_t>()(op.getIndex()) << 1);
 	}
-
-	size_t getHash() const { return _hash; };
-private:
-	size_t _hash;
 };
-

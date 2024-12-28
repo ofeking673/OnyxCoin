@@ -160,6 +160,8 @@
     <ClInclude Include="TxInput.h" />
     <ClInclude Include="TxOutput.h" />
     <ClInclude Include="UTXO.h" />
+    <ClInclude Include="UTXOData.h" />
+    <ClInclude Include="UTXOSet.h" />
     <ClInclude Include="Wallet.h" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +196,8 @@
     <ClCompile Include="TxInput.cpp" />
     <ClCompile Include="TxOutput.cpp" />
     <ClCompile Include="UTXO.cpp" />
+    <ClCompile Include="UTXOData.cpp" />
+    <ClCompile Include="UTXOSet.cpp" />
     <ClCompile Include="Wallet.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

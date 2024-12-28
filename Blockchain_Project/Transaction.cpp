@@ -1,11 +1,41 @@
 #include "Transaction.h"
 
 Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs)
+	: _inputs(std::move(inputs))
+	, _outputs(std::move(outputs))
+	, _timestamp(std::time(nullptr))
 {
-	_inputs = inputs;
-	_outputs = outputs;
-	_timestamp = std::time(nullptr);
 	_transactionID = generateTransactionID();
+}
+
+std::vector<TxInput> Transaction::getInputs() const
+{
+	return _inputs;
+}
+
+std::vector<TxOutput> Transaction::getOutputs() const
+{
+	return _outputs;
+}
+
+std::string Transaction::getTransactionID() const
+{
+	return _transactionID;
+}
+
+time_t Transaction::getTimestamp() const
+{
+	return _timestamp;
+}
+
+void Transaction::addInput(const TxInput& input)
+{
+	_inputs.push_back(input);
+}
+
+void Transaction::addOutput(const TxOutput& output)
+{
+	_outputs.push_back(output);
 }
 
 void Transaction::displayTransaction() const
@@ -28,10 +58,6 @@ void Transaction::displayTransaction() const
 	std::cout << std::endl;
 }
 
-std::string Transaction::getTransactionID() const
-{
-	return _transactionID;
-}
 
 std::string Transaction::generateTransactionID()
 {

@@ -50,7 +50,7 @@ private:
 	std::string generateTransactionID();
 
 
-	std::vector<TxInput> _inputs;
+	std::vector<TxInput>  _inputs;
 	std::vector<TxOutput> _outputs;
 	time_t                _timestamp;
 	std::string           _transactionID;

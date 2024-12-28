@@ -16,9 +16,10 @@ public:
     bool hasUTXO(const OutPoint& outpoint) const;
 
     // Retrieve UTXO data if it exists
+    // If not wxists return UTXOData(0,0)
     UTXOData getUTXOData(const OutPoint& outpoint) const;
 
-    // Return the entire map (optional, but useful for iteration/debugging)
+    // Return the entire map
     std::unordered_map<OutPoint, UTXOData, OutPointHash> getAllUTXOs() const;
 
 public:

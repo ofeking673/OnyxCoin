@@ -112,7 +112,7 @@ private:
     cpp_int hexStringToCppInt(const std::string& hex);
 
     // Internal function to pick the right set of UTXOs to spend for a given amount
-    // For instance, implement a simple greedy algorithm
+    // If not enough funds, returns empty vector
     std::vector<OutPoint> selectUTXOs(uint64_t amount) const;
 
 private:
