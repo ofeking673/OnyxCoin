@@ -108,8 +108,6 @@ public:
     void saveWalletData(const std::string& filename) const;
 
 private:
-    std::string cppIntToHexString(cpp_int v);
-    cpp_int hexStringToCppInt(const std::string& hex);
 
     // Internal function to pick the right set of UTXOs to spend for a given amount
     // If not enough funds, returns empty vector

@@ -1,4 +1,7 @@
 #include "Transaction.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs)
 	: _inputs(std::move(inputs))
@@ -38,25 +41,100 @@ void Transaction::addOutput(const TxOutput& output)
 	_outputs.push_back(output);
 }
 
-void Transaction::displayTransaction() const
+void Transaction::signTransaction(const std::string& privateKey)
 {
-	std::string time = HelperT::timeToStr(_timestamp);
-	std::cout << "Transaction ID: " << _transactionID << std::endl 
-		<< "Time stamp: " << time << std::endl << std::endl;
+	ECDSASigner signer;
+	KeyGenerator keyGenerator;
 
-	std::cout << "Inputs: " << std::endl;
+	// Derive public key from private key
+	Point* pointPublicKey = keyGenerator.ECMul(ECDSASigner::hexStringToCppInt(privateKey), keyGenerator.GPoint);
+	std::string hexPublicKeyPart1 = ECDSASigner::cppIntToHexString(pointPublicKey->_x);
+	std::string hexPublicKeyPart2 = ECDSASigner::cppIntToHexString(pointPublicKey->_y);
+	std::string hexPublicKey = hexPublicKeyPart1 + hexPublicKeyPart2;
+
+	// Sign transaction
+	Point* pointSignature = signer.signMessage(ECDSASigner::hexStringToCppInt(privateKey), this->toString());
+	std::string signaturePart1 = ECDSASigner::cppIntToHexString(pointSignature->_x);
+	std::string signaturePart2 = ECDSASigner::cppIntToHexString(pointSignature->_y);
+	std::string signature = signaturePart1+signaturePart2;
+
+	// Script signature = <signature + public key>
+	std::string scriptSig = signature + hexPublicKey;
+
+	// Set script signature of all transaction inputs 
 	for (auto input : _inputs)
 	{
-		std::cout << input << std::endl;
+		input.setScriptSig(scriptSig);
 	}
-	std::cout << "Outputs: " << std::endl;
-	for (auto output : _outputs)
-	{
-		std::cout << output << std::endl;
-	}
-
-	std::cout << std::endl;
 }
+
+void Transaction::displayTransaction() const
+{
+	std::cout << this->toString();
+}
+
+std::string Transaction::toString() const
+{
+	// A plain text representation
+	std::ostringstream oss;
+	oss << "Transaction:\n";
+	oss << "  ID: " << _transactionID << "\n";
+	oss << "  Timestamp: " << _timestamp << "\n";
+	oss << "  Inputs:\n";
+	for (size_t i = 0; i < _inputs.size(); ++i)
+	{
+		const TxInput& in = _inputs[i];
+		oss << "    [" << i << "] TxID: " << in.getPreviousOutPoint().getTxID()
+			<< ", Index: " << in.getPreviousOutPoint().getIndex()
+			<< ", ScriptSig: " << in.getScriptSig() << "\n";
+	}
+	oss << "  Outputs:\n";
+	for (size_t i = 0; i < _outputs.size(); ++i)
+	{
+		const TxOutput& out = _outputs[i];
+		oss << "    [" << i << "] Value: " << out.getValue()
+			<< ", ScriptPubKey: " << out.getScriptPubKey() << "\n";
+	}
+	return oss.str();
+}
+
+// Use the nlohmann/json library for JSON serialization
+std::string Transaction::toJson() const
+{
+	json j;
+	j["transactionID"] = _transactionID;
+	j["timestamp"] = static_cast<uint64_t>(_timestamp);
+
+	json inputsJson = json::array();
+	for (const auto& in : _inputs)
+	{
+		json inputObj;
+		inputObj["txid"] = in.getPreviousOutPoint().getTxID();
+		inputObj["index"] = in.getPreviousOutPoint().getIndex();
+		inputObj["scriptSig"] = in.getScriptSig();
+		inputsJson.push_back(inputObj);
+	}
+	j["inputs"] = inputsJson;
+
+	json outputsJson = json::array();
+	for (const auto& out : _outputs)
+	{
+		json outputObj;
+		outputObj["value"] = out.getValue();
+		outputObj["scriptPubKey"] = out.getScriptPubKey();
+		outputsJson.push_back(outputObj);
+	}
+	j["outputs"] = outputsJson;
+
+	// Return JSON string
+	return j.dump();
+}
+
+
+
+
+
+
 
 
 std::string Transaction::generateTransactionID()

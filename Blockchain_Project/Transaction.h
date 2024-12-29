@@ -5,6 +5,7 @@
 #include <iostream>
 #include "HelperT.h"
 #include "Encryptions/Blake2b.h"
+#include "Encryptions/ECDSASigner.h"
 
 #include "OutPoint.h"
 #include "OutPointHash.h"
@@ -44,6 +45,10 @@ public:
 
 	void signTransaction(const std::string& privateKey);
 	bool verifyTransactionSignature(const std::string& publicKey);
+
+
+	std::string toString() const;
+	std::string toJson() const;
 
 private:
 	// Helper for generating transaction ID

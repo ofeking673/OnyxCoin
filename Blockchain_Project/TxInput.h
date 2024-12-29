@@ -10,6 +10,7 @@ public:
 	OutPoint getPreviousOutPoint() const { return _previousOutPoint; };
 	std::string getScriptSig() const { return _scriptSig; };
 
+	void setScriptSig(const std::string& scriptSig) { _scriptSig = scriptSig; };
 
 	// Print TxInput
 	friend std::ostream& operator<<(std::ostream& os, TxInput txin)

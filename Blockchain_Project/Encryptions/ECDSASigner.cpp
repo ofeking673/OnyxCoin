@@ -43,3 +43,21 @@ cpp_int ECDSASigner::generateNumber()
     }
     return num;
 }
+
+std::string ECDSASigner::cppIntToHexString(cpp_int v)
+{
+    std::string hexStr = v.str(16);
+    return hexStr;
+}
+
+cpp_int ECDSASigner::hexStringToCppInt(const std::string& hex)
+{
+    std::string hexStr;
+    // Remove "0x" if exists
+    if (hex.find("0x") == 0 || hex.find("0X") == 0) {
+        hexStr = hex.substr(2);
+    }
+
+    cpp_int num = (hexStr, 16);
+    return num;
+}
