@@ -46,18 +46,12 @@ cpp_int ECDSASigner::generateNumber()
 
 std::string ECDSASigner::cppIntToHexString(cpp_int v)
 {
-    std::string hexStr = v.str(16);
-    return hexStr;
+    std::stringstream ss;
+    ss << std::hex << v;
+    return ss.str();
 }
 
 cpp_int ECDSASigner::hexStringToCppInt(const std::string& hex)
 {
-    std::string hexStr;
-    // Remove "0x" if exists
-    if (hex.find("0x") == 0 || hex.find("0X") == 0) {
-        hexStr = hex.substr(2);
-    }
-
-    cpp_int num = (hexStr, 16);
-    return num;
+    return cpp_int("0x" + hex);
 }

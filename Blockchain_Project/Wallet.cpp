@@ -16,10 +16,10 @@ Wallet::Wallet()
 
 	// Generate private key
 	cpp_int privateKey = keyGenerator.generatePrivate();
-	_privateKey = cppIntToHexString(privateKey);
+	_privateKey = ECDSASigner::cppIntToHexString(privateKey);
 
 	// Transform private key to string
-	std::string seed = bip39.transformToSeed(privateKey);
+	std::string seed = bip39.transformToSeed(privateKey); //cpp_int("0x" +hex string);
 	std::cout << "REMEMBER YOUR SEED - to initialize when lost private key:" << std::endl
 		<< seed << std::endl;
 
@@ -30,11 +30,11 @@ Wallet::Wallet()
 	
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKey, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToString();
+	std::cout <<std::hex << pointPublicKey->_x << std::endl << std::hex << pointPublicKey->_y << std::endl; 
+	_publicKey = pointPublicKey->ToStringNoPad();
 
 	// Calculate Address
-	cpp_int publicKey = hexStringToCppInt(_publicKey);
-	_address = AddressGenerator::generateAddress(publicKey);
+	_address = AddressGenerator::generateAddress(_publicKey);
 }
 
 Wallet::Wallet(const std::string& seed, bool seedInitialize)
@@ -46,15 +46,14 @@ Wallet::Wallet(const std::string& seed, bool seedInitialize)
 
 	// Get private key from seed
 	_privateKey = bip39.reverseSeed(seed);
-	cpp_int privateKey = hexStringToCppInt(_privateKey);
+	cpp_int privateKey = ECDSASigner::hexStringToCppInt(_privateKey);
 
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKey, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToString();
+	_publicKey = pointPublicKey->ToStringNoPad();
 
 	// Calculate Address
-	cpp_int publicKey = hexStringToCppInt(_publicKey);
-	_address = AddressGenerator::generateAddress(publicKey);
+	_address = AddressGenerator::generateAddress(_publicKey);
 }
 
 Wallet::Wallet(const std::string& privateKey)
@@ -70,14 +69,13 @@ Wallet::Wallet(const std::string& privateKey)
 
 	_privateKey = privateKey;
 
-	cpp_int privateKeyCppInt = hexStringToCppInt(_privateKey);
+	cpp_int privateKeyCppInt = ECDSASigner::hexStringToCppInt(_privateKey);
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToString();
+	_publicKey = pointPublicKey->ToStringNoPad();
 
 	// Calculate Address
-	cpp_int publicKey = hexStringToCppInt(_publicKey);
-	_address = AddressGenerator::generateAddress(publicKey);
+ 	_address = AddressGenerator::generateAddress(_publicKey);
 }
 
 

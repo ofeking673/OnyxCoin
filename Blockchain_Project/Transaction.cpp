@@ -48,18 +48,14 @@ void Transaction::signTransaction(const std::string& privateKey)
 
 	// Derive public key from private key
 	Point* pointPublicKey = keyGenerator.ECMul(ECDSASigner::hexStringToCppInt(privateKey), keyGenerator.GPoint);
-	std::string hexPublicKeyPart1 = ECDSASigner::cppIntToHexString(pointPublicKey->_x);
-	std::string hexPublicKeyPart2 = ECDSASigner::cppIntToHexString(pointPublicKey->_y);
-	std::string hexPublicKey = hexPublicKeyPart1 + hexPublicKeyPart2;
+	std::string publicKey = pointPublicKey->ToString();
 
 	// Sign transaction
 	Point* pointSignature = signer.signMessage(ECDSASigner::hexStringToCppInt(privateKey), this->toString());
-	std::string signaturePart1 = ECDSASigner::cppIntToHexString(pointSignature->_x);
-	std::string signaturePart2 = ECDSASigner::cppIntToHexString(pointSignature->_y);
-	std::string signature = signaturePart1+signaturePart2;
+	std::string signature = pointSignature->ToString();
 
 	// Script signature = <signature + public key>
-	std::string scriptSig = signature + hexPublicKey;
+	std::string scriptSig = signature + publicKey;
 
 	// Set script signature of all transaction inputs 
 	for (auto input : _inputs)
@@ -114,6 +110,7 @@ std::string Transaction::toJson() const
 		inputObj["scriptSig"] = in.getScriptSig();
 		inputsJson.push_back(inputObj);
 	}
+	//inputs = transaction references
 	j["inputs"] = inputsJson;
 
 	json outputsJson = json::array();
@@ -124,6 +121,7 @@ std::string Transaction::toJson() const
 		outputObj["scriptPubKey"] = out.getScriptPubKey();
 		outputsJson.push_back(outputObj);
 	}
+	//outputs = actions with those references
 	j["outputs"] = outputsJson;
 
 	// Return JSON string

@@ -30,10 +30,10 @@ bool Blockchain::submitMiningHash(const std::string address, std::string finalHa
 	hash = SHA256::digest(hash);
 	
 	if (hash.starts_with('0') && hash == finalHash) {
-		Transaction reward("System", address, 10);
+		/*Transaction reward("System", address, 10);
 		_pendingTransactions.clear();
 		_pendingTransactions.push_back(reward);
-		return true;
+		return true;*/
 	}
 	return false;
 }

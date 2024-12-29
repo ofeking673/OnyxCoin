@@ -6,7 +6,7 @@ std::string BIP39SeedMaker::checksum(cpp_int v)
     int binSize = binary(v).size();
 
     // Convert the entropy to raw bytes
-    std::string hexValue = cppIntToHex(v);
+    std::string hexValue = ECDSASigner::cppIntToHexString(v);
     std::string hexBytes = convertHexStrToBytes(hexValue);
 
     // Hash the entropy raw bytes
@@ -14,7 +14,7 @@ std::string BIP39SeedMaker::checksum(cpp_int v)
     std::string hashBin = binary(cpp_int("0x"+hash));   
 
     // Return first 4 bits of hash
-    return hashBin.substr(0, (binSize/32));
+    return hashBin.substr(0, binSize/32);
 }
 
 // Convert value to binary
@@ -27,7 +27,7 @@ std::string BIP39SeedMaker::binary(cpp_int v)
         int digit = (c >= '0' && c <= '9') ? c - '0' : (c - 'a' + 10);
         bin += std::bitset<4>(digit).to_string();
     }
-    return bin;
+    return PadBinary(bin, 128);
 }   
 
 std::vector<int> BIP39SeedMaker::splitToGroups(std::string binary)
@@ -57,14 +57,6 @@ std::string BIP39SeedMaker::transformToSeed(cpp_int v)
     return seed;
 }
 
-std::string BIP39SeedMaker::cppIntToHex(const cpp_int& value)
-{
-    std::stringstream ss;
-    ss << std::hex << value;
-    return ss.str();
-}
-
-
 
 // Helper function to convert a single hex character to its integer value
 unsigned char BIP39SeedMaker::hexCharToByte(char c)
@@ -83,15 +75,33 @@ unsigned char BIP39SeedMaker::hexCharToByte(char c)
         throw std::invalid_argument("Invalid hexadecimal character");
     }
 }
+std::string BIP39SeedMaker::PadBinary(std::string& bin, int len) {
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(len) << bin;
+    return ss.str();
+}
+std::string BIP39SeedMaker::PadToNearestHex(std::string& hex, int amount)
+{
+    std::stringstream ss;
+    if(amount == 1) 
+    {
+        ss << std::setfill('0') << std::setw(hex.size() + amount) << hex;
+    }
+    else
+    {
+        ss << std::setfill('0') << std::setw(amount) << hex;
+    }
+    return ss.str();
+}
 
 
 // Function to convert a hex string to raw bytes
-std::string BIP39SeedMaker::convertHexStrToBytes(const std::string& hex)
+std::string BIP39SeedMaker::convertHexStrToBytes(std::string& hex)
 {
     // Check if the hex string has an even length
     if (hex.length() % 2 != 0)
     {
-        throw std::invalid_argument("Hex string must have an even length");
+        hex = PadToNearestHex(hex);
     }
 
     std::string bytes;
@@ -126,13 +136,13 @@ std::string BIP39SeedMaker::reverseSeed(std::string seed)
     int i = 0;
     while(ss >> word) {
         int index = std::find(wordlist.begin(), wordlist.end(), word) - wordlist.begin();
-        
-        s << std::setw(11) << std::setfill('0') << binary(index).substr(1); //binary returns a 12 bit number, 4 * 3
+        std::string binIndex = binary(index);
+        s << std::setw(11) << std::setfill('0') << binIndex.substr(binIndex.size()-11); //binary returns a 12 bit number, 4 * 3
         bin += s.str();
         s.str("");
     }
 
     std::string checksum = bin.substr(128);
     bin = bin.substr(0, 128);
-    return cppIntToHex(binToInt(bin));
+    return ECDSASigner::cppIntToHexString(binToInt(bin));
 }

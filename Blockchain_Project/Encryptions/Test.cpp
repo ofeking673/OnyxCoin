@@ -330,13 +330,13 @@ void Test::testRIPEMD160()
 void Test::testAddressGenerator()
 {
 	{
-		std::string output = AddressGenerator::generateAddress(cpp_int("0xd8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6"));
+		std::string output = AddressGenerator::generateAddress("d8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
 		std::string expected = "6GzqttWiuPEFeq9CKBnExR2dWfeFPWkA";
 		assert(expected == output);
 	}
 
 	{
-		std::string output = AddressGenerator::generateAddress(cpp_int("0x00ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6"));
+		std::string output = AddressGenerator::generateAddress("00ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
 		std::string expected = "6GtoDZ575yj77RcUsd6S7gdxg9fz6Zbd";
 		assert(expected == output);
 	}
@@ -346,42 +346,7 @@ void Test::testAddressGenerator()
 
 void Test::testWalletCreation()
 {
-	{
-		Wallet wallet1 = Wallet();
-		Wallet wallet2 = Wallet(wallet1._seed, true);
-		Wallet wallet3 = Wallet(wallet1.getPrivateKey());
-
-		assert(wallet1.getAddress() == wallet2.getAddress());
-		assert(wallet1.getAddress() == wallet3.getAddress());
-		assert(wallet2.getAddress() == wallet3.getAddress());
-
-		assert(wallet1.getPrivateKey() == wallet2.getPrivateKey());
-		assert(wallet1.getPrivateKey() == wallet3.getPrivateKey());
-		assert(wallet2.getPrivateKey() == wallet3.getPrivateKey());
-
-		assert(wallet1.getPublicKey() == wallet2.getPublicKey());
-		assert(wallet1.getPublicKey() == wallet3.getPublicKey());
-		assert(wallet2.getPublicKey() == wallet3.getPublicKey());
-	}
-	
-	{
-		Wallet wallet1 = Wallet();
-		Wallet wallet2 = Wallet(wallet1._seed, true);
-		Wallet wallet3 = Wallet(wallet1.getPrivateKey());
-
-		assert(wallet1.getAddress() == wallet2.getAddress());
-		assert(wallet1.getAddress() == wallet3.getAddress());
-		assert(wallet2.getAddress() == wallet3.getAddress());
-
-		assert(wallet1.getPrivateKey() == wallet2.getPrivateKey());
-		assert(wallet1.getPrivateKey() == wallet3.getPrivateKey());
-		assert(wallet2.getPrivateKey() == wallet3.getPrivateKey());
-
-		assert(wallet1.getPublicKey() == wallet2.getPublicKey());
-		assert(wallet1.getPublicKey() == wallet3.getPublicKey());
-		assert(wallet2.getPublicKey() == wallet3.getPublicKey());
-	}
-
+	for (int i = 0; i < 3; i++) 
 	{
 		Wallet wallet1 = Wallet();
 		Wallet wallet2 = Wallet(wallet1._seed, true);

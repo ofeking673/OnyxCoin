@@ -1,6 +1,8 @@
 #include "UTXOSet.h"
 #include <iostream>
 
+UTXOSet* UTXOSet::_instance = nullptr;
+
 void UTXOSet::addUTXO(const OutPoint& outpoint, const UTXOData& utxoData)
 {
     // Insert or update the UTXO

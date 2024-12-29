@@ -4,6 +4,7 @@
 class UTXOData
 {
 public:
+	UTXOData() = default;
 	UTXOData(uint64_t value, std::string scriptPubKey) :_value(value), _scriptPubKey(scriptPubKey) {};
 	~UTXOData() {};
 

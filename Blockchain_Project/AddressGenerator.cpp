@@ -1,15 +1,14 @@
 #include "AddressGenerator.h"
 
-std::string AddressGenerator::generateAddress(cpp_int publicKey)
+std::string AddressGenerator::generateAddress(std::string publicKey)
 {
 	BIP39SeedMaker bip39;
 	Base58 base58;
 
 	std::string versionByte = "ff";
-	std::string hexPublicKey = bip39.cppIntToHex(publicKey);
-	hexPublicKey = padHexTo32Bytes(hexPublicKey);
+	publicKey = padHexTo64Bytes(publicKey);
 
-	std::string publicKeyHash = RIPEMD_160::hash(SHA256::digest(hexPublicKey));
+	std::string publicKeyHash = RIPEMD_160::hash(SHA256::digest(publicKey));
 	std::string versionedPayload = versionByte + publicKeyHash;
 
 	// Checksum is first 4 bytes
@@ -22,10 +21,10 @@ std::string AddressGenerator::generateAddress(cpp_int publicKey)
 	return address;
 }
 
-std::string AddressGenerator::padHexTo32Bytes(std::string hexStr)
+std::string AddressGenerator::padHexTo64Bytes(std::string hexStr)
 {
 	// Calculate the number of leading zeros needed
-	size_t padding_length = 64 - hexStr.size();
+	size_t padding_length = 128 - hexStr.size();
 
 	// Create a string with the required number of leading zeros
 	std::string padding(padding_length, '0');

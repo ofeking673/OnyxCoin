@@ -59,11 +59,14 @@ std::string Server::mine(SOCKET& clientSock, std::string& address, json j)
 	std::string hash = SHA256::digest(info + std::to_string(nonce));
 	if (hash == expectedHash) {
 		//nonce is correct, mining is solved
-		blockchain->addTransaction(Transaction("System", address, 10));
+		//blockchain->addTransaction(Transaction("System", address, 10)); //reward user on mining
 	}
 	std::string response = JsonPacketSerializer::serializeMiningResponse((hash == expectedHash), 1);
 	return response;
 }
+//add funciton to verify transaction sending and authorization
+
+
 
 //SOCKET Server::findByKey(std::string& k)
 //{
