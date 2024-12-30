@@ -6,6 +6,7 @@
 #include "HelperT.h"
 #include "Encryptions/Blake2b.h"
 #include "Encryptions/ECDSASigner.h"
+#include "Encryptions/RIPEMD_160.h"
 
 #include "OutPoint.h"
 #include "OutPointHash.h"
@@ -44,11 +45,18 @@ public:
 	void addOutput(const TxOutput& output);
 
 	void signTransaction(const std::string& privateKey);
-	bool verifyTransactionSignature(const std::string& publicKey);
+	bool verifyTransactionSignature();
 
 
 	std::string toString() const;
 	std::string toJson() const;
+	static Transaction fromJson(const std::string& jsonStr);
+
+	static std::string hashPublicKey(const std::string& hexPubKey);
+
+	// scriptPubKey = <type (1 byte)><public key (64 bytes)>
+	static std::string extractTransactionType(const std::string& scriptPubKey);
+	static std::string extractPubKeyHash(const std::string& scriptPubKey);
 
 private:
 	// Helper for generating transaction ID
