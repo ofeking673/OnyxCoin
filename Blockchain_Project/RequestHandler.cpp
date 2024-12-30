@@ -16,8 +16,7 @@ std::string RequestHandler::mine(std::string& address, json j)
 	int nonce = j["nonce"];
 	std::string hash = SHA256::digest(info + std::to_string(nonce));
 	if (hash == expectedHash) {
-		//nonce is correct, mining is solved
-		//blockchain->addTransaction(Transaction("System", address, 10)); //reward user on mining
+		blockchain->submitMiningHash(address, hash, nonce);
 	}
 	std::string response = JsonPacketSerializer::serializeMiningResponse((hash == expectedHash), 1);
 	return response;

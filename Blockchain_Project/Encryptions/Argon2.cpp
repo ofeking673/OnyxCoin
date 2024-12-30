@@ -28,7 +28,7 @@ Argon2::Argon2(Type type, uint32_t timeCost, uint32_t memoryCost, uint32_t paral
     memory_.resize(memoryCost_);
 }
 
-std::vector<uint8_t> Argon2::deriveKey(const std::string& password, const std::vector<uint8_t>& salt)
+std::vector<uint8_t> Argon2::deriveKey(const std::string password, const std::vector<uint8_t> salt)
 {
     // Initialize internal state with the password and salt
     initialize(password, salt);
@@ -44,6 +44,14 @@ std::vector<uint8_t> Argon2::deriveKey(const std::string& password, const std::v
 
     // Return the derived key
     return output;
+}
+
+cpp_int Argon2::castVectorToCPPInt(std::vector<uint8_t>& vector)
+{
+    std::ostringstream oss;
+    for (size_t i = 0; i < vector.size(); ++i)
+        oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(vector[i]);
+    return cpp_int("0x" + oss.str());
 }
 
 void Argon2::initialize(const std::string& password, const std::vector<uint8_t>& salt)

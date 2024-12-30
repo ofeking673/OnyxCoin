@@ -25,10 +25,16 @@ public:
 
 	static std::string serializeMiningResponse(bool success, int diff);
 	static std::string serializeTransactionResponse(bool success);
+
+	static std::string getPublic(std::string priv) {
+		KeyGenerator key;
+		return key.ECMul(cpp_int(priv), key.GPoint)->ToString();
+	};
 private:
 	static Point* signMessage(std::string key, std::string message) {
 		ECDSASigner ecd;
 		return ecd.signMessage(cpp_int(key), message);
 	}
+	
 };
 

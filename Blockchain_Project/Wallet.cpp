@@ -56,26 +56,15 @@ Wallet::Wallet(const std::string& seed, bool seedInitialize)
 	_address = AddressGenerator::generateAddress(_publicKey);
 }
 
-Wallet::Wallet(const std::string& privateKey)
+Wallet::Wallet(const std::string& filename)
 {
 	/*
 	Calculate public key
 	calculate address
 	*/
-	KeyGenerator keyGenerator;
-	BIP39SeedMaker bip39;
 
-	std::cout << "Regenerating wallet from private key..." << std::endl;
-
-	_privateKey = privateKey;
-
-	cpp_int privateKeyCppInt = ECDSASigner::hexStringToCppInt(_privateKey);
-	// Calculate public key
-	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToStringNoPad();
-
-	// Calculate Address
- 	_address = AddressGenerator::generateAddress(_publicKey);
+	std::cout << "Regenerating wallet from file path..." << std::endl;
+	loadWalletData(filename);
 }
 
 
@@ -107,9 +96,52 @@ uint64_t Wallet::getBalance() const
 }
 
 
+void Wallet::loadWalletData(const std::string& filename)
+{
+	FILE* f = fopen(filename.c_str(), "r");
+	if (!f) {
+		throw std::runtime_error("Failed to open file: " + filename);
+	}
 
+	char buffer[100];
+	int amt = fread(buffer, sizeof(buffer), 1, f);
+	buffer[amt] = '\0';
+	
+	fclose(f);
 
+	if (amt == 0) {
+		throw std::runtime_error("Failed to read data from file: " + filename);
+	}
 
+	std::string priv(buffer);
+	
+	_privateKey = priv; //normal calculations from other data
+	KeyGenerator keyGenerator;
+	cpp_int privateKeyCppInt = ECDSASigner::hexStringToCppInt(_privateKey);
+	// Calculate public key
+	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
+	_publicKey = pointPublicKey->ToStringNoPad();
+
+	// Calculate Address
+	_address = AddressGenerator::generateAddress(_publicKey);
+}
+
+void Wallet::saveWalletData(const std::string& filename) const
+{
+	FILE* f = fopen(filename.c_str(), "w");
+	if (!f) {
+		throw std::runtime_error("Failed to open file: " + filename);
+	}
+	//Encrypt private key here
+	//AES-256-CBC and ARGON2 implemenetations dont work yet.
+	/*Argon2 arg;
+	auto key = arg.deriveKey("password", {});
+	AES256CBC aes(Argon2::castVectorToCPPInt(key));
+	std::string cipherKey = aes.cbcEncrypt(_privateKey, {});*/
+	std::string cipherKey = _privateKey;
+	int elementsWritten = fwrite(cipherKey.c_str(), 1, cipherKey.size(), f);
+	fclose(f);
+}
 
 /*
  * Internal function to pick the right set of UTXOs to spend for a given amount.

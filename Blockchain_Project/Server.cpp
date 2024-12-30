@@ -36,13 +36,15 @@ void Server::HandleClient(SOCKET clientSock)
 			{
 			case Mine:
 				response = handler->mine(address, j);
-				serverSock_->sendMessage(clientSock, response);
 				break;
 			case MakeTransaction:
 				response = handler->transaction(address, j);
+				break;
 			default:
 				break;
 			}
+			serverSock_->sendMessage(clientSock, response);
+
 		}
 	} 
 	catch(std::exception& e) 
@@ -50,18 +52,3 @@ void Server::HandleClient(SOCKET clientSock)
 		std::cout << __FUNCTION__ ": " << e.what() << std::endl;
 	}
 }
-
-//add funciton to verify transaction sending and authorization
-
-
-
-//SOCKET Server::findByKey(std::string& k)
-//{
-//	for (const auto& [socket, pair] : Users_) {
-//		if (pair.first == k) {
-//			return socket;
-//		}
-//	}
-//	throw std::runtime_error(__FUNCTION__ ": Did not find socket for key: " + k);
-//}
-

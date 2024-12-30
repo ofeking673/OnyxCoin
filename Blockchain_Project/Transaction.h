@@ -15,6 +15,7 @@
 
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
 #define TAX_RATE 0.01
+
 class Transaction
 {
 public:

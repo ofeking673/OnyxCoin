@@ -2,6 +2,7 @@
 #include <cassert>
 #include <algorithm> 
 #include "Blake2b.h"
+#include "../Point.h"
 
 class Argon2
 {
@@ -31,8 +32,9 @@ public:
      * @param salt The cryptographic salt.
      * @return A vector containing the derived key.
      */
-    std::vector<uint8_t> deriveKey(const std::string& password, const std::vector<uint8_t>& salt);
+    std::vector<uint8_t> deriveKey(const std::string password, const std::vector<uint8_t> salt);
 
+    static cpp_int castVectorToCPPInt(std::vector<uint8_t>& vector);
 private:
     // Argon2 Parameters
     Type type_;
