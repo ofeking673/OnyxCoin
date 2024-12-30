@@ -23,12 +23,12 @@ public:
 	std::string ToString() 
 	{ 
 		std::stringstream ss;
-		ss << std::hex << cpp_int(HelperT::padString(_x.convert_to<std::string>(), 32) + HelperT::padString(_y.convert_to<std::string>(), 32));
+		ss << std::hex << cpp_int(HelperT::padString(_x.convert_to<std::string>(), 64) + HelperT::padString(_y.convert_to<std::string>(), 64));
 		return ss.str();
 	}
 
 	static Point* parseString(std::string str) {
-		return new Point(cpp_int(str.substr(0, 32)), cpp_int(str.substr(32, 32)));
+		return new Point(cpp_int(str.substr(0, 64)), cpp_int(str.substr(64))); // python [0:64] [64:]
 	}
 };
 

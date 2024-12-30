@@ -26,4 +26,3 @@ private:
 	uint64_t _value;
 	std::string _scriptPubKey;
 };
-

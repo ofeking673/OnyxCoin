@@ -25,5 +25,47 @@ std::string RequestHandler::mine(std::string& address, json j)
 
 std::string RequestHandler::transaction(std::string& address, json j)
 {
-	
+	//parse the transaction
+	//make outpoint
+	//verify outpoint in utxoSet
+	//verify signature of transaction
+	//check if input sum is equal to output sum
+	//remove input from UTXOSet and add outputs to the set
+	//KAPISH
+
+	uint64_t TxInputSum = 0, TxOutputSum = 0;
+
+	Transaction tran = Transaction::fromJson(j.dump());
+	std::vector<TxInput> inputs = tran.getInputs();
+
+	for(const TxInput& inp : inputs)
+	{
+		if (!utxo->hasUTXO(inp.getPreviousOutPoint()))
+		{
+			throw new std::runtime_error(__FUNCTION__": One of the inputs were used!");
+		}
+		TxInputSum += utxo->getUTXOData(inp.getPreviousOutPoint()).getValue();
+	}
+
+	if(!tran.verifyTransactionSignature()) {
+		throw new std::runtime_error(__FUNCTION__": Transaction signature is incorrect!");
+	}
+
+	std::vector<TxInput> outputs = tran.getOutputs();
+	for(const TxOutput& out : outputs) {
+		TxOutputSum += utxo->getUTXOData(out.getPreviousOutPoint()).getValue();
+	}
+
+	if(TxInputSum != TxOutputSum) {
+		throw new std::runtime_error(__FUNCTION__ (TxInputSum > TxOutputSum) ? ": Input has too much currency, Redirect some to your own address." : ": Input amount does not suffice for output amount");
+	}
+
+	for (const TxInput& inp : inputs) {
+		utxo->removeUTXO(inp.getPreviousOutPoint());
+	}
+	for (const TxOutput& out : outputs) {
+		utxo->addUTXO(tran.generateOutpoint(out));
+	}
+
+	return JsonPacketSerializer::serializeTransactionResponse(true);
 }

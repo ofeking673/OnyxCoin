@@ -22,9 +22,9 @@ public:
 	// Method to mine pending transactions and add a new block to the chain
 	//void minePendingTransaction(const std::string& minerAddress);
 	bool submitMiningHash(const std::string address, std::string finalHash, int nonce);
-	std::string getCurrentBlockInfo(); //For mining purposes, need to hash this and find the correct nonce.
+	std::string getCurrentBlockInfo(const std::string& minerAddress); //For mining purposes, need to hash this and find the correct nonce.
 	void displayBlockchain() const;
-
+	void commitBlock();
 	// Method to validate the chain
 	bool isChainValid() const;
 	const std::vector<Block> getChain() { return _chain; }; //this is not a pointer nor a reference to avoid changing the chain, Thus this is a read only chain.

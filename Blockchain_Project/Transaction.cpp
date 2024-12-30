@@ -41,6 +41,36 @@ void Transaction::addOutput(const TxOutput& output)
 	_outputs.push_back(output);
 }
 
+OutPoint Transaction::generateOutpoint(const TxOutput& output)
+{
+	int i = getOutputIndex(output);
+	if(i != -1) {
+		OutPoint out(_transactionID, i);
+		return out;
+	}
+}
+
+uint64_t Transaction::calculateTax() const
+{
+	uint64_t tax = 0;
+	for(const TxOutput& output : getOutputs()) 
+	{
+		tax += output.getValue() * TAX_RATE; //Tax rate
+	}
+	return tax;
+}
+
+int Transaction::getOutputIndex(const TxOutput& output)
+{
+	auto it = std::find(_outputs.begin(), _outputs.end(), output);
+	if (it != _outputs.end()) {
+		return std::distance(_outputs.begin(), it); // Compute the index
+	}
+	else {
+		return -1; // Return -1 if the output is not found
+	}
+}
+
 void Transaction::signTransaction(const std::string& privateKey)
 {
 	ECDSASigner signer;
@@ -79,7 +109,7 @@ bool Transaction::verifyTransactionSignature()
 	//     with respect to the output’s scriptPubKey (which is "P2PKH").
 
 	// If there's no ID, we can't verify
-	if (_transactionID.empty()) 
+	if (_transactionID.empty())
 	{
 		return false;
 	}
@@ -106,12 +136,10 @@ bool Transaction::verifyTransactionSignature()
 		//    In a real blockchain, we look up the previous transaction’s outputs:
 		//       input.getPreviousOutPoint() => TransactionID + index
 		//       Then we find that transaction’s outputs[index].getScriptPubKey()
-		//    For brevity, let's pretend you have a function or a global UTXO set:
+		//    For brevity, let's pretend we have a function or a global UTXO set:
 		//        auto utxoData = globalUTXOSet.getUTXOData(input.getPreviousOutPoint());
 		//        std::string scriptPubKey = utxoData.getScriptPubKey();
-		//    We'll just demonstrate:
-		std::string scriptPubKey = "<the actual scriptPubKey from the UTXO>";
-		// e.g. "OP_DUP OP_HASH160 abc123def456... OP_EQUALVERIFY OP_CHECKSIG"
+		std::string scriptPubKey = "";
 
 		// 3) Extract the <pubKeyHash> from scriptPubKey
 		std::string expectedPubKeyHash = extractPubKeyHash(scriptPubKey);
@@ -128,14 +156,16 @@ bool Transaction::verifyTransactionSignature()
 		//       If you stored r|s as a 64-byte hex, parse accordingly
 		//       For example: signatureHex[0..31] => r, [32..63] => s
 		//       Or if you used a function parseString(...) => new Point(r, s)
-		Point* rs = parseSignaturePoint(signatureHex);
+		Point* rs;
+		rs->parseString(signatureHex);
 		if (!rs) {
 			std::cerr << "Invalid signature format in input " << i << "\n";
 			return false;
 		}
 
 		//    b) Rebuild publicKey Point from pubKeyHex (similar approach)
-		Point* pubKeyPoint = parsePublicKeyPoint(pubKeyHex);
+		Point* pubKeyPoint;
+		pubKeyPoint->parseString(pubKeyHex);
 		if (!pubKeyPoint) {
 			std::cerr << "Invalid public key format in input " << i << "\n";
 			delete rs;
@@ -266,10 +296,6 @@ Transaction Transaction::fromJson(const std::string& jsonStr)
 
 	return tx;
 }
-
-
-
-
 
 
 std::string Transaction::generateTransactionID()

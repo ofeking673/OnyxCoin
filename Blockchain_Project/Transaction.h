@@ -14,7 +14,7 @@
 #include "TxOutput.h"
 
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
-
+#define TAX_RATE 0.01
 class Transaction
 {
 public:
@@ -43,6 +43,13 @@ public:
 
 	// Add a new output
 	void addOutput(const TxOutput& output);
+	OutPoint generateOutpoint(const TxOutput& output); 
+
+	//Calculate transaction tax (ooo scaryyy)
+	uint64_t calculateTax() const;
+
+	// Check if TxOutput is in transaction output list, If it exists, return it's index
+	int getOutputIndex(const TxOutput& output);
 
 	void signTransaction(const std::string& privateKey);
 	bool verifyTransactionSignature();
@@ -51,7 +58,6 @@ public:
 	std::string toString() const;
 	std::string toJson() const;
 	static Transaction fromJson(const std::string& jsonStr);
-
 	static std::string hashPublicKey(const std::string& hexPubKey);
 
 	// scriptPubKey = <type (1 byte)><public key (64 bytes)>

@@ -26,25 +26,39 @@ void Blockchain::addTransaction(const Transaction& tx)
 
 bool Blockchain::submitMiningHash(const std::string address, std::string finalHash, int nonce)
 {
-	std::string hash = getCurrentBlockInfo() + std::to_string(nonce);
-	hash = SHA256::digest(hash);
+	std::string hash = SHA256::digest(getCurrentBlockInfo(address) + std::to_string(nonce));
 	
 	if (hash.starts_with('0') && hash == finalHash) {
-		/*Transaction reward("System", address, 10);
-		_pendingTransactions.clear();
-		_pendingTransactions.push_back(reward);
-		return true;*/
+		//loop over all transactions, get fees (0.01) from all outputs, make new transaction from source "Coinbase" HASHED SHA256->RIPE
+		uint64_t taxAmt = 0;
+		for (const auto& tx : _pendingTransactions)
+		{
+			taxAmt += tx.calculateTax();
+		}
+
+		Transaction trans(
+			{ TxInput(OutPoint("", 0), "Coinbase") },
+			{ TxOutput(taxAmt, SHA256::digest(address)) });
+		addTransaction(trans);
+		commitBlock();
 	}
 	return false;
 }
 
-std::string Blockchain::getCurrentBlockInfo()
+std::string Blockchain::getCurrentBlockInfo(const std::string& minerAddress)
 {
 	Block newBlock(_chain.size(), getLatestBlock().getHash());
+	uint64_t taxAmt = 0;
 	for (const auto& tx : _pendingTransactions)
 	{
+		taxAmt += tx.calculateTax();
 		newBlock.addTransaction(tx);
 	}
+	Transaction trans(
+		{ TxInput(OutPoint("", 0), "Coinbase") },
+		{ TxOutput(taxAmt, SHA256::digest(minerAddress)) });
+
+	newBlock.addTransaction(trans);
 
 	return newBlock.getCurrentBlockInfo();
 }
@@ -56,6 +70,18 @@ void Blockchain::displayBlockchain() const
 		block.displayBlock();
 		std::cout << "=========================" << std::endl;
 	}
+}
+
+void Blockchain::commitBlock()
+{
+	Block newBlock(_chain.size(), getLatestBlock().getHash());
+	for (const auto& tx : _pendingTransactions)
+	{
+		newBlock.addTransaction(tx);
+	}
+
+	_chain.push_back(newBlock);
+	_pendingTransactions.clear();
 }
 
 bool Blockchain::isChainValid() const
