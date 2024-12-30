@@ -106,6 +106,52 @@ uint64_t Wallet::getBalance() const
 	return balance;
 }
 
+Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t amount)
+{
+	std::pair<std::vector<OutPoint>, size_t> selectedUTXOs = selectUTXOs(amount);
+	std::vector<OutPoint> outPoints = selectedUTXOs.first;
+	size_t accumulated = selectedUTXOs.second;
+
+	if (accumulated == 0) // Not enough coins in wallet
+	{
+		// Return Empty transaction
+		return Transaction(std::vector<TxInput>(), std::vector<TxOutput>());
+	}
+
+	// Set inputs for transaction
+	std::vector<TxInput> inputs;
+	for (size_t i = 0; i < outPoints.size(); i++)
+	{
+		TxInput input(outPoints[i], ""); // Currently empty scriptSig. will be added using signTransaction
+		inputs.push_back(input);
+	}
+
+	// Set outputs for transaction
+	std::vector<TxOutput> outputs;
+	//		Main output
+	//			scriptPubKey => type(1 byte)|pubKeyHash(20 bytes)
+	std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + Transaction::hashPublicKey(toPublicKey);
+	TxOutput output(amount, scriptPubKey);
+	outputs.push_back(output);
+
+	// If we need a change, create output for it
+	if (accumulated > amount)
+	{
+		// Create change transaction
+		std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + Transaction::hashPublicKey(_publicKey /*We are the recievers*/);
+		TxOutput change(accumulated - amount, scriptPubKey);
+		outputs.push_back(change);
+	}
+
+	// Create the transaction with the correct inputs and outputs
+	Transaction tx(inputs, outputs);
+
+	// Sign the transaction
+	tx.signTransaction(_privateKey);
+
+	return tx;
+}
+
 
 
 
@@ -116,7 +162,7 @@ uint64_t Wallet::getBalance() const
  *   1) Sort myUTXOs by value (ascending).
  *   2) Iterate from smallest to largest, accumulating until we've reached or exceeded 'amount'.
  */
-std::vector<OutPoint> Wallet::selectUTXOs(uint64_t amount) const
+std::pair<std::vector<OutPoint>, size_t> Wallet::selectUTXOs(uint64_t amount) const
 {
 	// Create a vector to hold all (OutPoint, value) pairs
 	std::vector<std::pair<OutPoint, uint64_t>> utxos;
@@ -151,44 +197,16 @@ std::vector<OutPoint> Wallet::selectUTXOs(uint64_t amount) const
 		}
 	}
 
+	std::pair<std::vector<OutPoint>, size_t> selectedUtxos;
 	// If we couldn't accumulate enough, throw or handle the error
 	if (accumulated < amount)
 	{
 		std::cout << "Insufficient funds in the wallet to select the requested amount." << std::endl;
-		return std::vector<OutPoint>(); // Returns empty vector
+		selectedUtxos.second = 0;
+		return selectedUtxos; // Returns empty pair
 	}
 
-	return selected;
+	selectedUtxos.first = selected;			// Selected UTXOs
+	selectedUtxos.second = accumulated;		// Accumalated sum of the OutPoints
+	return selectedUtxos;
 }
-
-
-
-
-//std::string Wallet::cppIntToHexString(cpp_int v)
-//{
-//	std::string hexStr = v.str(16);
-//	return hexStr;
-//}
-//
-//cpp_int Wallet::hexStringToCppInt(const std::string& hex)
-//{
-//	std::string hexStr;
-//	// Remove "0x" if exists
-//	if (hex.find("0x") == 0 || hex.find("0X") == 0) {
-//		hexStr = hex.substr(2);
-//	}
-//
-//	cpp_int num = (hexStr, 16);
-//	return num;
-//}
-
-
-
-
-
-
-
-
-
-
-
