@@ -44,6 +44,51 @@ cpp_int ECDSASigner::generateNumber()
     return num;
 }
 
+
+
+
+
+Point* parseSignaturePoint(const std::string& signatureHex)
+{
+    // Suppose signatureHex is "abcd... (64 hex chars) ..."
+    // You need to split it into r & s.
+    // This is just an example. Adjust to how you actually store them.
+    if (signatureHex.size() < 64) {
+        return nullptr;
+    }
+
+    // Let's say half is r, half is s. 
+    // Real code would handle odd-length, prefix, etc.
+    std::string rHex = signatureHex.substr(0, signatureHex.size() / 2);
+    std::string sHex = signatureHex.substr(signatureHex.size() / 2);
+
+    cpp_int rInt = ECDSASigner::hexStringToCppInt(rHex);
+    cpp_int sInt = ECDSASigner::hexStringToCppInt(sHex);
+
+    return new Point(rInt, sInt);
+}
+
+Point* parsePublicKeyPoint(const std::string& pubKeyHex)
+{
+    // If publicKey is stored as X||Y in hex, we do similarly
+    if (pubKeyHex.size() < 128) {
+        return nullptr;
+    }
+
+    std::string xHex = pubKeyHex.substr(0, pubKeyHex.size() / 2);
+    std::string yHex = pubKeyHex.substr(pubKeyHex.size() / 2);
+
+    cpp_int xInt = ECDSASigner::hexStringToCppInt(xHex);
+    cpp_int yInt = ECDSASigner::hexStringToCppInt(yHex);
+
+    return new Point(xInt, yInt);
+}
+
+
+
+
+
+
 std::string ECDSASigner::cppIntToHexString(cpp_int v)
 {
     std::stringstream ss;

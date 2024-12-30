@@ -27,8 +27,14 @@ public:
 		return ss.str();
 	}
 
-	static Point* parseString(std::string str) {
-		return new Point(cpp_int(str.substr(0, 32)), cpp_int(str.substr(32, 32)));
+	static Point* parseString(std::string str) 
+	{
+		return new Point(cpp_int(str.substr(0, 64)), cpp_int(str.substr(64)));
+	}
+
+	static Point* parseHexString(std::string str)
+	{
+		return new Point(cpp_int("0x" + str.substr(0, 64)), cpp_int("0x" + str.substr(64)));
 	}
 };
 
