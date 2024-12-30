@@ -52,7 +52,9 @@ public:
 	int getOutputIndex(const TxOutput& output);
 
 	void signTransaction(const std::string& privateKey);
-	bool verifyTransactionSignature();
+
+	// Checks that each input's scriptSig is correct with respect to the output's scriptPubKey
+	bool verifyTransactionSignature(const std::string& scriptPubKey);
 
 
 	std::string toString() const;
@@ -60,10 +62,12 @@ public:
 	static Transaction fromJson(const std::string& jsonStr);
 	static std::string hashPublicKey(const std::string& hexPubKey);
 
-	// scriptPubKey = <type (1 byte)><public key (64 bytes)>
+	// scriptPubKey = <type (1 byte)><public key hash (20 bytes)>
+	static std::string extractPublicKeyHash(const std::string& scriptPubKey);
 	static std::string extractTransactionType(const std::string& scriptPubKey);
-	static std::string extractPubKeyHash(const std::string& scriptPubKey);
 
+	// Returns the transaction info, with empty scriptSig in inputs. hashed with sha256. To sign with ECDSA.
+	std::string transactionMessageToSign();
 private:
 	// Helper for generating transaction ID
 	std::string generateTransactionID();

@@ -27,8 +27,14 @@ public:
 		return ss.str();
 	}
 
-	static Point* parseString(std::string str) {
-		return new Point(cpp_int(str.substr(0, 64)), cpp_int(str.substr(64))); // python [0:64] [64:]
+	static Point* parseString(std::string str) 
+	{
+		return new Point(cpp_int(str.substr(0, 64)), cpp_int(str.substr(64)));
+	}
+
+	static Point* parseHexString(std::string str)
+	{
+		return new Point(cpp_int("0x" + str.substr(0, 64)), cpp_int("0x" + str.substr(64)));
 	}
 };
 
