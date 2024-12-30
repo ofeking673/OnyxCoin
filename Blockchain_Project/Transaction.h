@@ -16,6 +16,10 @@
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
 #define TAX_RATE 0.01
 
+// Transaction types (first 1 byte in scriptPubKey)
+#define REGULARE_TRANSACTION_TYPE 10 
+#define REWARD_TRANSACTION_TYPE 20
+#define CHANGE_TRANSACTION_TYPE 30
 class Transaction
 {
 public:

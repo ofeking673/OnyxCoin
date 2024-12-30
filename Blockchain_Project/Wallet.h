@@ -51,7 +51,7 @@ public:
     //  - creates an appropriate output (and a change output if needed)
     //  - signs the inputs
     //  - returns a fully-formed Transaction object
-    Transaction createTransaction(const std::string& toAddress, uint64_t amount);
+    Transaction createTransaction(const std::string& toPublicKey, uint64_t amount);
 
     // Signs the input of a transaction at a given input index
     // The scriptSig can then be set inside the TxInput
@@ -78,7 +78,8 @@ private:
 
     // Internal function to pick the right set of UTXOs to spend for a given amount
     // If not enough funds, returns empty vector
-    std::vector<OutPoint> selectUTXOs(uint64_t amount) const;
+    // Returns vector of outPoint, and the amount of them
+    std::pair<std::vector<OutPoint>, size_t> selectUTXOs(uint64_t amount) const;
 
 private:
     std::string _privateKey;
