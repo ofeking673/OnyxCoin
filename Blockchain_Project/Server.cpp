@@ -3,7 +3,7 @@
 // Define the static members
 std::map<SOCKET, IClient*> Server::Users_; 
 Socket* Server::serverSock_ = nullptr;
-Blockchain* Server::blockchain = nullptr;
+RequestHandler* Server::handler = nullptr;
 
 /*
 MakeTransaction = 100,
@@ -11,7 +11,7 @@ Mine = 200,*/
 
 Server::Server()
 {
-	blockchain = Blockchain::getInstance();
+	handler = RequestHandler::getInstance();
 	serverSock_ = new Socket(8026);
 	serverSock_->WaitForClients(HandleClient);
 }
@@ -31,14 +31,15 @@ void Server::HandleClient(SOCKET clientSock)
 			
 			std::string msg = serverSock_->readFromSock(clientSock);
 			json j = JsonPacketDeserializer::DeserializeRequest(msg);
-
+			std::string response;
 			switch (j.template get<Requests>())
 			{
 			case Mine:
-				mine(clientSock, address, j);
+				response = handler->mine(address, j);
+				serverSock_->sendMessage(clientSock, response);
 				break;
 			case MakeTransaction:
-				
+				response = handler->transaction(address, j);
 			default:
 				break;
 			}
@@ -50,20 +51,6 @@ void Server::HandleClient(SOCKET clientSock)
 	}
 }
 
-std::string Server::mine(SOCKET& clientSock, std::string& address, json j)
-{
-	//Get the nonce and new hash from sock
-	auto info = blockchain->getCurrentBlockInfo();
-	std::string expectedHash = j["hash"];
-	int nonce = j["nonce"];
-	std::string hash = SHA256::digest(info + std::to_string(nonce));
-	if (hash == expectedHash) {
-		//nonce is correct, mining is solved
-		//blockchain->addTransaction(Transaction("System", address, 10)); //reward user on mining
-	}
-	std::string response = JsonPacketSerializer::serializeMiningResponse((hash == expectedHash), 1);
-	return response;
-}
 //add funciton to verify transaction sending and authorization
 
 
