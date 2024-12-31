@@ -142,6 +142,42 @@ Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t a
 }
 
 
+void Wallet::updateUTXOsWithTransaction(const Transaction& tx)
+{
+	//  - If a TxOutput's scriptPubKey matches my address, add to myUTXOs
+	std::string myPubKeyHash = Transaction::hashPublicKey(_publicKey);
+	std::vector<TxOutput> outputs = tx.getOutputs();
+	for (size_t i = 0; i < outputs.size(); i++)
+	{
+		TxOutput output = outputs[i];
+		std::string outputPubKeyHash = tx.extractPublicKeyHash(output.getScriptPubKey());
+
+		if (myPubKeyHash == outputPubKeyHash)
+		{
+			UTXOData utxodata(output.getValue(), output.getScriptPubKey());
+			OutPoint outpoint(tx.getTransactionID(), i);
+
+			myUTXOs[outpoint] = utxodata;
+		}
+	}
+
+	//  - If a TxInput references one of my outpoints, remove that from myUTXOs
+	std::vector<TxInput> inputs = tx.getInputs();
+	for (size_t i = 0; i < inputs.size(); i++)
+	{
+		TxInput input = inputs[i];
+		removeUTXO(input.getPreviousOutPoint());
+	}
+}
+
+void Wallet::updateUTXOsFromNewBlock(const std::vector<Transaction>& blockTransactions)
+{
+	for (auto tx : blockTransactions)
+	{
+		updateUTXOsWithTransaction(tx);
+	}
+}
+
 void Wallet::loadWalletData(const std::string& filename)
 {
 	FILE* f = fopen(filename.c_str(), "r");
@@ -241,4 +277,13 @@ std::pair<std::vector<OutPoint>, size_t> Wallet::selectUTXOs(uint64_t amount) co
 	selectedUtxos.first = selected;			// Selected UTXOs
 	selectedUtxos.second = accumulated;		// Accumalated sum of the OutPoints
 	return selectedUtxos;
+}
+
+void Wallet::removeUTXO(const OutPoint& outpoint)
+{
+	auto it = myUTXOs.find(outpoint);
+	if (it != myUTXOs.end())
+	{
+		myUTXOs.erase(it);
+	}
 }

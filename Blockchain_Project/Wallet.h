@@ -55,12 +55,11 @@ public:
 
     // Signs the input of a transaction at a given input index
     // The scriptSig can then be set inside the TxInput
-    void signInput(Transaction& tx, size_t inputIndex) const;
+    //void signInput(Transaction& tx, size_t inputIndex) const;
 
     // Update this wallet's UTXO set when a new transaction *to* this wallet arrives 
     // or when an existing UTXO is spent
-    //  - If a TxOutput's scriptPubKey matches my address, add to myUTXOs
-    //  - If a TxInput references one of my outpoints, remove that from myUTXOs
+
     void updateUTXOsWithTransaction(const Transaction& tx);
 
     // A more general approach after each block is mined:
@@ -80,6 +79,9 @@ private:
     // If not enough funds, returns empty vector
     // Returns vector of outPoint, and the amount of them
     std::pair<std::vector<OutPoint>, size_t> selectUTXOs(uint64_t amount) const;
+
+    // Removes a UTXO from myUTXOs if exists
+    void removeUTXO(const OutPoint& outpoint);
 
 private:
     std::string _privateKey;
