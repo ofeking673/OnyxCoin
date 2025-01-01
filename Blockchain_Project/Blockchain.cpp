@@ -6,6 +6,7 @@ Blockchain::Blockchain()
 	// Create the genesis block
 	Block genesisBlock = createGenesisBlock();
 	_chain.push_back(genesisBlock);
+	utxo = UTXOSet::getInstance();
 }
 
 Blockchain::~Blockchain()
@@ -55,7 +56,7 @@ bool Blockchain::submitMiningHash(const std::string address, std::string finalHa
 	return false;
 }
 
-std::string Blockchain::getCurrentBlockInfo(const std::string& minerAddress)
+std::string Blockchain::getCurrentBlockInfo(std::string minerAddress)
 {
 	Block newBlock(_chain.size(), getLatestBlock().getHash());
 	uint64_t taxAmt = 0;
@@ -64,10 +65,12 @@ std::string Blockchain::getCurrentBlockInfo(const std::string& minerAddress)
 		taxAmt += tx.calculateTax();
 		newBlock.addTransaction(tx);
 	}
+	if (minerAddress.find('|') != std::string::npos) {
+		minerAddress.erase(minerAddress.find('|'));
+	}
 	Transaction trans(
 		{ TxInput(OutPoint("", 0), "Coinbase") },
 		{ TxOutput(taxAmt, SHA256::digest(minerAddress)) });
-
 	newBlock.addTransaction(trans);
 
 	return newBlock.getCurrentBlockInfo();

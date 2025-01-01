@@ -31,7 +31,7 @@ Wallet::Wallet()
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKey, keyGenerator.GPoint);
 	std::cout <<std::hex << pointPublicKey->_x << std::endl << std::hex << pointPublicKey->_y << std::endl; 
-	_publicKey = pointPublicKey->ToStringNoPad();
+	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddress(_publicKey);
@@ -50,7 +50,7 @@ Wallet::Wallet(const std::string& seed, bool seedInitialize)
 
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKey, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToStringNoPad();
+	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddress(_publicKey);
@@ -208,7 +208,7 @@ void Wallet::loadWalletData(const std::string& filename)
 	cpp_int privateKeyCppInt = ECDSASigner::hexStringToCppInt(_privateKey);
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToStringNoPad();
+	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddress(_publicKey);
@@ -238,7 +238,7 @@ void Wallet::calculateData()
 	_privateKey = ECDSASigner::cppIntToHexString(privateKeyCppInt);
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToStringNoPad();
+	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddress(_publicKey);

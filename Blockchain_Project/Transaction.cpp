@@ -84,11 +84,11 @@ void Transaction::signTransaction(const std::string& privateKey)
 
 	// Derive public key from private key
 	Point* pointPublicKey = keyGenerator.ECMul(ECDSASigner::hexStringToCppInt(privateKey), keyGenerator.GPoint);
-	std::string publicKey = pointPublicKey->ToStringNoPad();
+	std::string publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Sign transaction
 	Point* pointSignature = signer.signMessage(ECDSASigner::hexStringToCppInt(privateKey), transactionMessageToSign());
-	std::string signature = pointSignature->ToStringNoPad();
+	std::string signature = pointSignature->ToStringNoSeperator();
 
 	// Script signature = <signature + public key>
 	std::string scriptSig = signature + " " + publicKey;

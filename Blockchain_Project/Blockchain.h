@@ -26,7 +26,7 @@ public:
 	// Method to mine pending transactions and add a new block to the chain
 	//void minePendingTransaction(const std::string& minerAddress);
 	bool submitMiningHash(const std::string address, std::string finalHash, int nonce);
-	std::string getCurrentBlockInfo(const std::string& minerAddress); //For mining purposes, need to hash this and find the correct nonce.
+	std::string getCurrentBlockInfo(std::string minerAddress); //For mining purposes, need to hash this and find the correct nonce.
 	void displayBlockchain() const;
 	void commitBlock();
 	void addBlockToUtxo(Block block); //Iterate over all transactions and add the outputs to the UTXO set

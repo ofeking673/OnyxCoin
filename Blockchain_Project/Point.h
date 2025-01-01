@@ -14,8 +14,10 @@ public:
 	cpp_int _x;
 	cpp_int _y;
 	bool is_infinity() { return _x == 0 && _y == 0; }
-	std::string ToStringNoPad(){
-		std::string concatenated = _x.convert_to<std::string>() + _y.convert_to<std::string>();
+	
+	
+	std::string ToStringNoSeperator(){
+		std::string concatenated = HelperT::padString(_x.convert_to<std::string>(), 64) + HelperT::padString(_y.convert_to<std::string>(), 64);
 		cpp_int result(concatenated);
 
 		std::stringstream ss;
@@ -26,7 +28,7 @@ public:
 	std::string ToString() 
 	{ 
 		std::stringstream ss;
-		ss << std::hex << cpp_int(HelperT::padString(_x.convert_to<std::string>(), 64) + HelperT::padString(_y.convert_to<std::string>(), 64));
+		ss << std::hex << cpp_int(HelperT::padString(_x.convert_to<std::string>(), 64)) << '|' << std::hex << cpp_int(HelperT::padString(_y.convert_to<std::string>(), 64));
 		return ss.str();
 	}
 
@@ -37,7 +39,8 @@ public:
 
 	static Point* parseHexString(std::string str)
 	{
-		return new Point(cpp_int("0x" + str.substr(0, 64)), cpp_int("0x" + str.substr(64)));
+		int len = str.find_first_of('|');
+		return new Point(cpp_int("0x" + HelperT::padString(str.substr(0, len), 64)), cpp_int("0x" + HelperT::padString(str.substr(len+1), 64)));
 	}
 };
 

@@ -16,6 +16,7 @@ std::string RequestHandler::mine(std::string& address, json j)
 	std::string expectedHash = j["hash"];
 	int nonce = j["nonce"];
 	std::string hash = SHA256::digest(info + std::to_string(nonce));
+	std::cout << "\nExpected hash: " << hash << "\n\nRecieved hash: " << expectedHash << std::endl << std::endl;
 	if (hash == expectedHash) {
 		blockchain->submitMiningHash(address, hash, nonce);
 	}
