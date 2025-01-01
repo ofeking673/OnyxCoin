@@ -19,8 +19,8 @@ Blockchain::~Blockchain()
 void Blockchain::testTransaction(std::string address, uint64_t amt)
 {
 	Transaction trans(
-		{ TxInput(OutPoint("", 0), "Coinbase") },
-		{ TxOutput(amt, SHA256::digest(address)) });
+		{ TxInput(OutPoint("1111111111111111", 0), "Coinbase Coinbase")},
+		{ TxOutput(amt, std::to_string(REGULARE_TRANSACTION_TYPE) + address) });
 	addTransaction(trans);
 }
 
@@ -34,9 +34,9 @@ void Blockchain::addTransaction(const Transaction& tx)
 	_pendingTransactions.push_back(tx);
 }
 
-bool Blockchain::submitMiningHash(const std::string address, std::string finalHash, int nonce)
+bool Blockchain::submitMiningHash(const std::string minerAddress, std::string finalHash, int nonce)
 {
-	std::string hash = SHA256::digest(getCurrentBlockInfo(address) + std::to_string(nonce));
+	std::string hash = SHA256::digest(getCurrentBlockInfo(minerAddress) + std::to_string(nonce));
 	
 	if (hash.starts_with('0') && hash == finalHash) {
 		//loop over all transactions, get fees (0.01) from all outputs, make new transaction from source "Coinbase" HASHED SHA256->RIPE
@@ -45,10 +45,9 @@ bool Blockchain::submitMiningHash(const std::string address, std::string finalHa
 		{
 			taxAmt += tx.calculateTax();
 		}
-
 		Transaction trans(
-			{ TxInput(OutPoint("", 0), "Coinbase") },
-			{ TxOutput(taxAmt, SHA256::digest(address)) });
+			{ TxInput(OutPoint("1111111111111111", 0), "Coinbase Coinbase") },
+			{ TxOutput(taxAmt, std::to_string(REGULARE_TRANSACTION_TYPE) + minerAddress) });
 		addTransaction(trans);
 		commitBlock();
 		
@@ -69,8 +68,8 @@ std::string Blockchain::getCurrentBlockInfo(std::string minerAddress)
 		minerAddress.erase(minerAddress.find('|'));
 	}
 	Transaction trans(
-		{ TxInput(OutPoint("", 0), "Coinbase") },
-		{ TxOutput(taxAmt, SHA256::digest(minerAddress)) });
+		{ TxInput(OutPoint("1111111111111111", 0), "Coinbase Coinbase") },
+		{ TxOutput(taxAmt, std::to_string(REGULARE_TRANSACTION_TYPE) + minerAddress) });
 	newBlock.addTransaction(trans);
 
 	return newBlock.getCurrentBlockInfo();
@@ -100,14 +99,38 @@ void Blockchain::commitBlock()
 
 void Blockchain::addBlockToUtxo(Block block)
 {
-	for (Transaction& tx : block._transactions) {
-		//Need to compute outpoint and UTXOData
-		auto outputs = tx.getOutputs();
-		for (int i = 0; i < outputs.size(); i++)
+	//for (Transaction& tx : block._transactions) {
+	//	//Need to compute outpoint and UTXOData
+	//	auto outputs = tx.getOutputs();
+	//	for (int i = 0; i < outputs.size(); i++)
+	//	{
+	//		OutPoint out = tx.generateOutpoint(outputs[i]);
+	//		UTXOData data(outputs[i].getValue(), outputs[i].getScriptPubKey());
+	//		utxo->addUTXO(out, data);
+	//	}
+	//}
+
+	for (Transaction& tx : block._transactions)
+	{
+		//  Add TxOutputs to UTXO
+		std::vector<TxOutput> outputs = tx.getOutputs();
+		for (size_t i = 0; i < outputs.size(); i++)
 		{
-			OutPoint out = tx.generateOutpoint(outputs[i]);
-			UTXOData data(outputs[i].getValue(), outputs[i].getScriptPubKey());
-			utxo->addUTXO(out, data);
+			TxOutput output = outputs[i];
+			std::string outputPubKeyHash = tx.extractPublicKeyHash(output.getScriptPubKey());
+
+			UTXOData utxodata(output.getValue(), output.getScriptPubKey());
+			OutPoint outpoint(tx.getTransactionID(), i);
+
+			utxo->addUTXO(outpoint, utxodata);			
+		}
+
+		//  If a TxInput references one of my outpoints, remove from UTXO
+		std::vector<TxInput> inputs = tx.getInputs();
+		for (size_t i = 0; i < inputs.size(); i++)
+		{
+			TxInput input = inputs[i];
+			utxo->removeUTXO(input.getPreviousOutPoint());
 		}
 	}
 }

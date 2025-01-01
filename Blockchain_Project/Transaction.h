@@ -71,6 +71,11 @@ public:
 	static std::string extractPublicKeyHash(const std::string& scriptPubKey);
 	static std::string extractTransactionType(const std::string& scriptPubKey);
 
+
+	// Function to use after creating new transaction
+	// Checks if the Transaction creation failed
+	bool isTransactionCreationSucceeded();
+
 	// Returns the transaction info, with empty scriptSig in inputs. hashed with sha256. To sign with ECDSA.
 	std::string transactionMessageToSign();
 private:

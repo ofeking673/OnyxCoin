@@ -95,7 +95,7 @@ uint64_t Wallet::getBalance() const
 	return balance;
 }
 
-Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t amount)
+Transaction Wallet::createTransaction(const std::string& toAddress, uint64_t amount)
 {
 	std::pair<std::vector<OutPoint>, size_t> selectedUTXOs = selectUTXOs(amount);
 	std::vector<OutPoint> outPoints = selectedUTXOs.first;
@@ -119,7 +119,7 @@ Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t a
 	std::vector<TxOutput> outputs;
 	//		Main output
 	//			scriptPubKey => type(1 byte)|pubKeyHash(20 bytes)
-	std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + Transaction::hashPublicKey(toPublicKey);
+	std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + toAddress;
 	TxOutput output(amount, scriptPubKey);
 	outputs.push_back(output);
 

@@ -29,7 +29,7 @@ public:
     // Return the entire map
     std::unordered_map<OutPoint, UTXOData, OutPointHash> getAllUTXOs() const;
 
-public:
+private:
     UTXOSet() = default;
     // The global instance for this class
     static UTXOSet* _instance;

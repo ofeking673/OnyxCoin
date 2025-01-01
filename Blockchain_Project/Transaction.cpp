@@ -340,6 +340,15 @@ std::string Transaction::extractTransactionType(const std::string& scriptPubKey)
 	return scriptPubKey.substr(0, 2);
 }
 
+bool Transaction::isTransactionCreationSucceeded()
+{
+	if (_inputs.empty() && _outputs.empty())
+	{
+		return false;
+	}
+	return true;
+}
+
 std::string Transaction::transactionMessageToSign()
 {
 	Transaction copyTx(*this);

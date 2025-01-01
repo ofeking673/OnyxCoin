@@ -2,23 +2,24 @@
 
 std::string AddressGenerator::generateAddress(std::string publicKey)
 {
-	BIP39SeedMaker bip39;
-	Base58 base58;
+	//BIP39SeedMaker bip39;
+	//Base58 base58;
 
-	std::string versionByte = "ff";
-	publicKey = padHexTo64Bytes(publicKey);
+	//std::string versionByte = "ff";
+	//publicKey = padHexTo64Bytes(publicKey);
 
-	std::string publicKeyHash = RIPEMD_160::hash(SHA256::digest(publicKey));
-	std::string versionedPayload = versionByte + publicKeyHash;
+	//std::string publicKeyHash = RIPEMD_160::hash(SHA256::digest(publicKey));
+	//std::string versionedPayload = versionByte + publicKeyHash;
 
-	// Checksum is first 4 bytes
-	std::string checksum = SHA256::digest(SHA256::digest(versionedPayload)); 
-	checksum = checksum.substr(0, 4);
+	//// Checksum is first 4 bytes
+	//std::string checksum = SHA256::digest(SHA256::digest(versionedPayload)); 
+	//checksum = checksum.substr(0, 4);
 
-	std::string hexToEncode = "0x" + versionedPayload + checksum;
-	cpp_int toEncode = cpp_int(hexToEncode);
-	std::string address = base58.base58(toEncode);
-	return address;
+	//std::string hexToEncode = "0x" + versionedPayload + checksum;
+	//cpp_int toEncode = cpp_int(hexToEncode);
+	//std::string address = base58.base58(toEncode);
+	//return address;
+	return RIPEMD_160::hash(SHA256::digest(publicKey));
 }
 
 std::string AddressGenerator::padHexTo64Bytes(std::string hexStr)
