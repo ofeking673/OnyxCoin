@@ -10,6 +10,7 @@
 #include "Encryptions/BIP39SeedMaker.h"
 
 #define KEY_FILE_PATH "../WalletKey"
+#define _CRT_SECURE_NO_WARNINGS
 
 class Wallet
 {
@@ -29,7 +30,7 @@ public:
     Wallet(const std::string& seed, bool seedInitialize);
 
     // 3) Creating wallet from existing private key
-    Wallet(const std::string& filename = KEY_FILE_PATH);
+    Wallet(const std::string& filename); //Always input KEY_FILE_PATH unless mentioned otherwise
 
     ~Wallet() { saveWalletData(); };
 
@@ -73,6 +74,8 @@ public:
     // Utility: save wallet data (private key, UTXOs, etc.) for persistence
     void saveWalletData(const std::string& filename = KEY_FILE_PATH) const;
 
+    // Utility: To avoid code repetitition, This function is used to initialize private key, seed, and public key.
+    void calculateData();
 private:
 
     // Internal function to pick the right set of UTXOs to spend for a given amount

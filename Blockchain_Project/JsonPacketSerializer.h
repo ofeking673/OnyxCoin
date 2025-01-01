@@ -33,7 +33,7 @@ public:
 private:
 	static Point* signMessage(std::string key, std::string message) {
 		ECDSASigner ecd;
-		return ecd.signMessage(cpp_int(key), message);
+		return ecd.signMessage(cpp_int("0x"+key), message);
 	}
 	
 };

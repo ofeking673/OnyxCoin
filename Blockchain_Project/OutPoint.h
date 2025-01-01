@@ -16,6 +16,10 @@ public:
 	uint32_t getIndex() const { return _index; };
 
 
+	bool operator< (const OutPoint& other) const {
+		return (this->getIndex() < other.getIndex());
+	}
+
 	bool operator==(const OutPoint& other) const
 	{
 		return (this->getTxID() == other.getTxID() && this->getIndex() == other.getIndex());

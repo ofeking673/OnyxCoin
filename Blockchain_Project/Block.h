@@ -19,7 +19,7 @@ public:
 	std::string getPreviousHash() const;
 	void setHash(const std::string& hash);
 
-	std::vector<Transaction> _transactions; // Make transactions public for later verifications, and balance calculations
+	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 private:
 	int _index;
 	time_t _timestamp;

@@ -6,7 +6,14 @@
 class RequestHandler
 {
 public:
-	static RequestHandler* getInstance() { if (!_instance) { _instance = new RequestHandler(); } return _instance; };
+	static RequestHandler* getInstance() 
+	{ 
+		if (!_instance) 
+		{ 
+			_instance = new RequestHandler(); 
+		} 
+		return _instance;
+	};
 	static std::string mine(std::string& address, json j);
 	static std::string transaction(std::string& address, json j);
 private:

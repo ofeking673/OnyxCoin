@@ -12,6 +12,10 @@ public:
 	uint64_t getValue() const { return _value; };
 	std::string getScriptPubKey() const { return _scriptPubKey; };
 
+	bool operator==(const TxOutput& other) {
+		return(this->getScriptPubKey() == other.getScriptPubKey() && this->getValue() == other.getValue());
+	}
+
 	// Print TxOutput
 	friend std::ostream& operator<<(std::ostream& os, TxOutput txout)
 	{

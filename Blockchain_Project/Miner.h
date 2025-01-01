@@ -8,7 +8,7 @@
 class Miner : public IClient
 {
 public:
-	Miner(std::string key, int port) : IClient(key, port) {}
+	Miner(std::string keyPath, int port) : IClient(keyPath, port) {}
 	void mine();
 };
 

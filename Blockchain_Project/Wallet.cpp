@@ -182,17 +182,23 @@ void Wallet::loadWalletData(const std::string& filename)
 {
 	FILE* f = fopen(filename.c_str(), "r");
 	if (!f) {
-		throw std::runtime_error("Failed to open file: " + filename);
+		std::cout << "File doesnt exist.. Creating new wallet file..\n";
+		calculateData();
+		saveWalletData(filename);
+		return;
 	}
 
 	char buffer[100];
-	int amt = fread(buffer, sizeof(buffer), 1, f);
+	int amt = fread(buffer, 1, sizeof(buffer)-1, f);
 	buffer[amt] = '\0';
 	
 	fclose(f);
 
 	if (amt == 0) {
-		throw std::runtime_error("Failed to read data from file: " + filename);
+		std::cout << "There is no key in the file.. Creating new wallet.\n";
+		calculateData();
+		saveWalletData(filename);
+		return;
 	}
 
 	std::string priv(buffer);
@@ -216,13 +222,26 @@ void Wallet::saveWalletData(const std::string& filename) const
 	}
 	//Encrypt private key here
 	//AES-256-CBC and ARGON2 implemenetations dont work yet.
-	/*Argon2 arg;
-	auto key = arg.deriveKey("password", {});
-	AES256CBC aes(Argon2::castVectorToCPPInt(key));
-	std::string cipherKey = aes.cbcEncrypt(_privateKey, {});*/
+	//Argon2 arg;
+	//auto key = arg.deriveKey("password", {});
+	//AES256CBC aes(Argon2::castVectorToCPPInt(key));
+	//std::string cipherKey = aes.cbcEncrypt(_privateKey, /*Insert IV here*/);
 	std::string cipherKey = _privateKey;
 	int elementsWritten = fwrite(cipherKey.c_str(), 1, cipherKey.size(), f);
 	fclose(f);
+}
+
+void Wallet::calculateData()
+{
+	KeyGenerator keyGenerator;
+	cpp_int privateKeyCppInt = keyGenerator.generatePrivate();
+	_privateKey = ECDSASigner::cppIntToHexString(privateKeyCppInt);
+	// Calculate public key
+	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
+	_publicKey = pointPublicKey->ToStringNoPad();
+
+	// Calculate Address
+	_address = AddressGenerator::generateAddress(_publicKey);
 }
 
 /*

@@ -1,5 +1,6 @@
 #pragma once
 #include "Block.h"
+#include "UTXOSet.h"
 
 class Blockchain
 {
@@ -13,7 +14,10 @@ public:
 		} 
 		return _instance; 
 	}
-
+	///////////////////////////////////////////////////////////
+	//FOR TESTING ONLY!! REMOVE LATER!
+	void testTransaction(std::string address, uint64_t amt);
+	///////////////////////////////////////////////////////////
 	// Get the latest Block in the chain
 	Block getLatestBlock() const;
 
@@ -25,6 +29,7 @@ public:
 	std::string getCurrentBlockInfo(const std::string& minerAddress); //For mining purposes, need to hash this and find the correct nonce.
 	void displayBlockchain() const;
 	void commitBlock();
+	void addBlockToUtxo(Block block); //Iterate over all transactions and add the outputs to the UTXO set
 	// Method to validate the chain
 	bool isChainValid() const;
 	const std::vector<Block> getChain() { return _chain; }; //this is not a pointer nor a reference to avoid changing the chain, Thus this is a read only chain.
@@ -33,6 +38,7 @@ private:
 	static Blockchain* _instance;
 	std::vector<Block> _chain;
 	std::vector<Transaction> _pendingTransactions;
+	UTXOSet* utxo;
 	Block createGenesisBlock();
 
 };

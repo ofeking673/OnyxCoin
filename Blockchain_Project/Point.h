@@ -15,8 +15,11 @@ public:
 	cpp_int _y;
 	bool is_infinity() { return _x == 0 && _y == 0; }
 	std::string ToStringNoPad(){
+		std::string concatenated = _x.convert_to<std::string>() + _y.convert_to<std::string>();
+		cpp_int result(concatenated);
+
 		std::stringstream ss;
-		ss << std::hex << cpp_int((_x.convert_to<std::string>() + _y.convert_to<std::string>()));
+		ss << std::hex << result;
 		return ss.str();
 	}
 

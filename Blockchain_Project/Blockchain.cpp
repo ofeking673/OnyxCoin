@@ -10,8 +10,17 @@ Blockchain::Blockchain()
 
 Blockchain::~Blockchain()
 {
+	utxo = UTXOSet::getInstance();
 	_chain.clear();
 	_pendingTransactions.clear();
+}
+
+void Blockchain::testTransaction(std::string address, uint64_t amt)
+{
+	Transaction trans(
+		{ TxInput(OutPoint("", 0), "Coinbase") },
+		{ TxOutput(amt, SHA256::digest(address)) });
+	addTransaction(trans);
 }
 
 Block Blockchain::getLatestBlock() const
@@ -41,6 +50,7 @@ bool Blockchain::submitMiningHash(const std::string address, std::string finalHa
 			{ TxOutput(taxAmt, SHA256::digest(address)) });
 		addTransaction(trans);
 		commitBlock();
+		
 	}
 	return false;
 }
@@ -81,7 +91,22 @@ void Blockchain::commitBlock()
 	}
 
 	_chain.push_back(newBlock);
+	addBlockToUtxo(newBlock);
 	_pendingTransactions.clear();
+}
+
+void Blockchain::addBlockToUtxo(Block block)
+{
+	for (Transaction& tx : block._transactions) {
+		//Need to compute outpoint and UTXOData
+		auto outputs = tx.getOutputs();
+		for (int i = 0; i < outputs.size(); i++)
+		{
+			OutPoint out = tx.generateOutpoint(outputs[i]);
+			UTXOData data(outputs[i].getValue(), outputs[i].getScriptPubKey());
+			utxo->addUTXO(out, data);
+		}
+	}
 }
 
 bool Blockchain::isChainValid() const

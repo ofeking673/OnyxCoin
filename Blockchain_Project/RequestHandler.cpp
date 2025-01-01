@@ -1,4 +1,5 @@
 #include "RequestHandler.h"
+RequestHandler* RequestHandler::_instance = nullptr;
 Blockchain* RequestHandler::blockchain = nullptr;
 UTXOSet * RequestHandler::utxo = nullptr;
 
@@ -11,7 +12,7 @@ RequestHandler::RequestHandler()
 std::string RequestHandler::mine(std::string& address, json j)
 {
 	//Get the nonce and new hash from sock
-	auto info = blockchain->getCurrentBlockInfo();
+	auto info = blockchain->getCurrentBlockInfo(address);
 	std::string expectedHash = j["hash"];
 	int nonce = j["nonce"];
 	std::string hash = SHA256::digest(info + std::to_string(nonce));
@@ -46,24 +47,25 @@ std::string RequestHandler::transaction(std::string& address, json j)
 		TxInputSum += utxo->getUTXOData(inp.getPreviousOutPoint()).getValue();
 	}
 
-	if(!tran.verifyTransactionSignature()) {
+	if(!tran.verifyTransactionSignature(tran.getOutputs()[0].getScriptPubKey())) {
 		throw new std::runtime_error(__FUNCTION__": Transaction signature is incorrect!");
 	}
 
-	std::vector<TxInput> outputs = tran.getOutputs();
+	std::vector<TxOutput> outputs = tran.getOutputs();
 	for(const TxOutput& out : outputs) {
-		TxOutputSum += utxo->getUTXOData(out.getPreviousOutPoint()).getValue();
+		TxOutputSum += out.getValue();
 	}
 
 	if(TxInputSum != TxOutputSum) {
-		throw new std::runtime_error(__FUNCTION__ (TxInputSum > TxOutputSum) ? ": Input has too much currency, Redirect some to your own address." : ": Input amount does not suffice for output amount");
+		throw new std::runtime_error(__FUNCTION__ ": Issue with transaction sum");
 	}
 
 	for (const TxInput& inp : inputs) {
 		utxo->removeUTXO(inp.getPreviousOutPoint());
 	}
 	for (const TxOutput& out : outputs) {
-		utxo->addUTXO(tran.generateOutpoint(out));
+		UTXOData data = UTXOData(out.getValue(), out.getScriptPubKey());
+		utxo->addUTXO(tran.generateOutpoint(out), data);
 	}
 
 	return JsonPacketSerializer::serializeTransactionResponse(true);

@@ -14,11 +14,11 @@ bool JsonPacketDeserializer::verifySignature(json j)
     json filter = j;
     filter.erase("signature");
     std::string jsonDump = filter.dump();
-
-    Point* pnt = Point::parseString(j["signature"]);
-    std::string pubKey = j["src"];
+    std::cout << jsonDump;
+    Point* pnt = Point::parseHexString(j["signature"]);
+    Point* pubKey = Point::parseHexString(j["src"]);
     std::string hashedMessage = SHA256::digest(jsonDump);
-
+    std::cout << pubKey << std::endl;
     ECDSASigner ecd;
-    return ecd.verifySignature(pnt, hashedMessage, Point::parseString(pubKey));
+    return ecd.verifySignature(pnt, hashedMessage, pubKey);
 }
