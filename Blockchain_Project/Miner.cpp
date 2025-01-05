@@ -13,11 +13,11 @@ void Miner::mine()
 	do {
 		nonce++;
 		hash = SHA256::digest(data + std::to_string(nonce));
-		std::cout << __FUNCTION__ ": Current hash: " << hash << std::endl;
+		//std::cout << __FUNCTION__ ": Current hash: " << hash << std::endl;
 	} while (!hash.starts_with('0'));
-	std::cout << __FUNCTION__ ": Found correct hash! " << hash << std::endl;
+	//std::cout << __FUNCTION__ ": Found correct hash! " << hash << std::endl;
 	std::string ser = JsonPacketSerializer::serializeMiningRequest(_k, hash, nonce);
 	
 	std::string res = sock.sendAndRecv(ser);
-	std::cout << __FUNCTION__ ": Got response for mining request: " << res << std::endl;
+	//std::cout << __FUNCTION__ ": Got response for mining request: " << res << std::endl;
 }

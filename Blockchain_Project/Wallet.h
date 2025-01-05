@@ -61,7 +61,7 @@ public:
     // Update this wallet's UTXO set when a new transaction *to* this wallet arrives 
     // or when an existing UTXO is spent
 
-    void updateUTXOsWithTransaction(const Transaction& tx);
+    void updateUTXOsWithTransaction(Transaction tx);
 
     // A more general approach after each block is mined:
     //  - go through each transaction in that block

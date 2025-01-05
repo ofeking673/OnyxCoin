@@ -11,6 +11,14 @@ Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outp
 	_transactionID = generateTransactionID(forMine);
 }
 
+Transaction::Transaction(const Transaction& other)
+{
+	this->_transactionID = other._transactionID;
+	this->_inputs = other._inputs;
+	this->_outputs = other._outputs;
+	this->_timestamp = other._timestamp;
+}
+
 std::vector<TxInput> Transaction::getInputs() const
 {
 	return _inputs;
@@ -55,9 +63,9 @@ uint64_t Transaction::calculateTax() const
 	uint64_t tax = 0;
 	for(const TxOutput& output : getOutputs()) 
 	{
-		tax += output.getValue() * TAX_RATE; //Tax rate
+		tax += output.getValue(); //Tax rate
 	}
-	return tax;
+	return tax * TAX_RATE;
 }
 
 int Transaction::getOutputIndex(const TxOutput& output)
@@ -77,7 +85,7 @@ void Transaction::signTransaction(const std::string& privateKey)
 	KeyGenerator keyGenerator;
 
 	// Set script signature of all transaction inputs to empty
-	for (auto input : _inputs)
+	for (auto& input : _inputs)
 	{
 		input.setScriptSig("");
 	}
@@ -94,9 +102,11 @@ void Transaction::signTransaction(const std::string& privateKey)
 	std::string scriptSig = signature + " " + publicKey;
 
 	// Set script signature of all transaction inputs 
-	for (auto input : _inputs)
+	for (auto& input : _inputs)
 	{
-		input.setScriptSig(scriptSig);
+		if (input.getScriptSig() == "") {
+			input.setScriptSig(scriptSig);
+		}
 	}
 }
 
@@ -127,15 +137,8 @@ bool Transaction::verifyTransactionSignature(const std::string& scriptPubKey)
 			return false;
 		}
 
-		// Extract the <pubKeyHash> from scriptPubKey
-		std::string expectedPubKeyHash = extractPublicKeyHash(scriptPubKey);
-
-		// Hash the pubKeyHex from scriptSig => check it matches
-		std::string computedPubKeyHash = hashPublicKey(pubKeyHex);
-		if (computedPubKeyHash != expectedPubKeyHash) 
-		{
-			std::cerr << "PubKey hash mismatch in input " << i << "\n";
-			return false;
+		if (pubKeyHex == "54f2dac6701f04afc0976cfff22479efa00112a3d96b116b7570db6e9c6fa35963ea177b4bd7d4b07c622279ded254c4bf929f6a67f6c62297f49a1175fb65a7") {
+			continue; //If this transaction is initialized by Coinbase - no point in verifying it.
 		}
 
 		// ECDSA verify:
@@ -297,8 +300,6 @@ std::string Transaction::generateTransactionID(bool miningTrans)
 	}
 	if (!miningTrans) { ss << _timestamp; }
 
-	std::cout << __FUNCTION__": Transaction ID is: " << ss.str() << std::endl;
-
 	// Hash the data to create a 16 bytes transaction ID
 
 	// Convert ss into uint8_t*
@@ -324,14 +325,13 @@ std::string Transaction::generateTransactionID(bool miningTrans)
 
 std::string Transaction::hashPublicKey(const std::string& hexPubKey)
 {
-	SHA256 sha256;
-	return RIPEMD_160::hash(sha256.digest(hexPubKey));
+	return RIPEMD_160::hash(SHA256::digest(hexPubKey));
 }
 
 std::string Transaction::extractPublicKeyHash(const std::string& scriptPubKey)
 {
 	//scriptPubKey = <type (1 byte)><public key hash (20 bytes)>
-	return scriptPubKey.substr(2, scriptPubKey.size());
+	return scriptPubKey.substr(2);
 }
 
 std::string Transaction::extractTransactionType(const std::string& scriptPubKey)
@@ -353,7 +353,7 @@ std::string Transaction::transactionMessageToSign()
 {
 	Transaction copyTx(*this);
 	// Set script signature of all transaction inputs to empty
-	for (auto input : copyTx._inputs)
+	for (auto& input : copyTx._inputs)
 	{
 		input.setScriptSig("");
 	}

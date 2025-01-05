@@ -142,11 +142,18 @@ Transaction Wallet::createTransaction(const std::string& toAddress, uint64_t amo
 }
 
 
-void Wallet::updateUTXOsWithTransaction(const Transaction& tx)
+void Wallet::updateUTXOsWithTransaction(Transaction tx)
 {
 	//  - If a TxOutput's scriptPubKey matches my address, add to myUTXOs
 	std::string myPubKeyHash = Transaction::hashPublicKey(_publicKey);
 	std::vector<TxOutput> outputs = tx.getOutputs();
+
+	std::vector<TxInput> inputs = tx.getInputs();
+	for (const TxInput& input : inputs)
+	{
+		removeUTXO(input.getPreviousOutPoint());
+	}
+
 	for (size_t i = 0; i < outputs.size(); i++)
 	{
 		TxOutput output = outputs[i];
@@ -155,18 +162,14 @@ void Wallet::updateUTXOsWithTransaction(const Transaction& tx)
 		if (myPubKeyHash == outputPubKeyHash)
 		{
 			UTXOData utxodata(output.getValue(), output.getScriptPubKey());
-			OutPoint outpoint(tx.getTransactionID(), i);
+			OutPoint outpoint = OutPoint(tx.getTransactionID(), i);
 
-			myUTXOs[outpoint] = utxodata;
+			auto result = myUTXOs.insert(std::make_pair(outpoint, utxodata));
+			if (!result.second) {
+				std::cout << "Insertion failed. Key already exists." << std::endl;
+				std::cout << myUTXOs[outpoint].getScriptPubKey() << std::endl;
+			}
 		}
-	}
-
-	//  - If a TxInput references one of my outpoints, remove that from myUTXOs
-	std::vector<TxInput> inputs = tx.getInputs();
-	for (size_t i = 0; i < inputs.size(); i++)
-	{
-		TxInput input = inputs[i];
-		removeUTXO(input.getPreviousOutPoint());
 	}
 }
 
@@ -301,7 +304,7 @@ std::pair<std::vector<OutPoint>, size_t> Wallet::selectUTXOs(uint64_t amount) co
 void Wallet::removeUTXO(const OutPoint& outpoint)
 {
 	auto it = myUTXOs.find(outpoint);
-	if (it != myUTXOs.end())
+	if (it != myUTXOs.end() && it->first.getTxID() == outpoint.getTxID())
 	{
 		myUTXOs.erase(it);
 	}

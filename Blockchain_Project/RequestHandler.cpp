@@ -48,7 +48,7 @@ std::string RequestHandler::transaction(std::string& address, json j)
 		TxInputSum += utxo->getUTXOData(inp.getPreviousOutPoint()).getValue();
 	}
 
-	if(!tran.verifyTransactionSignature(tran.getOutputs()[0].getScriptPubKey())) {
+	if(!tran.verifyTransactionSignature(tran.getOutputs()[0].getScriptPubKey())) { //if transaction only has one recipient
 		throw new std::runtime_error(__FUNCTION__": Transaction signature is incorrect!");
 	}
 
@@ -68,6 +68,8 @@ std::string RequestHandler::transaction(std::string& address, json j)
 		UTXOData data = UTXOData(out.getValue(), out.getScriptPubKey());
 		utxo->addUTXO(tran.generateOutpoint(out), data);
 	}
+
+	blockchain->addTransaction(tran);
 
 	return JsonPacketSerializer::serializeTransactionResponse(true);
 }

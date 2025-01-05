@@ -42,17 +42,25 @@ int main()
 	miner.mine();
 
 	std::this_thread::sleep_for(std::chrono::seconds(5));
+	client.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	client2.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	miner.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
 
 	std::cout << "Miner: " << miner.displayBalance() << std::endl <<
 		"Client1: " << client.displayBalance() << std::endl <<
 		"Client2: " << client2.displayBalance() << std::endl;
 
 	chain->displayBlockchain();
+	
 
-	client.initializeTransaction(client2.wallet->getPublicKey(), 5);
-	std::this_thread::sleep_for(std::chrono::seconds(2));
-	miner.mine();
+	client.initializeTransaction(client2.wallet->getAddress(), 5);
 	std::this_thread::sleep_for(std::chrono::seconds(5));
+	miner.mine();
+	std::this_thread::sleep_for(std::chrono::seconds(6));
+
+	client.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	client2.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	miner.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
 
 	std::cout << "Miner: " << miner.displayBalance() << std::endl <<
 		"Client1: " << client.displayBalance() << std::endl <<

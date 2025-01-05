@@ -39,7 +39,7 @@ void Server::HandleClient(SOCKET clientSock)
 				response = handler->mine(address, j);
 				break;
 			case MakeTransaction:
-				std::cout << "pubkey is :" << address << std::endl;
+				//std::cout << "pubkey is :" << address << std::endl;
 				response = handler->transaction(address, j);
 				break;
 			default:

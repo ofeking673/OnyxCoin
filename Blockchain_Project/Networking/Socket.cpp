@@ -44,7 +44,7 @@ std::string Socket::readFromSock(SOCKET sock)
 		std::cout << amt;
 		buf[amt+1] = '\0';
 		std::string a(buf, amt);
-		std::cout << __FUNCTION__ ": " << a << std::endl;
+		//std::cout << __FUNCTION__ ": " << a << std::endl;
 		return a;
 	}
 	else {

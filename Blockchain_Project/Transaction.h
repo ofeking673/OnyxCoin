@@ -14,7 +14,7 @@
 #include "TxOutput.h"
 
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
-#define TAX_RATE 0.01
+#define TAX_RATE 0.5
 
 // Transaction types (first 1 byte in scriptPubKey)
 #define REGULARE_TRANSACTION_TYPE 10 
@@ -25,7 +25,7 @@ class Transaction
 public:
 	// Construct a transaction from given inputs and outputs
 	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs, bool forMine = false);
-
+	Transaction(const Transaction& other);
 	~Transaction() = default;
 
 	// Return all inputs
@@ -78,11 +78,10 @@ public:
 
 	// Returns the transaction info, with empty scriptSig in inputs. hashed with sha256. To sign with ECDSA.
 	std::string transactionMessageToSign();
-private:
+
 	// Helper for generating transaction ID
 	std::string generateTransactionID(bool miningTrans = false);
-
-
+private:
 	std::vector<TxInput>  _inputs;
 	std::vector<TxOutput> _outputs;
 	time_t                _timestamp;

@@ -5,7 +5,7 @@ std::string JsonPacketSerializer::serializeMiningRequest(std::string srcAddr, st
     json json;
     json["status"] = Mine;
     json["hash"] = hash;
-    json["src"] = getPublic(cpp_int("0x" + srcAddr).convert_to<std::string>());
+    json["src"] = getPublic("0x" + srcAddr);
     json["nonce"] = nonce;
      //self explanatory
     json["signature"] = signMessage(srcAddr, json.dump())->ToString();
@@ -16,7 +16,7 @@ std::string JsonPacketSerializer::serializeTransactionRequest(const std::string&
 {
     json json = json::parse(tx.toJson());
     json["status"] = MakeTransaction;
-    json["src"] = ECDSASigner::cppIntToHexString(cpp_int(getPublic("0x" + src)));
+    json["src"] = getPublic("0x" + src);
     ECDSASigner ecd;
     json["signature"] = signMessage(src, json.dump())->ToString();
     return json.dump();
