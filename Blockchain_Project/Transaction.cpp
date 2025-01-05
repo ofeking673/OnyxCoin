@@ -3,12 +3,12 @@
 
 using json = nlohmann::json;
 
-Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs)
+Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs, bool forMine)
 	: _inputs(std::move(inputs))
 	, _outputs(std::move(outputs))
 	, _timestamp(std::time(nullptr))
 {
-	_transactionID = generateTransactionID();
+	_transactionID = generateTransactionID(forMine);
 }
 
 std::vector<TxInput> Transaction::getInputs() const
@@ -282,7 +282,7 @@ Transaction Transaction::fromJson(const std::string& jsonStr)
 
 
 
-std::string Transaction::generateTransactionID()
+std::string Transaction::generateTransactionID(bool miningTrans)
 {
 	std::stringstream ss;
 
@@ -295,9 +295,9 @@ std::string Transaction::generateTransactionID()
 	{
 		ss << output;
 	}
-	ss << _timestamp;
+	if (!miningTrans) { ss << _timestamp; }
 
-
+	std::cout << __FUNCTION__": Transaction ID is: " << ss.str() << std::endl;
 
 	// Hash the data to create a 16 bytes transaction ID
 

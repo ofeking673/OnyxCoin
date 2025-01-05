@@ -16,7 +16,8 @@ public:
 			wallet = new Wallet();
 		}
 		_k = wallet->getPrivateKey();
-		sock.sendMsg(wallet->getPublicKey());
+		pubKey = wallet->getPublicKey();
+		sock.sendMsg(pubKey);
 	}
 
 	uint64_t displayBalance() {
@@ -28,6 +29,7 @@ public:
 	}
 
 	std::string _k;
+	std::string pubKey;
 	ClientSocket sock;
 	Wallet* wallet;
 	std::string _keyPath;

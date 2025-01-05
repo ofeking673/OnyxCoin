@@ -42,7 +42,7 @@ std::string Socket::readFromSock(SOCKET sock)
 	int amt = recv(sock, buf, READ_SIZE, 0);
 	if (amt > 0) {
 		std::cout << amt;
-		buf[amt] = '\0';
+		buf[amt+1] = '\0';
 		std::string a(buf, amt);
 		std::cout << __FUNCTION__ ": " << a << std::endl;
 		return a;

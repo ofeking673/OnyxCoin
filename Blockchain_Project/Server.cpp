@@ -32,6 +32,7 @@ void Server::HandleClient(SOCKET clientSock)
 			std::string msg = serverSock_->readFromSock(clientSock);
 			json j = JsonPacketDeserializer::DeserializeRequest(msg);
 			std::string response;
+			std::cout << j.at("status").get<Requests>() << std::endl;
 			switch (j.at("status").get<Requests>())
 			{
 			case Mine:

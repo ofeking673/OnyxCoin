@@ -39,9 +39,9 @@ int main()
 	Client client2(8026, "../client2");
 
 	chain->testTransaction(client.wallet->getPublicKey(), 10);
-	std::this_thread::sleep_for(std::chrono::seconds(5));
+	miner.mine();
 
-	chain->commitBlock();
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	std::cout << "Miner: " << miner.displayBalance() << std::endl <<
 		"Client1: " << client.displayBalance() << std::endl <<
@@ -49,9 +49,9 @@ int main()
 
 	chain->displayBlockchain();
 
-	client.initializeTransaction(client2.wallet->getAddress(), 5);
+	client.initializeTransaction(client2.wallet->getPublicKey(), 5);
 	std::this_thread::sleep_for(std::chrono::seconds(2));
-	chain->commitBlock();
+	miner.mine();
 	std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	std::cout << "Miner: " << miner.displayBalance() << std::endl <<

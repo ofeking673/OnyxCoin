@@ -28,7 +28,7 @@ std::string Block::getCurrentBlockInfo() const
 {
 	std::stringstream ss;
 
-	ss << _index << _previousHash << _timestamp;
+	ss << _index << _previousHash;
 	for (const auto& tx : _transactions)
 	{
 		ss << tx.getTransactionID();

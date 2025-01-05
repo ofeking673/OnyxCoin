@@ -24,7 +24,7 @@ class Transaction
 {
 public:
 	// Construct a transaction from given inputs and outputs
-	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs);
+	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs, bool forMine = false);
 
 	~Transaction() = default;
 
@@ -80,7 +80,7 @@ public:
 	std::string transactionMessageToSign();
 private:
 	// Helper for generating transaction ID
-	std::string generateTransactionID();
+	std::string generateTransactionID(bool miningTrans = false);
 
 
 	std::vector<TxInput>  _inputs;

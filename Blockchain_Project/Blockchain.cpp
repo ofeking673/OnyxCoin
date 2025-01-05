@@ -40,6 +40,7 @@ bool Blockchain::submitMiningHash(const std::string minerAddress, std::string fi
 	
 	if (hash.starts_with('0') && hash == finalHash) {
 		//loop over all transactions, get fees (0.01) from all outputs, make new transaction from source "Coinbase" HASHED SHA256->RIPE
+		std::cout << "MINING HASH IS CORRECT NIGGA FINALLY!!!" << std::endl;
 		uint64_t taxAmt = 0;
 		for (const auto& tx : _pendingTransactions)
 		{
@@ -69,7 +70,7 @@ std::string Blockchain::getCurrentBlockInfo(std::string minerAddress)
 	}
 	Transaction trans(
 		{ TxInput(OutPoint("1111111111111111", 0), "Coinbase Coinbase") },
-		{ TxOutput(taxAmt, std::to_string(REGULARE_TRANSACTION_TYPE) + minerAddress) });
+		{ TxOutput(taxAmt, std::to_string(REWARD_TRANSACTION_TYPE) + minerAddress) }, true);
 	newBlock.addTransaction(trans);
 
 	return newBlock.getCurrentBlockInfo();
