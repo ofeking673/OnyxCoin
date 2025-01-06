@@ -9,46 +9,67 @@
 #include "Encryptions/Test.h"
 #include "Encryptions/AES256CBC.h"
 #include "Networking/ClientSocket.h"
-#include "Networking/Socket.h"
+#include "Server.h"
 #include "Networking/WSAInitializer.h"
 #include "Wallet.h"
 
+
+void main2();
+Server* serv;
 int main()
 {
-	//WSAInitializer wsa; //initialize WSA for socket usage
+	WSAInitializer wsa; //initialize WSA for socket usage
 
-	Test test;
-	test.testSha();
-	test.testBip39();
-	test.testEcc();
-	test.testECDSA();
+	//Test test;
+	//test.testSha();
+	//test.testBip39();
+	//test.testEcc();
+	//test.testECDSA();
+	//test.testBlake2b();
+	//test.testRIPEMD160();
+	//test.testWalletCreation();
+	Blockchain* chain = Blockchain::getInstance();
 
+	std::thread thread(main2);
+	thread.detach();
+	std::cout << "Server creation started!\n";
+	std::this_thread::sleep_for(std::chrono::seconds(2));
+	Miner miner("../miner", 8026);
+	Client client(8026, "../client1");
+	Client client2(8026, "../client2");
 
+	chain->testTransaction(client.wallet->getPublicKey(), 10);
+	miner.mine();
 
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	client.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	client2.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	miner.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
 
+	std::cout << "Miner: " << miner.displayBalance() << std::endl <<
+		"Client1: " << client.displayBalance() << std::endl <<
+		"Client2: " << client2.displayBalance() << std::endl;
 
-
-
-
-
-
-	//Transaction tx1("Alice", "Bob", 50);
-	//Transaction tx2("Bob", "Charlie", 25);
-
-	//myBlockchain.addTransaction(tx1);
-	//myBlockchain.addTransaction(tx2);
-
-	//myBlockchain.minePendingTransaction("Miner1");
-	//
-	//myBlockchain.displayBlockchain();
-
-	//if (myBlockchain.isChainValid())
-	//{
-	//	std::cout << "Blockchain is valid" << std::endl;
-	//}
-	//else
-	//{
-	//	std::cout << "Blockchain is invalid" << std::endl;
-	//}
+	chain->displayBlockchain();
 	
+
+	client.initializeTransaction(client2.wallet->getAddress(), 5);
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	miner.mine();
+	std::this_thread::sleep_for(std::chrono::seconds(6));
+
+	client.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	client2.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+	miner.wallet->updateUTXOsFromNewBlock(chain->getLatestBlock()._transactions);
+
+	std::cout << "Miner: " << miner.displayBalance() << std::endl <<
+		"Client1: " << client.displayBalance() << std::endl <<
+		"Client2: " << client2.displayBalance() << std::endl;
+	chain->displayBlockchain();
+	system("pause");
+}
+
+void main2() {
+	std::cout << "Thread created!\n";
+	serv = new Server();
 }

@@ -1,12 +1,14 @@
 #pragma once
-#include "Networking/Socket.h"
+#include "RequestHandler.h"
 #include <map>
+
 class Server {
 public:
 	Server();
 	static void HandleClient(SOCKET clientSock);
-	static void mine(SOCKET clientSock, std::string pubKey);
+	SOCKET findByKey(std::string& k) { return SOCKET(); }; // TO-DO: Real Implementation
 private:
-	static std::map<SOCKET, std::string> Users_;
+	static std::map<SOCKET, IClient*> Users_;
 	static Socket* serverSock_;
+	static RequestHandler* handler;
 };

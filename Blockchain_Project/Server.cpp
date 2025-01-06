@@ -1,18 +1,25 @@
 #include "Server.h"
+
+// Define the static members
+std::map<SOCKET, IClient*> Server::Users_; 
+Socket* Server::serverSock_ = nullptr;
+RequestHandler* Server::handler = nullptr;
+
 /*
 MakeTransaction = 100,
 Mine = 200,*/
 
 Server::Server()
 {
+	handler = RequestHandler::getInstance();
 	serverSock_ = new Socket(8026);
 	serverSock_->WaitForClients(HandleClient);
 }
 
 void Server::HandleClient(SOCKET clientSock)
 {
-	std::string pubKey = Socket::readFromSock(clientSock);
-	Users_[clientSock] = pubKey;
+	std::string address = Socket::readFromSock(clientSock);
+	Users_[clientSock] = new Client(2086, address);
 
 	try {
 		char buf[READ_SIZE];
@@ -22,7 +29,24 @@ void Server::HandleClient(SOCKET clientSock)
 				buf[i] = 0;
 			}
 			
-
+			std::string msg = serverSock_->readFromSock(clientSock);
+			json j = JsonPacketDeserializer::DeserializeRequest(msg);
+			std::string response;
+			std::cout << j.at("status").get<Requests>() << std::endl;
+			switch (j.at("status").get<Requests>())
+			{
+			case Mine:
+				response = handler->mine(address, j);
+				break;
+			case MakeTransaction:
+				//std::cout << "pubkey is :" << address << std::endl;
+				response = handler->transaction(address, j);
+				break;
+			default:
+				std::cout << "Message code does not exist! {" << j["status"] << "}\n";
+				break;
+			}
+			serverSock_->sendMessage(clientSock, response);
 
 		}
 	} 
@@ -30,19 +54,5 @@ void Server::HandleClient(SOCKET clientSock)
 	{
 		std::cout << __FUNCTION__ ": " << e.what() << std::endl;
 	}
+	closesocket(clientSock);
 }
-
-void Server::mine(SOCKET clientSock, std::string pubKey)
-{
-	//Get the nonce and new hash from sock
-
-
-
-	//Blockchain* chain = Blockchain::getInstance();
-	////placeholder mining algorithm, will probably be configured and changed later.
-	//int nonce = 0;
-	//std::string data = chain->getCurrentBlockInfo();
-	//std::string hash = Blockchain::sha->digest(data);
-	
-}
-

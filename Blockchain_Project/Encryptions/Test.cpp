@@ -289,3 +289,81 @@ void Test::testArgon2()
 		std::cout << std::endl;
 	}
 }
+
+void Test::testRIPEMD160()
+{
+	{
+		std::string input = "";
+		std::string expected = "9c1185a5c5e9fc54612808977ee8f548b2258d31";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "1 Incorrect ripemd160");
+	}
+
+	{
+		std::string input = "a";
+		std::string expected = "0bdc9d2d256b3ee9daae347be6f4dc835a467ffe";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "2 Incorrect ripemd160");
+	}
+
+	{
+		std::string input = "abc";
+		std::string expected = "8eb208f7e05d987a9b044a8e98c6b087f15a0bfc";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "3 Incorrect ripemd160");
+	}
+
+	{
+		std::string input = "The quick brown fox jumps over the lazy dog";
+		std::string expected = "37f332f68db77bd9d7edd4969571ad671cf9dd3b";
+		std::string res = RIPEMD_160::hash(input);
+
+		assert(res == expected, "4 Incorrect ripemd160");
+	}
+
+	std::cout << "RIPEMD-160 works well!" << std::endl;
+}
+
+void Test::testAddressGenerator()
+{
+	{
+		std::string output = AddressGenerator::generateAddress("d8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
+		std::string expected = "6GzqttWiuPEFeq9CKBnExR2dWfeFPWkA";
+		assert(expected == output);
+	}
+
+	{
+		std::string output = AddressGenerator::generateAddress("00ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
+		std::string expected = "6GtoDZ575yj77RcUsd6S7gdxg9fz6Zbd";
+		assert(expected == output);
+	}
+
+	std::cout << "Address generator works good!" << std::endl;
+}
+
+void Test::testWalletCreation()
+{
+	for (int i = 0; i < 3; i++) 
+	{
+		Wallet wallet1 = Wallet();
+		Wallet wallet2 = Wallet(wallet1._seed, true);
+		Wallet wallet3 = Wallet(wallet1.getPrivateKey());
+
+		assert(wallet1.getAddress() == wallet2.getAddress());
+		assert(wallet1.getAddress() == wallet3.getAddress());
+		assert(wallet2.getAddress() == wallet3.getAddress());
+
+		assert(wallet1.getPrivateKey() == wallet2.getPrivateKey());
+		assert(wallet1.getPrivateKey() == wallet3.getPrivateKey());
+		assert(wallet2.getPrivateKey() == wallet3.getPrivateKey());
+
+		assert(wallet1.getPublicKey() == wallet2.getPublicKey());
+		assert(wallet1.getPublicKey() == wallet3.getPublicKey());
+		assert(wallet2.getPublicKey() == wallet3.getPublicKey());
+	}
+
+	std::cout << "Wallet creation works good!" << std::endl;
+}

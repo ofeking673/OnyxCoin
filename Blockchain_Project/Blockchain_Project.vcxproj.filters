@@ -105,6 +105,45 @@
     <ClInclude Include="JsonPacketDeserializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AddressGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\Argon2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\Blake2b.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\RIPEMD_160.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonPacketSerializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutPointHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TxInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TxOutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UTXO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UTXOData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UTXOSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -149,9 +188,6 @@
     <ClCompile Include="HelperT.cpp">
       <Filter>Source Files\Blockchain structure</Filter>
     </ClCompile>
-    <ClCompile Include="BlockChainPOC.cpp">
-      <Filter>Source Files\Blockchain structure</Filter>
-    </ClCompile>
     <ClCompile Include="Blockchain.cpp">
       <Filter>Source Files\Blockchain structure</Filter>
     </ClCompile>
@@ -174,6 +210,45 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="JsonPacketDeserializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddressGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\Argon2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\Blake2b.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\RIPEMD_160.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonPacketSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutPointHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TxInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TxOutput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UTXO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UTXOData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UTXOSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

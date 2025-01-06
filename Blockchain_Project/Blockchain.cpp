@@ -1,18 +1,27 @@
 #include "Blockchain.h"
 
 Blockchain* Blockchain::_instance = nullptr;
-SHA256* Blockchain::sha = new SHA256();
 Blockchain::Blockchain()
 {
 	// Create the genesis block
 	Block genesisBlock = createGenesisBlock();
 	_chain.push_back(genesisBlock);
+	utxo = UTXOSet::getInstance();
 }
 
 Blockchain::~Blockchain()
 {
+	utxo = UTXOSet::getInstance();
 	_chain.clear();
 	_pendingTransactions.clear();
+}
+
+void Blockchain::testTransaction(std::string address, uint64_t amt)
+{
+	Transaction trans(
+		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase")},
+		{ TxOutput(amt, std::to_string(REGULARE_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(address))) });
+	addTransaction(trans);
 }
 
 Block Blockchain::getLatestBlock() const
@@ -25,27 +34,69 @@ void Blockchain::addTransaction(const Transaction& tx)
 	_pendingTransactions.push_back(tx);
 }
 
-bool Blockchain::submitMiningHash(const std::string address, std::string finalHash, int nonce)
+bool Blockchain::submitMiningHash(const std::string minerAddress, std::string finalHash, int nonce, time_t timestamp)
 {
-	std::string hash = getCurrentBlockInfo() + std::to_string(nonce);
-	hash = sha->digest(hash);
+	std::string hash = SHA256::digest(serverBlockInfo(minerAddress, timestamp) + std::to_string(nonce));
 	
 	if (hash.starts_with('0') && hash == finalHash) {
-		Transaction reward("System", address, 10);
-		_pendingTransactions.clear();
-		_pendingTransactions.push_back(reward);
-		return true;
+		//loop over all transactions, get fees (0.01) from all outputs, make new transaction from source "Coinbase" HASHED SHA256->RIPE
+		uint64_t taxAmt = 0;
+		for (const auto& tx : _pendingTransactions)
+		{
+			taxAmt += tx.calculateTax();
+		}
+		Transaction trans(
+			{ TxInput(OutPoint(SHA256::digest("00000000c017ba5e00000000c017ba5e" + std::to_string(timestamp)), _pendingTransactions.size()), "Coinbase Coinbase") },
+			{ TxOutput(taxAmt, std::to_string(REGULARE_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(minerAddress))) });
+		trans.setTimestamp(timestamp);
+		//TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", _pendingTransactions.size()), "Coinbase Coinbase")
+		trans.signTransaction("c017ba5e");
+		addTransaction(trans);
+		commitBlock();
 	}
 	return false;
 }
 
-std::string Blockchain::getCurrentBlockInfo()
+std::pair<std::string, time_t> Blockchain::getCurrentBlockInfo(std::string minerAddress)
 {
 	Block newBlock(_chain.size(), getLatestBlock().getHash());
+	uint64_t taxAmt = 0;
 	for (const auto& tx : _pendingTransactions)
 	{
+		taxAmt += tx.calculateTax();
 		newBlock.addTransaction(tx);
 	}
+	if (minerAddress.find('|') != std::string::npos) {
+		minerAddress.erase(minerAddress.find('|'));
+	}
+	Transaction trans(
+		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase") },
+		{ TxOutput(taxAmt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(minerAddress))) });
+
+	newBlock.addTransaction(trans);
+
+	return {newBlock.getCurrentBlockInfo(), trans.getTimestamp()};
+}
+
+std::string Blockchain::serverBlockInfo(std::string minerAddress, time_t timestamp)
+{
+	Block newBlock(_chain.size(), getLatestBlock().getHash());
+	uint64_t taxAmt = 0;
+	for (const auto& tx : _pendingTransactions)
+	{
+		taxAmt += tx.calculateTax();
+		newBlock.addTransaction(tx);
+	}
+	if (minerAddress.find('|') != std::string::npos) {
+		minerAddress.erase(minerAddress.find('|'));
+	}
+	Transaction trans(
+		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase") },
+		{ TxOutput(taxAmt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(minerAddress))) });
+	trans.setTimestamp(timestamp);
+	trans.refreshTransactionID();
+
+	newBlock.addTransaction(trans);
 
 	return newBlock.getCurrentBlockInfo();
 }
@@ -56,6 +107,57 @@ void Blockchain::displayBlockchain() const
 	{
 		block.displayBlock();
 		std::cout << "=========================" << std::endl;
+	}
+}
+
+void Blockchain::commitBlock()
+{
+	Block newBlock(_chain.size(), getLatestBlock().getHash());
+	for (const auto& tx : _pendingTransactions)
+	{
+		newBlock.addTransaction(tx);
+	}
+
+	_chain.push_back(newBlock);
+	addBlockToUtxo(newBlock);
+	_pendingTransactions.clear();
+}
+
+void Blockchain::addBlockToUtxo(Block block)
+{
+	//for (Transaction& tx : block._transactions) {
+	//	//Need to compute outpoint and UTXOData
+	//	auto outputs = tx.getOutputs();
+	//	for (int i = 0; i < outputs.size(); i++)
+	//	{
+	//		OutPoint out = tx.generateOutpoint(outputs[i]);
+	//		UTXOData data(outputs[i].getValue(), outputs[i].getScriptPubKey());
+	//		utxo->addUTXO(out, data);
+	//	}
+	//}
+
+	for (Transaction& tx : block._transactions)
+	{
+		//  Add TxOutputs to UTXO
+		std::vector<TxOutput> outputs = tx.getOutputs();
+		for (size_t i = 0; i < outputs.size(); i++)
+		{
+			TxOutput output = outputs[i];
+			std::string outputPubKeyHash = tx.extractPublicKeyHash(output.getScriptPubKey());
+
+			UTXOData utxodata(output.getValue(), output.getScriptPubKey());
+			OutPoint outpoint(tx.getTransactionID(), i);
+
+			utxo->addUTXO(outpoint, utxodata);			
+		}
+
+		//  If a TxInput references one of my outpoints, remove from UTXO
+		std::vector<TxInput> inputs = tx.getInputs();
+		for (size_t i = 0; i < inputs.size(); i++)
+		{
+			TxInput input = inputs[i];
+			utxo->removeUTXO(input.getPreviousOutPoint());
+		}
 	}
 }
 

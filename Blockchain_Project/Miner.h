@@ -3,11 +3,12 @@
 #include "Blockchain.h"
 #include "Networking/ClientSocket.h"
 #include "Encryptions/SHA256.h"
+#include "JsonPacketSerializer.h"
 
 class Miner : public IClient
 {
 public:
-	Miner(std::string key, int port) : IClient(key, port) {}
+	Miner(std::string keyPath, int port) : IClient(keyPath, port) {}
 	void mine();
 };
 

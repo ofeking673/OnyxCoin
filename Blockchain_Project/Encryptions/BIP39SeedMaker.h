@@ -1,5 +1,6 @@
 #pragma once
 #include "../Point.h"
+#include "ECDSASigner.h"
 #include "SHA256.h"
 #include <bitset>
 #include <sstream>
@@ -12,11 +13,11 @@ public:
 	std::string binary(cpp_int v);
     std::vector<int> splitToGroups(std::string binary);
     std::string transformToSeed(cpp_int v);
-    std::string cppIntToHex(const cpp_int& value);
 
-    std::string convertHexStrToBytes(const std::string& hex);
+    std::string convertHexStrToBytes(std::string& hex);
     unsigned char hexCharToByte(char c);
-
+    std::string PadToNearestHex(std::string& hex, int amount=1);
+    std::string PadBinary(std::string& bin, int len);
     cpp_int binToInt(std::string bin);
     std::string reverseSeed(std::string seed);
 
@@ -226,5 +227,4 @@ public:
 "wish","witness","wolf","woman","wonder","wood","wool","word","work","world",
 "worry","worth","wrap","wreck","wrestle","wrist","write","wrong","yard","year",
 "yellow","you","young","youth","zebra","zero","zone","zoo" };
-    SHA256 sha;
 };

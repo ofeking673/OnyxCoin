@@ -4,7 +4,8 @@
 
 class Client : public IClient
 {
-	Client(int port, std::string key) : IClient(key) {}
+public:
+	Client(int port, std::string keyPath) : IClient(keyPath, port) {}
 	void initializeTransaction(std::string dstAddress, double amt);
 	
 };

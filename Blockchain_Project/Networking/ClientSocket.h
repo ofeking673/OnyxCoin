@@ -10,4 +10,3 @@ public:
 private:
 	SOCKET clientSocket_;
 };
-

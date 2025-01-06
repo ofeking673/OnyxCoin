@@ -19,13 +19,22 @@ enum Response {
 class JsonPacketSerializer
 {
 public:
-	static std::string serializeMiningRequest(std::string srcAddr, std::string hash, int nonce);
-	static std::string serializeTransactionRequest(std::string srcAddr, std::string dstAddr, double amt);
+	static std::string serializeMiningRequest(std::string srcAddr, std::string hash, int nonce, time_t timestamp);
+	static std::string serializeTransactionRequest(const std::string& src, Transaction tx);
 
+
+	static std::string serializeMiningResponse(bool success, int diff);
+	static std::string serializeTransactionResponse(bool success);
+
+	static std::string getPublic(std::string priv) {
+		KeyGenerator key;
+		return key.ECMul(cpp_int(priv), key.GPoint)->ToString();
+	};
 private:
 	static Point* signMessage(std::string key, std::string message) {
 		ECDSASigner ecd;
-		return ecd.signMessage(cpp_int(key), message);
+		return ecd.signMessage(cpp_int("0x"+key), message);
 	}
+	
 };
 

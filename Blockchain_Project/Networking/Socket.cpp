@@ -31,13 +31,20 @@ void Socket::WaitForClients(void(*func)(SOCKET)) const
 	}
 }
 
+void Socket::sendMessage(SOCKET sock, std::string& msg)
+{
+	send(sock, msg.c_str(), msg.size(), 0);
+}
+
 std::string Socket::readFromSock(SOCKET sock)
 {
 	char buf[READ_SIZE];
 	int amt = recv(sock, buf, READ_SIZE, 0);
 	if (amt > 0) {
+		std::cout << amt;
+		buf[amt+1] = '\0';
 		std::string a(buf, amt);
-		std::cout << __FUNCTION__ ": " << a << std::endl;
+		//std::cout << __FUNCTION__ ": " << a << std::endl;
 		return a;
 	}
 	else {
