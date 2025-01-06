@@ -12,13 +12,13 @@ RequestHandler::RequestHandler()
 std::string RequestHandler::mine(std::string& address, json j)
 {
 	//Get the nonce and new hash from sock
-	auto info = blockchain->getCurrentBlockInfo(address);
+	auto info = blockchain->serverBlockInfo(address, j["timestamp"]);
 	std::string expectedHash = j["hash"];
 	int nonce = j["nonce"];
 	std::string hash = SHA256::digest(info + std::to_string(nonce));
 	std::cout << "\nExpected hash: " << hash << "\n\nRecieved hash: " << expectedHash << std::endl << std::endl;
 	if (hash == expectedHash) {
-		blockchain->submitMiningHash(address, hash, nonce);
+		blockchain->submitMiningHash(address, hash, nonce, j["timestamp"]);
 	}
 	std::string response = JsonPacketSerializer::serializeMiningResponse((hash == expectedHash), 1);
 	return response;

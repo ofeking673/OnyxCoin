@@ -1,12 +1,13 @@
 #include "JsonPacketSerializer.h"
 
-std::string JsonPacketSerializer::serializeMiningRequest(std::string srcAddr, std::string hash, int nonce)
+std::string JsonPacketSerializer::serializeMiningRequest(std::string srcAddr, std::string hash, int nonce, time_t timestamp)
 {
     json json;
     json["status"] = Mine;
     json["hash"] = hash;
     json["src"] = getPublic("0x" + srcAddr);
     json["nonce"] = nonce;
+    json["timestamp"] = timestamp;
      //self explanatory
     json["signature"] = signMessage(srcAddr, json.dump())->ToString();
     return json.dump();

@@ -166,6 +166,7 @@ void Wallet::updateUTXOsWithTransaction(Transaction tx)
 
 			auto result = myUTXOs.insert(std::make_pair(outpoint, utxodata));
 			if (!result.second) {
+				std::cout << outpoint << std::endl << std::endl; 
 				std::cout << "Insertion failed. Key already exists." << std::endl;
 				std::cout << myUTXOs[outpoint].getScriptPubKey() << std::endl;
 			}

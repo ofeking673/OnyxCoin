@@ -3,12 +3,12 @@
 
 using json = nlohmann::json;
 
-Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs, bool forMine)
+Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs)
 	: _inputs(std::move(inputs))
 	, _outputs(std::move(outputs))
 	, _timestamp(std::time(nullptr))
 {
-	_transactionID = generateTransactionID(forMine);
+	_transactionID = generateTransactionID();
 }
 
 Transaction::Transaction(const Transaction& other)
@@ -37,6 +37,11 @@ std::string Transaction::getTransactionID() const
 time_t Transaction::getTimestamp() const
 {
 	return _timestamp;
+}
+
+void Transaction::setTimestamp(time_t timestamp)
+{
+	_timestamp = timestamp;
 }
 
 void Transaction::addInput(const TxInput& input)
@@ -285,7 +290,7 @@ Transaction Transaction::fromJson(const std::string& jsonStr)
 
 
 
-std::string Transaction::generateTransactionID(bool miningTrans)
+std::string Transaction::generateTransactionID()
 {
 	std::stringstream ss;
 
@@ -298,7 +303,7 @@ std::string Transaction::generateTransactionID(bool miningTrans)
 	{
 		ss << output;
 	}
-	if (!miningTrans) { ss << _timestamp; }
+	ss << _timestamp;
 
 	// Hash the data to create a 16 bytes transaction ID
 
@@ -316,11 +321,19 @@ std::string Transaction::generateTransactionID(bool miningTrans)
 	//  Convert transaction ID to hex string
 	std::string transactionID = Blake2b::bytesToHex(hashedID, TRANSACTION_ID_LENGTH);
 
+	//  Hash transaction ID
+	std::string sha = SHA256::digest(transactionID);
+
 	// Clear memory used
 	delete[] buffer;
 	delete[] hashedID;
 
-	return transactionID;
+	return sha;
+}
+
+void Transaction::refreshTransactionID()
+{
+	_transactionID = generateTransactionID();
 }
 
 std::string Transaction::hashPublicKey(const std::string& hexPubKey)

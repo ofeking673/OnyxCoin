@@ -43,6 +43,7 @@ void Server::HandleClient(SOCKET clientSock)
 				response = handler->transaction(address, j);
 				break;
 			default:
+				std::cout << "Message code does not exist! {" << j["status"] << "}\n";
 				break;
 			}
 			serverSock_->sendMessage(clientSock, response);
@@ -53,4 +54,5 @@ void Server::HandleClient(SOCKET clientSock)
 	{
 		std::cout << __FUNCTION__ ": " << e.what() << std::endl;
 	}
+	closesocket(clientSock);
 }

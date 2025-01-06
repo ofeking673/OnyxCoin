@@ -19,7 +19,7 @@ enum Response {
 class JsonPacketSerializer
 {
 public:
-	static std::string serializeMiningRequest(std::string srcAddr, std::string hash, int nonce);
+	static std::string serializeMiningRequest(std::string srcAddr, std::string hash, int nonce, time_t timestamp);
 	static std::string serializeTransactionRequest(const std::string& src, Transaction tx);
 
 

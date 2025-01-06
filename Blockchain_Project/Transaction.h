@@ -24,7 +24,7 @@ class Transaction
 {
 public:
 	// Construct a transaction from given inputs and outputs
-	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs, bool forMine = false);
+	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs);
 	Transaction(const Transaction& other);
 	~Transaction() = default;
 
@@ -42,6 +42,7 @@ public:
 
 	// Return the timestamp
 	time_t getTimestamp() const;
+	void setTimestamp(time_t timestamp);
 
 	// Add a new input
 	void addInput(const TxInput& input);
@@ -80,7 +81,9 @@ public:
 	std::string transactionMessageToSign();
 
 	// Helper for generating transaction ID
-	std::string generateTransactionID(bool miningTrans = false);
+	std::string generateTransactionID();
+	// Helper for refreshing transaction ID
+	void refreshTransactionID();
 private:
 	std::vector<TxInput>  _inputs;
 	std::vector<TxOutput> _outputs;

@@ -17,7 +17,7 @@ public:
 
 
 	bool operator< (const OutPoint& other) const {
-		return (this->getIndex() < other.getIndex());
+		return (this->getIndex() < other.getIndex() || this->getTxID() < other.getTxID());
 	}
 
 	bool operator==(const OutPoint& other) const
