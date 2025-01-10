@@ -12,7 +12,7 @@ enum class MessageType : uint16_t
     GET_BLOCK,
     BLOCK,
     NEW_TRANSACTION,
-    TRANSACTION,
+    GET_TRANSACTION,
     INVENTORY,
     GET_HEADERS,
     HEADERS

@@ -19,4 +19,6 @@ public:
 
 private:
     IMessageHandler* _handler;
+    static std::unordered_map<MessageType, std::function<void(IMessageHandler*, const MessageP2P&)>> _dispatchTable;
+
 };

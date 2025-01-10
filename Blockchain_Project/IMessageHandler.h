@@ -19,7 +19,7 @@ public:
     virtual void onBlock(const MessageP2P& msg) = 0;
 
     virtual void onNewTransaction(const MessageP2P& msg) = 0;
-    virtual void onTransaction(const MessageP2P& msg) = 0;
+    virtual void onGetTransaction(const MessageP2P& msg) = 0;
 
     virtual void onInventory(const MessageP2P& msg) = 0;
 
