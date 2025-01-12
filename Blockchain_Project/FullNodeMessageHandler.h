@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IMessageHandler.h"
+#include "PeerManager.h"
 #include "Blockchain.h"
 #include "UTXOSet.h"
 
@@ -10,7 +11,7 @@ class FullNodeMessageHandler : public IMessageHandler
 {
 public:
     // Constructor and Destructor
-    FullNodeMessageHandler();
+    FullNodeMessageHandler(std::string keyPath);
     virtual ~FullNodeMessageHandler();
 
     // Implement IMessageHandler Interface
@@ -41,6 +42,6 @@ private:
 
     Blockchain* _blockchain;
     UTXOSet* _utxoSet;
-    // PeerManager
+    PeerManager peerManager;
     // NetworkManager
 };

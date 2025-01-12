@@ -1,7 +1,8 @@
 #include "FullNodeMessageHandler.h"
 #include "iostream"
 
-FullNodeMessageHandler::FullNodeMessageHandler()
+FullNodeMessageHandler::FullNodeMessageHandler(std::string keyPath) :
+    peerManager(keyPath)
 {
 	_blockchain = Blockchain::getInstance();
 	_utxoSet = UTXOSet::getInstance();
@@ -17,17 +18,21 @@ void FullNodeMessageHandler::onPing(const MessageP2P& msg)
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received PING from peer." << std::endl;
 
+    
     // Typical behavior might include sending a PONG message back.
     // That would require access to a network interface or peer manager
     // (not shown here). For example:
     //
-    // MessageP2P pongMsg(
-    //     msg.getSignature(),          // Keep the same signature or your own
-    //     MessageType::PONG,           // Message type
-    //     0,                           // No payload
-    //     {}                           // Empty payload vector
-    // );
+    MessageP2P pongMsg(
+         msg.getSignature(), // Keep the same signature or your own
+         peerManager.getPubKey(),
+         MessageType::PONG,           // Message type
+         0,                           // No payload
+         {}                           // Empty payload vector
+     );
+    // Source address is stored in msg._author
     // network->send(pongMsg);
+    peerManager.sendMessage(msg.getAuthor(), pongMsg.ToString());
 
 
 
