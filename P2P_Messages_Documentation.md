@@ -9,19 +9,11 @@ Each network message follows the same top-level structure, but the payload and t
 
 A P2P message is represented by the **`MessageP2P`** class and contains:
 
-| Field             | Type                          |  Description                                                                      |
-|-------------------|-------------------------------|-----------------------------------------------------------------------------------|
-| **Signature**     | `std::string`                 | A signature of the whole message using ECDSA with the peers private key.          |
-|                   |                               | In order to authenticate the peer.                                                |
------------------------------------------------------------------------------------|
-| **Type**          | `MessageType` (enum class)    | The message type, indicating the purpose or command                               |
-|                   |                               | (e.g., `PING`, `PONG`, `GET_BLOCK`,etc.).                                         |
------------------------------------------------------------------------------------|
-| **PayloadLength** | `uint32_t`                    | The length of the **Payload**.                                                    |
------------------------------------------------------------------------------------|
-| **Payload**       | `std::string`                 | The message-specific data. Once deserialized, it may be interpreted as transaction|
-|                   |                               | data, block data, inventory data, etc., depending on the message type.            |
------------------------------------------------------------------------------------|
+| Field             | Type                          |  Description                                                                      |-----------------------------------------------------------------------------------|
+| **Signature**     | `std::string`                 | A signature of the whole message using ECDSA with the peers private key. In order to authenticate the peer.                                                
+| **Type**          | `MessageType` (enum class)    | The message type, indicating the purpose or command (e.g., `PING`, `PONG`, `GET_BLOCK`,etc.).                                         
+| **PayloadLength** | `uint32_t`                    | The length of the **Payload**.                                                    
+| **Payload**       | `std::string`                 | The message-specific data. Once deserialized, it may be interpreted as transaction data, block data, inventory data, etc., depending on the message type.            
 
 
 ```cpp
