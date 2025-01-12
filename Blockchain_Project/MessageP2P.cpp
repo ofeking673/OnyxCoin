@@ -1,13 +1,22 @@
 #include "MessageP2P.h"
 
 // Constructor
+
+MessageP2P::MessageP2P()
+{
+    _signature = "";
+    _type = MessageType::PING;
+    _payloadLength = 0;
+    _payload.clear();
+}
+
 MessageP2P::MessageP2P(const std::string& signature,
     MessageType type,
     uint32_t length,
     const std::vector<uint8_t>& payload)
     : _signature(signature)
     , _type(type)
-    , _length(length)
+    , _payloadLength(length)
     , _payload(payload)
 {
 }
@@ -25,7 +34,7 @@ MessageType MessageP2P::getType() const
 
 uint32_t MessageP2P::getLength() const
 {
-    return _length;
+    return _payloadLength;
 }
 
 const std::vector<uint8_t>& MessageP2P::getPayload() const
@@ -46,7 +55,7 @@ void MessageP2P::setType(MessageType type)
 
 void MessageP2P::setLength(uint32_t length)
 {
-    _length = length;
+    _payloadLength = length;
 }
 
 void MessageP2P::setPayload(const std::vector<uint8_t>& payload)

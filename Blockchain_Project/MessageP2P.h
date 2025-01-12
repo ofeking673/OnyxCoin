@@ -9,7 +9,7 @@ class MessageP2P
 {
 public:
     /// Constructors
-    MessageP2P() = default;
+    MessageP2P();
     MessageP2P(const std::string& signature,
         MessageType type,
         uint32_t length,
