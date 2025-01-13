@@ -12,6 +12,7 @@ A P2P message is represented by the **`MessageP2P`** class and contains:
 | Field             | Type                          | Description                                                                                                     |
 |-------------------|-------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | **Signature**     | `std::string`                 | A signature of the whole message using ECDSA with the peer’s private key. In order to authenticate the peer.    |
+| **Author**        | `std::string`                 | The public key of the author of this message usually used for replying with information to this user.|
 | **Type**          | `MessageType` (enum class)    | The message type, indicating the purpose or command (e.g., `PING`, `PONG`, `GET_BLOCK`, etc.).                  |
 | **PayloadLength** | `uint32_t`                    | The length of the **Payload**.                                                                                 |
 | **Payload**       | `std::string`                 | The message-specific data. Once deserialized, it may be interpreted as transaction data, block data, inventory data, etc., depending on the message type. |
