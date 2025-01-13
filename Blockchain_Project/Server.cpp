@@ -2,18 +2,18 @@
 
 // Define the static members
 Socket* Server::serverSock_ = nullptr;
-FullNodeMessageHandler* Server::handler = nullptr;
 MessageManager* Server::messageManager = nullptr;
+
 /*
 MakeTransaction = 100,
 Mine = 200,*/
 
-Server::Server(IClient* cli)
+Server::Server(IClient* cli, int port, FullNodeMessageHandler* handler) :
+	dispatcher(new MessageDispatcher(handler))
 {
 	_cli = cli;
-	handler = new FullNodeMessageHandler();
 	messageManager = new MessageManager();
-	serverSock_ = new Socket(8026);
+	serverSock_ = new Socket(port);
 	serverSock_->WaitForClients(HandleClient);
 }
 

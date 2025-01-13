@@ -12,8 +12,12 @@
 class P2PNode
 {
 public:
-	P2PNode(std::string keyPath) : handler(keyPath) {};
+	P2PNode(std::string keyPath, int port) : handler(keyPath, port) {};
+	void pingAll();
 private:
+	std::string signMessage(std::string message);
+
 	FullNodeMessageHandler handler;
+	MessageManager messageCreator;
 };
 

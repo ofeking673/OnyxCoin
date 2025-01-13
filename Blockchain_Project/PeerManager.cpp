@@ -4,7 +4,7 @@ void PeerManager::addPeer(std::string ip, int port)
 {
 	ClientSocket sock(ip, port);
 	std::string pubKey = sock.sendAndRecv(_cli.pubKey);
-	peers[{pubKey, true}] = sock.getSocket();
+    peers[pubKey] = { sock.getSocket(), true };
 }
 
 void PeerManager::discoverPeers(std::string msg)
@@ -40,18 +40,32 @@ void PeerManager::discoverPeers(std::string msg)
 
 void PeerManager::sendMessage(std::string dst, std::string msg)
 {
-    SOCKET sock = peers.at({dst, true});
+    SOCKET sock = peers.at(dst).second;
     Socket::sendMessage(sock, msg);
 }
 
 std::string PeerManager::recvMessage(std::string src)
 {
-    try {
-        SOCKET sock = peers.at({ src, true });
-        return Socket::readFromSock(sock);
-    }
-    catch (std::exception& e) 
-    {
+    auto sockPair = peers.at(src);
+    if (sockPair.second == false) { peers[src] = { sockPair.first, true }; }
+    return Socket::readFromSock(sockPair.second);
+}
 
+std::vector<SOCKET> PeerManager::getAllClients()
+{
+    std::vector<SOCKET> clients;
+
+    for (const auto& [key, value] : peers) {
+        if (value.second)
+        {
+            clients.push_back(value.first);
+        }
     }
+
+    return clients;
+}
+
+std::string PeerManager::signMessage(std::string msg)
+{
+    return _cli.signMessage(msg);
 }

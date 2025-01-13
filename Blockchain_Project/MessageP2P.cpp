@@ -5,6 +5,7 @@
 MessageP2P::MessageP2P()
 {
     _signature = "";
+    _author = "";
     _type = MessageType::PING;
     _payloadLength = 0;
     _payload.clear();

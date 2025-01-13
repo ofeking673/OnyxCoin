@@ -7,6 +7,6 @@ class Client : public IClient
 public:
 	Client(int port, std::string keyPath) : IClient(keyPath, port) {}
 	void initializeTransaction(std::string dstAddress, double amt);
-	
+	std::string signMessage(std::string msg);
 };
 

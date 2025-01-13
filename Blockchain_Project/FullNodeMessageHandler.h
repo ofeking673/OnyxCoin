@@ -11,7 +11,7 @@ class FullNodeMessageHandler : public IMessageHandler
 {
 public:
     // Constructor and Destructor
-    FullNodeMessageHandler(std::string keyPath);
+    FullNodeMessageHandler(std::string keyPath, int port);
     virtual ~FullNodeMessageHandler();
 
     // Implement IMessageHandler Interface
@@ -32,6 +32,10 @@ public:
     void onGetHeaders(const MessageP2P& msg) override;
     void onHeaders(const MessageP2P& msg) override;
 
+    // Utility for keeping the "alive" state updated for each node
+    std::vector<SOCKET> getAllClients() { return peerManager.getAllClients(); };
+    std::string getPublicKey() { return peerManager.getPubKey(); };
+    std::string signMessage(std::string msg);
 private:
     /*
     PeerManager (tracks connected peers, their addresses, last-seen timestamps, etc.)
