@@ -150,28 +150,34 @@
     <ClInclude Include="RequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MessageDispatcher.h">
-      <Filter>Header Files\MessageHandling</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageP2P.h">
-      <Filter>Header Files\MessageHandling</Filter>
+    <ClInclude Include="FullNodeMessageHandler.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IMessageHandler.h">
-      <Filter>Header Files\MessageHandling</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MessageParser.h">
-      <Filter>Header Files\MessageHandling</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageTypes.h">
-      <Filter>Header Files\MessageHandling</Filter>
-    </ClInclude>
-    <ClInclude Include="FullNodeMessageHandler.h">
+    <ClInclude Include="MessageDispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MessageManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InventoryData.h">
+    <ClInclude Include="MessageP2P.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="P2PNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscoveryServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -281,28 +287,34 @@
     <ClCompile Include="RequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FullNodeMessageHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="IMessageHandler.cpp">
-      <Filter>Source Files\MessageHandling</Filter>
-    </ClCompile>
-    <ClCompile Include="MessageP2P.cpp">
-      <Filter>Source Files\MessageHandling</Filter>
-    </ClCompile>
-    <ClCompile Include="MessageParser.cpp">
-      <Filter>Source Files\MessageHandling</Filter>
-    </ClCompile>
-    <ClCompile Include="MessageTypes.cpp">
-      <Filter>Source Files\MessageHandling</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MessageDispatcher.cpp">
-      <Filter>Source Files\MessageHandling</Filter>
-    </ClCompile>
-    <ClCompile Include="FullNodeMessageHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MessageManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InventoryData.cpp">
+    <ClCompile Include="MessageP2P.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="P2PNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscoveryServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PeerManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

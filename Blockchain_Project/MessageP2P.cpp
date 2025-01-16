@@ -24,6 +24,15 @@ MessageP2P::MessageP2P(const std::string& signature,
 {
 }
 
+void MessageP2P::parseJson(json j)
+{
+    _signature = j["signature"];
+    _author = j["author"];
+    _type = j["type"];
+    _payloadLength = j["payloadLength"];
+    _payload = j["payload"];
+}
+
 // Getters
 const std::string& MessageP2P::getSignature() const
 {
@@ -74,4 +83,16 @@ void MessageP2P::setLength(uint32_t length)
 void MessageP2P::setPayload(const std::string& payload)
 {
     _payload = payload;
+}
+
+std::string MessageP2P::ToString() const
+{
+    json j;
+    j["signature"] = _signature;
+    j["author"] = _author;
+    j["type"] = _type;
+    j["payloadLength"] = _payloadLength;
+    j["payload"] = _payload;
+
+    return j.dump();
 }

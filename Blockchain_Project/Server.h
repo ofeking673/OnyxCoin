@@ -1,14 +1,18 @@
 #pragma once
-#include "RequestHandler.h"
+#include "Networking/Socket.h"
+#include "FullNodeMessageHandler.h"
+#include "MessageManager.h"
+#include "MessageDispatcher.h"
+#include "IClient.h"
 #include <map>
 
 class Server {
 public:
-	Server();
+	Server(IClient* cli, int port, FullNodeMessageHandler* handler);
 	static void HandleClient(SOCKET clientSock);
-	SOCKET findByKey(std::string& k) { return SOCKET(); }; // TO-DO: Real Implementation
 private:
-	static std::map<SOCKET, IClient*> Users_;
+	IClient* _cli;
+	MessageDispatcher* dispatcher;
 	static Socket* serverSock_;
-	static RequestHandler* handler;
+	static MessageManager* messageManager;
 };

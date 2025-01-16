@@ -6,7 +6,7 @@
 class IClient
 {
 public:
-	IClient(std::string keyPath, int port) : sock(port), _keyPath(keyPath)
+	IClient(std::string keyPath, int port) : sock("127.0.0.1", port), _keyPath(keyPath)
 	{
 		if (keyPath != KEY_FILE_PATH) {
 			wallet = new Wallet(keyPath);

@@ -1,7 +1,8 @@
 #include "FullNodeMessageHandler.h"
 #include "iostream"
 
-FullNodeMessageHandler::FullNodeMessageHandler()
+FullNodeMessageHandler::FullNodeMessageHandler(std::string keyPath, int port) :
+    peerManager(this, keyPath, port)
 {
 	_blockchain = Blockchain::getInstance();
 	_utxoSet = UTXOSet::getInstance();
@@ -22,21 +23,21 @@ void FullNodeMessageHandler::onPing(const MessageP2P& msg)
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received PING from peer." << std::endl;
 
-
+    
     // Typical behavior might include sending a PONG message back.
     // That would require access to a network interface or peer manager
     // (not shown here). For example:
     //
-    // MessageP2P pongMsg(
-    //     msg.getSignature(),          // Keep the same signature or your own
-    //     MessageType::PONG,           // Message type
-    //     0,                           // No payload
-    //     {}                           // Empty payload vector
-    // );
+    MessageP2P pongMsg(
+         msg.getSignature(),          // Keep the same signature or your own
+         peerManager.getPubKey(),     // Author signature
+         MessageType::PONG,           // Message type
+         0,                           // No payload
+         {}                           // Empty payload vector
+     );
+    // Source address is stored in msg._author
     // network->send(pongMsg);
-
-
-
+    peerManager.sendMessage(msg.getAuthor(), pongMsg.ToString());
 
     /*
     Typical Logic
@@ -56,20 +57,8 @@ void FullNodeMessageHandler::onPong(const MessageP2P& msg)
 {
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received PONG from peer." << std::endl;
-
-    // Typical behavior might include updating a "last seen" timestamp
-    // for the peer that sent the PONG, or other connection management tasks.
-
-    /*
-    Typical Logic
-    Log that you received a PONG.
-    Update the peer’s “last seen” timestamp or note that the peer responded promptly.
-    Possible Steps
-
-    Print/Log the event.
-    Update “lastSeenTime” or “lastPongTime” for the peer.
-    If you were doing a round-trip measurement, store the RTT (round-trip time).    
-    */
+    // Because peerManager automatically updates the alive state of each peer when recieve is called
+    // there is no handling needed for this type of message
 }
 
 void FullNodeMessageHandler::onGetPeers(const MessageP2P& msg)
@@ -278,3 +267,7 @@ void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
     */
 }
 
+std::string FullNodeMessageHandler::signMessage(std::string msg)
+{
+    return peerManager.signMessage(msg);
+}

@@ -1,25 +1,25 @@
 #include "Server.h"
 
 // Define the static members
-std::map<SOCKET, IClient*> Server::Users_; 
 Socket* Server::serverSock_ = nullptr;
-RequestHandler* Server::handler = nullptr;
+MessageManager* Server::messageManager = nullptr;
 
 /*
 MakeTransaction = 100,
 Mine = 200,*/
 
-Server::Server()
+Server::Server(IClient* cli, int port, FullNodeMessageHandler* handler) :
+	dispatcher(new MessageDispatcher(handler))
 {
-	handler = RequestHandler::getInstance();
-	serverSock_ = new Socket(8026);
+	_cli = cli;
+	messageManager = new MessageManager();
+	serverSock_ = new Socket(port);
 	serverSock_->WaitForClients(HandleClient);
 }
 
 void Server::HandleClient(SOCKET clientSock)
 {
 	std::string address = Socket::readFromSock(clientSock);
-	Users_[clientSock] = new Client(2086, address);
 
 	try {
 		char buf[READ_SIZE];
@@ -35,19 +35,12 @@ void Server::HandleClient(SOCKET clientSock)
 			std::cout << j.at("status").get<Requests>() << std::endl;
 			switch (j.at("status").get<Requests>())
 			{
-			case Mine:
-				response = handler->mine(address, j);
-				break;
-			case MakeTransaction:
-				//std::cout << "pubkey is :" << address << std::endl;
-				response = handler->transaction(address, j);
-				break;
+			
 			default:
 				std::cout << "Message code does not exist! {" << j["status"] << "}\n";
 				break;
 			}
 			serverSock_->sendMessage(clientSock, response);
-
 		}
 	} 
 	catch(std::exception& e) 

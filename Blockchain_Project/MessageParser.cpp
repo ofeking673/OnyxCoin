@@ -109,6 +109,27 @@ bool MessageParser::parseAuthor(const std::vector<uint8_t>& buffer, std::string&
     return true;
 }
 
+bool MessageParser::parseAuthor(const std::vector<uint8_t>& buffer, std::string& author)
+{
+    author.reserve(M_AUTHOR_SIZE);
+
+    // TO-DO: add better checks for parsing
+
+
+    // Check if buffer contains signature size
+    if (buffer.size() < M_SIGNATURE_SIZE + M_AUTHOR_SIZE)
+    {
+        return false;
+    }
+
+    // Parse the signature as a string
+    for (size_t i = M_SIGNATURE_SIZE; i < M_AUTHOR_SIZE + M_SIGNATURE_SIZE; i++)
+    {
+        author.append(1, static_cast<char>(buffer[i]));
+    }
+    return true;
+}
+
 bool MessageParser::parseMessageType(const std::vector<uint8_t>& buffer, MessageType& messageType)
 {
     size_t startPosMessageType = M_SIGNATURE_SIZE + M_AUTHOR_SIZE;
