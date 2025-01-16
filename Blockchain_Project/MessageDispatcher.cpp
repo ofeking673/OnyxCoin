@@ -14,6 +14,10 @@ MessageDispatcher::MessageDispatcher(IMessageHandler* handler)
     _dispatchTable =
     {
         {
+            MessageType::ERROR,
+            [](IMessageHandler* h, const MessageP2P& msg) { h->onError(msg); }
+        },
+        {
             MessageType::PING,
             [](IMessageHandler* h, const MessageP2P& msg) { h->onPing(msg); }
         },

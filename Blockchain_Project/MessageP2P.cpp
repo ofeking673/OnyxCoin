@@ -5,16 +5,19 @@
 MessageP2P::MessageP2P()
 {
     _signature = "";
-    _type = MessageType::PING;
+    _author = "";
+    _type = MessageType::ERROR;
     _payloadLength = 0;
     _payload.clear();
 }
 
 MessageP2P::MessageP2P(const std::string& signature,
+    const std::string& author,
     MessageType type,
     uint32_t length,
-    const std::vector<uint8_t>& payload)
+    const std::string& payload)
     : _signature(signature)
+    , _author(author)
     , _type(type)
     , _payloadLength(length)
     , _payload(payload)
@@ -27,6 +30,11 @@ const std::string& MessageP2P::getSignature() const
     return _signature;
 }
 
+const std::string& MessageP2P::getAuthor() const
+{
+    return _author;
+}
+
 MessageType MessageP2P::getType() const
 {
     return _type;
@@ -37,7 +45,7 @@ uint32_t MessageP2P::getLength() const
     return _payloadLength;
 }
 
-const std::vector<uint8_t>& MessageP2P::getPayload() const
+const std::string& MessageP2P::getPayload() const
 {
     return _payload;
 }
@@ -46,6 +54,11 @@ const std::vector<uint8_t>& MessageP2P::getPayload() const
 void MessageP2P::setSignature(const std::string& signature)
 {
     _signature = signature;
+}
+
+void MessageP2P::setAuthor(const std::string& author)
+{
+    _author = author;
 }
 
 void MessageP2P::setType(MessageType type)
@@ -58,7 +71,7 @@ void MessageP2P::setLength(uint32_t length)
     _payloadLength = length;
 }
 
-void MessageP2P::setPayload(const std::vector<uint8_t>& payload)
+void MessageP2P::setPayload(const std::string& payload)
 {
     _payload = payload;
 }

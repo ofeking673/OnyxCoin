@@ -9,6 +9,8 @@ class IMessageHandler
 public:
     virtual ~IMessageHandler() = default;
 
+    virtual void onError(const MessageP2P& msg) = 0;
+
     virtual void onPing(const MessageP2P& msg) = 0;
     virtual void onPong(const MessageP2P& msg) = 0;
 

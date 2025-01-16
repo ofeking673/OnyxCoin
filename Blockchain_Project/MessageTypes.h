@@ -5,6 +5,7 @@
 /// Define all supported message types.
 enum class MessageType : uint16_t
 {
+    ERROR = 0,
     PING = 1,
     PONG,
     GET_PEERS,

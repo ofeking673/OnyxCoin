@@ -14,8 +14,14 @@ FullNodeMessageHandler::~FullNodeMessageHandler()
 
 void FullNodeMessageHandler::onPing(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::PING)
+    {
+        return;
+    }
+
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received PING from peer." << std::endl;
+
 
     // Typical behavior might include sending a PONG message back.
     // That would require access to a network interface or peer manager

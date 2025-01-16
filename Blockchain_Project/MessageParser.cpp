@@ -2,14 +2,14 @@
 #include "MessageP2P.h"
 #include <cstdint>
 
-std::unique_ptr<MessageP2P> MessageParser::parse(const std::vector<uint8_t>& buffer)
+MessageP2P MessageParser::parse(const std::vector<uint8_t>& buffer)
 {
     // Minimum bytes needed
-    static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
+    static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
 
     if (buffer.size() < M_HEADER_SIZE)
     {
-        return nullptr; // Not enough data to parse the header
+        return MessageP2P(); // Not enough data to parse the header
     }
 
     // Parse signature
@@ -17,7 +17,15 @@ std::unique_ptr<MessageP2P> MessageParser::parse(const std::vector<uint8_t>& buf
     if(!parseSignature(buffer, signature))
     {
         // Couldn't parse signature
-        return nullptr;
+        return MessageP2P();
+    }
+
+    // Parse author
+    std::string author;
+    if(!parseAuthor(buffer, author))
+    {
+        // Couldn't parse author
+        return MessageP2P();
     }
 
     // Parse message type
@@ -25,7 +33,7 @@ std::unique_ptr<MessageP2P> MessageParser::parse(const std::vector<uint8_t>& buf
     if (!parseMessageType(buffer, messageType))
     {
         // Couldn't parse type
-        return nullptr;
+        return MessageP2P();
     }
 
     // Parse payload length
@@ -33,7 +41,7 @@ std::unique_ptr<MessageP2P> MessageParser::parse(const std::vector<uint8_t>& buf
     if(!parsePayloadLength(buffer, payloadLength))
     {
         // Couldn't parse payload length
-        return nullptr;
+        return MessageP2P();
     }
 
     // Parse payload
@@ -41,13 +49,14 @@ std::unique_ptr<MessageP2P> MessageParser::parse(const std::vector<uint8_t>& buf
     if (!parsePayload(buffer, payload, payloadLength))
     {
         // Couldn't parse payload
-        return nullptr;
+        return MessageP2P();
     }
 
 
     // Construct the MessageP2P object
-    std::unique_ptr<MessageP2P> msg = std::make_unique<MessageP2P>(
+    MessageP2P msg = MessageP2P(
         signature,
+        author,
         messageType,
         payloadLength,
         payload
@@ -77,9 +86,32 @@ bool MessageParser::parseSignature(const std::vector<uint8_t>& buffer, std::stri
     return true;
 }
 
+bool MessageParser::parseAuthor(const std::vector<uint8_t>& buffer, std::string& author)
+{
+    author.reserve(M_AUTHOR_SIZE);
+
+    size_t startPosAuthor = M_SIGNATURE_SIZE;
+
+    // TO-DO: add better checks for parsing
+
+
+    // Check if buffer contains signature size
+    if (buffer.size() < startPosAuthor + M_AUTHOR_SIZE)
+    {
+        return false;
+    }
+
+    // Parse the author as a string
+    for (size_t i = 0; i < M_AUTHOR_SIZE; i++)
+    {
+        author.append(1, static_cast<char>(buffer[i]));
+    }
+    return true;
+}
+
 bool MessageParser::parseMessageType(const std::vector<uint8_t>& buffer, MessageType& messageType)
 {
-    size_t startPosMessageType = M_SIGNATURE_SIZE;
+    size_t startPosMessageType = M_SIGNATURE_SIZE + M_AUTHOR_SIZE;
 
     // TO-DO: add better checks for parsing
 
@@ -100,7 +132,7 @@ bool MessageParser::parseMessageType(const std::vector<uint8_t>& buffer, Message
 
 bool MessageParser::parsePayloadLength(const std::vector<uint8_t>& buffer, uint32_t& payloadLength)
 {
-    size_t startPosPayloadLength = M_SIGNATURE_SIZE + M_TYPE_SIZE;
+    size_t startPosPayloadLength = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE;
 
     // TO-DO: add better checks for parsing
 
@@ -122,7 +154,7 @@ bool MessageParser::parsePayloadLength(const std::vector<uint8_t>& buffer, uint3
 
 bool MessageParser::parsePayload(const std::vector<uint8_t>& buffer, std::vector<uint8_t>& payload, const uint32_t& payloadLength)
 {
-    static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
+    static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
 
     // TO-DO: add better checks for parsing
 

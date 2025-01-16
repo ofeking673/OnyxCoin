@@ -24,7 +24,7 @@ public:
     MessageP2P createPingMessage(const std::string& privateKey);
 
     /// Create a PONG message
-    MessageP2P createPongMessage(const std::string& privateKey);
+    MessageP2P createPongMessage(const std::string& privateKey, const std::string& time);
 
     /// Create a GET_PEERS message
     MessageP2P createGetPeersMessage(const std::string& privateKey);
@@ -56,11 +56,11 @@ public:
 
     /// Create a GET_HEADERS message
     MessageP2P createGetHeadersMessage(const std::string& privateKey,
-        const std::vector<uint8_t>& locatorData);
+        /*const std::vector<uint8_t>& locatorData*/);
 
     /// Create a HEADERS message
     MessageP2P createHeadersMessage(const std::string& privateKey,
-        const std::vector<uint8_t>& serializedHeaders);
+        /*const std::vector<uint8_t>& serializedHeaders*/);
 
     void signMessage(MessageP2P& messgae, const std::string& privateKey);
 
@@ -75,6 +75,7 @@ public:
     void receiveMessage(const MessageP2P& msg);
 
 private:
+    std::string getCurrentDateTime();
     // You might store references to other components here, e.g.:
     // PeerManager*    _peerManager;
     // NetworkManager* _networkManager;

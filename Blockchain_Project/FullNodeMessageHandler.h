@@ -14,6 +14,8 @@ public:
     virtual ~FullNodeMessageHandler();
 
     // Implement IMessageHandler Interface
+    void onError(const MessageP2P& msg) override;
+
     void onPing(const MessageP2P& msg) override;
     void onPong(const MessageP2P& msg) override;
 
