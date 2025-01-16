@@ -20,12 +20,15 @@
 #define REGULARE_TRANSACTION_TYPE 10 
 #define REWARD_TRANSACTION_TYPE 20
 #define CHANGE_TRANSACTION_TYPE 30
+
+#define ERROR_TRANSACTION_ID -1
 class Transaction
 {
 public:
 	// Construct a transaction from given inputs and outputs
 	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs);
 	Transaction(const Transaction& other);
+	Transaction();
 	~Transaction() = default;
 
 	// Return all inputs
@@ -65,6 +68,9 @@ public:
 
 	std::string toString() const;
 	std::string toJson() const;
+	std::string toMessageString() const;
+	static Transaction parseMessageString(const std::string& data);
+
 	static Transaction fromJson(const std::string& jsonStr);
 	static std::string hashPublicKey(const std::string& hexPubKey);
 
@@ -89,4 +95,7 @@ private:
 	std::vector<TxOutput> _outputs;
 	time_t                _timestamp;
 	std::string           _transactionID;
+
+	// When parsing a transaction
+	Transaction(std::string transactionID, time_t timestamp, std::vector<TxInput> inputs, std::vector<TxOutput> outputs);
 };

@@ -35,8 +35,8 @@ public:
     void onHeaders(const MessageP2P& msg) override;
 
     // Utility for keeping the "alive" state updated for each node
-    std::vector<SOCKET> getAllClients() { return peerManager.getAllClients(); };
-    std::string getPublicKey() { return peerManager.getPubKey(); };
+    std::vector<SOCKET> getAllClients() { return _peerManager.getAllClients(); };
+    std::string getPublicKey() { return _peerManager.getPubKey(); };
     std::string signMessage(std::string msg);
 private:
     /*
@@ -48,6 +48,6 @@ private:
 
     Blockchain* _blockchain;
     UTXOSet* _utxoSet;
-    PeerManager peerManager;
-    // NetworkManager
+    PeerManager _peerManager;
+    MessageManager _messageManager;
 };

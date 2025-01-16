@@ -28,7 +28,7 @@ public:
     MessageP2P createPingMessage(const std::string& publicKey);
 
     /// Create a PONG message
-    MessageP2P createPongMessage(const std::string& privateKey, const std::string& time);
+    MessageP2P createPongMessage(const std::string& publicKey, const std::string& time);
 
     /// Create a GET_PEERS message
     MessageP2P createGetPeersMessage(const std::string& publicKey);
@@ -59,11 +59,11 @@ public:
         const InventoryData& inventoryData);
 
     /// Create a GET_HEADERS message
-    MessageP2P createGetHeadersMessage(const std::string& privateKey,
+    MessageP2P createGetHeadersMessage(const std::string& publicKey,
         /*const std::vector<uint8_t>& locatorData*/);
 
     /// Create a HEADERS message
-    MessageP2P createHeadersMessage(const std::string& privateKey,
+    MessageP2P createHeadersMessage(const std::string& publicKey,
         /*const std::vector<uint8_t>& serializedHeaders*/);
 
     // ------------------------------------------------------------------------

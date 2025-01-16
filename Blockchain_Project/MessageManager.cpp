@@ -8,9 +8,10 @@
 
 MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
 {
+    // payload = YYYY-MM-DD HH:MM:SS
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPrivateKey(privateKey);
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
 
     message.setType(MessageType::PING);
     message.setAuthor(address);
@@ -20,16 +21,15 @@ MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
     message.setLength(time.length());
     message.setPayload(time);
 
-    signMessage(message, privateKey);
-
     return message;
 }
 
-MessageP2P MessageManager::createPongMessage(const std::string& privateKey, const std::string& time)
+MessageP2P MessageManager::createPongMessage(const std::string& publicKey, const std::string& time)
 {
+    // payload = YYYY-MM-DD HH:MM:SS
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPrivateKey(privateKey);
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
 
     message.setType(MessageType::PING);
     message.setAuthor(address);
@@ -37,8 +37,6 @@ MessageP2P MessageManager::createPongMessage(const std::string& privateKey, cons
     // Time of PING message
     message.setLength(time.length());
     message.setPayload(time);
-
-    signMessage(message, privateKey);
 
     return message;
 }
@@ -50,6 +48,43 @@ MessageP2P MessageManager::createGetPeersMessage(const std::string& publicKey)
     message.setType(MessageType::GET_PEERS);
     message.setAuthor(publicKey);
 
+
+    return message;
+}
+
+MessageP2P MessageManager::createGetBlockMessage(const std::string& publicKey, const std::string& blockHash, const std::string& prevBlockHash)
+{
+    // payload = blockHash|prevBlockHash
+    MessageP2P message;
+
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+
+    message.setType(MessageType::GET_BLOCK);
+    message.setAuthor(address);
+
+    std::string payload = blockHash + "|" + prevBlockHash;
+    message.setLength(payload.length());
+    message.setPayload(payload);
+
+    return message;
+}
+
+MessageP2P MessageManager::createBlockMessage(const std::string& publicKey, const Block& block)
+{
+    // payload = _index|time|_previousHash|_hash|transactions;
+        // transaction = txid$timestamp$inputs$outputs&...
+            // inputs = i*previousPointTxID*previousPointIndex*scriptSig^...
+            // outputs = i*value*scriptPubKey^...
+    MessageP2P message;
+
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+
+    message.setType(MessageType::GET_BLOCK);
+    message.setAuthor(address);
+
+    std::string payload = block.toMessageString();
+    message.setLength(payload.length());
+    message.setPayload(payload);
 
     return message;
 }

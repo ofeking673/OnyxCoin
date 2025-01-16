@@ -5,7 +5,7 @@
 #include "MessageP2P.h"
 
 #define M_SIGNATURE_SIZE      16
-#define M_AUTHOR_SIZE         20
+#define M_AUTHOR_SIZE         40
 #define M_TYPE_SIZE           2
 #define M_PAYLOAD_LENGTH_SIZE 4
 
@@ -15,16 +15,16 @@ class MessageParser
 public:
     /// Parses a raw buffer and returns a newly created MessageP2P object.
     /// Returns MessageP2P with ERROR type, if the buffer is invalid or incomplete.
-    static MessageP2P parse(const std::vector<uint8_t>& buffer);
+    static MessageP2P parse(const std::string& buffer);
 
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageParser() = default;
 
     // Optional helper methods for parsing could be declared here, e.g.:
-    static bool parseSignature(const std::vector<uint8_t>& buffer, std::string& signature);
-    static bool parseAuthor(const std::vector<uint8_t>& buffer, std::string& author);
-    static bool parseMessageType(const std::vector<uint8_t>& buffer, MessageType& messageType);
-    static bool parsePayloadLength(const std::vector<uint8_t>& buffer, uint32_t& payloadLength);
-    static bool parsePayload(const std::vector<uint8_t>& buffer, std::vector<uint8_t>& payload, const uint32_t& payloadLength);
+    static bool parseSignature(const std::string, std::string& signature);
+    static bool parseAuthor(const std::string, std::string& author);
+    static bool parseMessageType(const std::string, MessageType& messageType);
+    static bool parsePayloadLength(const std::string, uint32_t& payloadLength);
+    static bool parsePayload(const std::string, std::string& payload, const uint32_t& payloadLength);
 };

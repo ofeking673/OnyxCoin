@@ -14,6 +14,8 @@ public:
 	std::string getCurrentBlockInfo() const; //Mining purposes
 
 	void displayBlock() const;
+	std::string toMessageString() const;
+	static Block parseMessageString(const std::string& data);
 
 	std::string getHash() const;
 	std::string getPreviousHash() const;
@@ -26,5 +28,7 @@ private:
 	std::string _previousHash;
 	std::string _hash;
 	
+	// When parsing a block
+	Block(int index, time_t timestamp, std::string previousHash, std::string hash, std::vector<Transaction> transactions);
 };
 

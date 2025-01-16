@@ -2,7 +2,7 @@
 #include "iostream"
 
 FullNodeMessageHandler::FullNodeMessageHandler(std::string keyPath, int port) :
-    peerManager(this, keyPath, port)
+    _peerManager(this, keyPath, port)
 {
 	_blockchain = Blockchain::getInstance();
 	_utxoSet = UTXOSet::getInstance();
@@ -28,16 +28,18 @@ void FullNodeMessageHandler::onPing(const MessageP2P& msg)
     // That would require access to a network interface or peer manager
     // (not shown here). For example:
     //
-    MessageP2P pongMsg(
-         msg.getSignature(),          // Keep the same signature or your own
-         peerManager.getPubKey(),     // Author signature
-         MessageType::PONG,           // Message type
-         0,                           // No payload
-         {}                           // Empty payload vector
-     );
+    //MessageP2P pongMsg(
+    //     msg.getSignature(),          // Keep the same signature or your own
+    //     peerManager.getPubKey(),     // Author signature
+    //     MessageType::PONG,           // Message type
+    //     0,                           // No payload
+    //     {}                           // Empty payload vector
+    // );
     // Source address is stored in msg._author
     // network->send(pongMsg);
-    peerManager.sendMessage(msg.getAuthor(), pongMsg.ToString());
+
+    MessageP2P pongMsg = _messageManager.createPongMessage(_peerManager.getPubKey(), msg.getPayload());
+    _peerManager.sendMessage(msg.getAuthor(), pongMsg.ToString());
 
     /*
     Typical Logic
@@ -55,6 +57,11 @@ void FullNodeMessageHandler::onPing(const MessageP2P& msg)
 
 void FullNodeMessageHandler::onPong(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::PONG)
+    {
+        return;
+    }
+
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received PONG from peer." << std::endl;
     // Because peerManager automatically updates the alive state of each peer when recieve is called
@@ -269,5 +276,5 @@ void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
 
 std::string FullNodeMessageHandler::signMessage(std::string msg)
 {
-    return peerManager.signMessage(msg);
+    return _peerManager.signMessage(msg);
 }

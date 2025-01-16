@@ -2,7 +2,7 @@
 #include "MessageP2P.h"
 #include <cstdint>
 
-MessageP2P MessageParser::parse(const std::vector<uint8_t>& buffer)
+MessageP2P MessageParser::parse(const std::string& buffer)
 {
     // Minimum bytes needed
     static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
@@ -45,7 +45,7 @@ MessageP2P MessageParser::parse(const std::vector<uint8_t>& buffer)
     }
 
     // Parse payload
-    std::vector<uint8_t> payload;
+    std::string payload;
     if (!parsePayload(buffer, payload, payloadLength))
     {
         // Couldn't parse payload
@@ -65,7 +65,7 @@ MessageP2P MessageParser::parse(const std::vector<uint8_t>& buffer)
     return msg;
 }
 
-bool MessageParser::parseSignature(const std::vector<uint8_t>& buffer, std::string& signature)
+bool MessageParser::parseSignature(const std::string& buffer, std::string& signature)
 {
     signature.reserve(M_SIGNATURE_SIZE);
 
@@ -86,7 +86,7 @@ bool MessageParser::parseSignature(const std::vector<uint8_t>& buffer, std::stri
     return true;
 }
 
-bool MessageParser::parseAuthor(const std::vector<uint8_t>& buffer, std::string& author)
+bool MessageParser::parseAuthor(const std::string& buffer, std::string& author)
 {
     author.reserve(M_AUTHOR_SIZE);
 
@@ -109,7 +109,7 @@ bool MessageParser::parseAuthor(const std::vector<uint8_t>& buffer, std::string&
     return true;
 }
 
-bool MessageParser::parseAuthor(const std::vector<uint8_t>& buffer, std::string& author)
+bool MessageParser::parseAuthor(const std::string& buffer, std::string& author)
 {
     author.reserve(M_AUTHOR_SIZE);
 
@@ -130,7 +130,7 @@ bool MessageParser::parseAuthor(const std::vector<uint8_t>& buffer, std::string&
     return true;
 }
 
-bool MessageParser::parseMessageType(const std::vector<uint8_t>& buffer, MessageType& messageType)
+bool MessageParser::parseMessageType(const std::string& buffer, MessageType& messageType)
 {
     size_t startPosMessageType = M_SIGNATURE_SIZE + M_AUTHOR_SIZE;
 
@@ -151,7 +151,7 @@ bool MessageParser::parseMessageType(const std::vector<uint8_t>& buffer, Message
     return true;
 }
 
-bool MessageParser::parsePayloadLength(const std::vector<uint8_t>& buffer, uint32_t& payloadLength)
+bool MessageParser::parsePayloadLength(const std::string& buffer, uint32_t& payloadLength)
 {
     size_t startPosPayloadLength = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE;
 
@@ -173,7 +173,7 @@ bool MessageParser::parsePayloadLength(const std::vector<uint8_t>& buffer, uint3
     return true;
 }
 
-bool MessageParser::parsePayload(const std::vector<uint8_t>& buffer, std::vector<uint8_t>& payload, const uint32_t& payloadLength)
+bool MessageParser::parsePayload(const std::string& buffer, std::string& payload, const uint32_t& payloadLength)
 {
     static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
 
@@ -187,12 +187,10 @@ bool MessageParser::parsePayload(const std::vector<uint8_t>& buffer, std::vector
     }
 
     // Extract the payload
-    std::vector<uint8_t> payloadExtract(payloadLength);
     std::copy(buffer.begin() + M_HEADER_SIZE,
         buffer.begin() + M_HEADER_SIZE + payloadLength,
         payload.begin());
 
-    payload = payloadExtract;
     return true;
 
 }

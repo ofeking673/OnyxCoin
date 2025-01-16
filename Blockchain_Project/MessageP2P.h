@@ -14,7 +14,7 @@ public:
     /// Constructors
     MessageP2P();
     MessageP2P(const std::string& signature, 
-        std::string author,
+        const std::string& author,
         MessageType type,
         uint32_t length,
         const std::string& payload);
