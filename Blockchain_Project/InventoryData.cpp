@@ -1,4 +1,5 @@
 #include "InventoryData.h"
+#include "HelperT.h"
 #include <algorithm>
 
 // Constructor
@@ -72,4 +73,75 @@ void InventoryData::removeBlock(const std::string& blockHash, const std::string&
 void InventoryData::setBlocks(const std::vector<std::pair<std::string, std::string>>& blocksHash)
 {
     _blocksHash = std::move(blocksHash);
+}
+
+std::string InventoryData::toMessageString() const
+{
+    // inventory = txIDs|blockHashes
+    // txIDs = txid&...
+    // blockHashes = hash^prevHash&...
+    std::string txIDs = "";
+    for (const auto& txid : _txIDs)
+    {
+        txIDs += txid + "&";
+    }
+    txIDs.pop_back();
+
+    std::string blockHashes = "";
+    for (const auto& block : _blocksHash)
+    {
+        blockHashes += block.first + "^" + block.second + "&";
+    }
+    blockHashes.pop_back();
+
+    std::string inventory = txIDs + "|" + blockHashes;
+    return inventory;
+}
+
+InventoryData InventoryData::parseMessageString(const std::string& data)
+{
+    // The overall format is: txIDs + "|" + blockHashes
+    // Split using the pipe '|' delimiter.
+    std::vector<std::string> parts = HelperT::split(data, '|');
+    if (parts.size() != 2) 
+    {
+        // Invalid inventory format: expecting 'txIDs|blockHashes'
+        return InventoryData();
+    }
+
+    // Parse the txIDs
+    std::string txIDsStr = parts[0];
+    std::vector<std::string> txIDs;
+    if (!txIDsStr.empty()) 
+    {
+        txIDs = HelperT::split(txIDsStr, '&');
+    }
+
+    // Parse the block hashes
+    std::string blocksHashStr = parts[1];
+    std::vector<std::pair<std::string, std::string>> blocksHash;
+    if (!blocksHashStr.empty()) 
+    {
+        // Each block hash entry is separated by '&'
+        std::vector<std::string> blockTokens = HelperT::split(blocksHashStr, '&');
+        for (const auto& token : blockTokens) 
+        {
+            // Each token has the format: blockHash^prevBlockHash
+            std::vector<std::string> hashParts = HelperT::split(token, '^');
+            if (hashParts.size() != 2) 
+            {
+                // Invalid block hash format in inventory data
+                return InventoryData();
+            }
+            blocksHash.push_back({ hashParts[0], hashParts[1] });
+        }
+    }
+
+    return InventoryData(txIDs, blocksHash);
+}
+
+InventoryData::InventoryData(const std::vector<std::string>& txIDs, const std::vector<std::pair<std::string, std::string>>& blocksHash)
+    : _txIDs(txIDs)
+    , _blocksHash(blocksHash)
+{
 }

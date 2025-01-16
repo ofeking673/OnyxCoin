@@ -8,7 +8,8 @@ Block::Block(int index, const std::string& previousHash)
 	_hash = calculateHash();
 }
 
-Block::Block(int index, time_t timestamp, std::string previousHash, std::string hash, std::vector<Transaction> transactions)
+Block::Block(const int& index, const time_t& timestamp, const std::string& previousHash, const std::string& hash, const std::vector<Transaction>& transactions)
+
 	: _index(index)
 	, _timestamp(timestamp)
 	, _previousHash(previousHash)

@@ -25,11 +25,11 @@ Transaction::Transaction()
 	_timestamp = std::time(nullptr);
 }
 
-Transaction::Transaction(std::string transactionID, time_t timestamp, std::vector<TxInput> inputs, std::vector<TxOutput> outputs)
+Transaction::Transaction(const std::string& transactionID, const time_t& timestamp, const std::vector<TxInput>& inputs, const std::vector<TxOutput>& outputs)
 	: _transactionID(transactionID)
-	, _timestamp(timestamp)
-	, _inputs(std::move(inputs))
-	, _outputs(std::move(outputs))
+		, _timestamp(timestamp)
+		, _inputs(std::move(inputs))
+		, _outputs(std::move(outputs))
 {
 }
 

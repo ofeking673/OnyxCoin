@@ -18,8 +18,15 @@ public:
 	void removeBlock(const std::string& blockHash, const std::string& prevBlockHash);
 	void setBlocks(const std::vector<std::pair<std::string, std::string>>& blocksHash);
 
+	std::string toMessageString() const;
+	static InventoryData parseMessageString(const std::string& data);
 private:
 	std::vector<std::string> _txIDs;
 	std::vector<std::pair<std::string, std::string>> _blocksHash; // blockHash | prevBlockHash
+
+	// When parsing InventoryData message
+	InventoryData(const std::vector<std::string>& txIDs,
+		const std::vector<std::pair<std::string, std::string>>& blocksHash);
+
 };
 

@@ -89,6 +89,57 @@ MessageP2P MessageManager::createBlockMessage(const std::string& publicKey, cons
     return message;
 }
 
+MessageP2P MessageManager::createNewTransactionMessage(const std::string& publicKey, const Transaction& tx)
+{
+    // transaction = txid$timestamp$inputs$outputs&...
+        // inputs = i*previousPointTxID*previousPointIndex*scriptSig^...
+        // outputs = i*value*scriptPubKey^...
+    MessageP2P message;
+
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+
+    message.setType(MessageType::NEW_TRANSACTION);
+    message.setAuthor(address);
+
+    std::string payload = tx.toMessageString();
+    message.setLength(payload.length());
+    message.setPayload(payload);
+
+    return message;
+}
+
+MessageP2P MessageManager::createGetTransactionMessage(const std::string& publicKey, const std::string& txID)
+{
+    MessageP2P message;
+
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+
+    message.setType(MessageType::GET_TRANSACTION);
+    message.setAuthor(address);
+
+    std::string payload = txID;
+    message.setLength(payload.length());
+    message.setPayload(payload);
+
+    return message;
+}
+
+MessageP2P MessageManager::createInventoryMessage(const std::string& publicKey, const InventoryData& inventoryData)
+{
+    MessageP2P message;
+
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+
+    message.setType(MessageType::INVENTORY);
+    message.setAuthor(address);
+
+    std::string payload = inventoryData.toMessageString();
+    message.setLength(payload.length());
+    message.setPayload(payload);
+
+    return message;
+}
+
 std::string MessageManager::getCurrentDateTime()
 {
     // Get the current time using the system clock.

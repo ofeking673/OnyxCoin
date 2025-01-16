@@ -97,5 +97,5 @@ private:
 	std::string           _transactionID;
 
 	// When parsing a transaction
-	Transaction(std::string transactionID, time_t timestamp, std::vector<TxInput> inputs, std::vector<TxOutput> outputs);
+	Transaction(const std::string& transactionID, const time_t& timestamp, const std::vector<TxInput>& inputs, const std::vector<TxOutput>& outputs);
 };
