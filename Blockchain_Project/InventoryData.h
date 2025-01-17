@@ -20,6 +20,9 @@ public:
 
 	std::string toMessageString() const;
 	static InventoryData parseMessageString(const std::string& data);
+
+	std::string toJson() const;
+	static InventoryData fromJson(const std::string& data);
 private:
 	std::vector<std::string> _txIDs;
 	std::vector<std::pair<std::string, std::string>> _blocksHash; // blockHash | prevBlockHash

@@ -1,6 +1,9 @@
 #include "InventoryData.h"
 #include "HelperT.h"
 #include <algorithm>
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 // Constructor
 InventoryData::InventoryData()
@@ -137,6 +140,49 @@ InventoryData InventoryData::parseMessageString(const std::string& data)
         }
     }
 
+    return InventoryData(txIDs, blocksHash);
+}
+
+std::string InventoryData::toJson() const
+{
+    json j;
+
+    // Directly serializing vector<string>
+    j["txIDs"] = _txIDs;
+
+    // Serialize each block as an object with "blockHash" and "prevBlockHash"
+    json blocksJson = json::array();
+    for (const auto& blockPair : _blocksHash)
+    {
+        json blockObj;
+        blockObj["blockHash"] = blockPair.first;
+        blockObj["prevBlockHash"] = blockPair.second;
+        blocksJson.push_back(blockObj);
+    }
+    j["blocksHash"] = blocksJson;
+
+    // Return the complete JSON string
+    return j.dump();
+}
+
+InventoryData InventoryData::fromJson(const std::string& data)
+{
+    // Parse the incoming JSON string into a JSON object
+    json j = json::parse(data);
+
+    // Extract the txIDs array
+    std::vector<std::string> txIDs = j["txIDs"].get<std::vector<std::string>>();
+
+    // Extract the blocks hash array
+    std::vector<std::pair<std::string, std::string>> blocksHash;
+    for (const auto& item : j["blocksHash"])
+    {
+        std::string blockHash = item["blockHash"].get<std::string>();
+        std::string prevBlockHash = item["prevBlockHash"].get<std::string>();
+        blocksHash.push_back({ blockHash, prevBlockHash });
+    }
+
+    // Use the parsing constructor to construct the InventoryData object
     return InventoryData(txIDs, blocksHash);
 }
 

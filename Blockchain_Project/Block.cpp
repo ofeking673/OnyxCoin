@@ -1,4 +1,7 @@
 #include "Block.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 Block::Block(int index, const std::string& previousHash)
 {
@@ -109,6 +112,52 @@ Block Block::parseMessageString(const std::string& data)
 	}
 
 	// Construct and return the Block object
+	return Block(index, timestamp, previousHash, hash, transactions);
+}
+
+std::string Block::toJson() const
+{
+	// Create a JSON object for the block
+	json j;
+	j["index"] = _index;
+	j["timestamp"] = static_cast<uint64_t>(_timestamp);
+	j["previousHash"] = _previousHash;
+	j["hash"] = _hash;
+
+	// Serialize all transactions using their toJson() functions
+	json transactionsJson = json::array();
+	for (const auto& tx : _transactions)
+	{
+		// Convert the transaction JSON string into a JSON object before pushing it
+		transactionsJson.push_back(json::parse(tx.toJson()));
+	}
+	j["transactions"] = transactionsJson;
+
+	// Return the complete JSON string for the block
+	return j.dump();
+}
+
+Block Block::fromJson(const std::string& data)
+{
+	// Parse the input JSON string
+	json j = json::parse(data);
+
+	// Extract the block properties
+	int index = j["index"].get<int>();
+	time_t timestamp = static_cast<time_t>(j["timestamp"].get<uint64_t>());
+	std::string previousHash = j["previousHash"].get<std::string>();
+	std::string hash = j["hash"].get<std::string>();
+
+	// Reconstruct the list of transactions from the array in JSON.
+	std::vector<Transaction> transactions;
+	for (const auto& txJson : j["transactions"])
+	{
+		// Convert the JSON object back to a string for Transaction::fromJson
+		Transaction tx = Transaction::fromJson(txJson.dump());
+		transactions.push_back(tx);
+	}
+
+	// Use the private constructor to re-create the full block, including its timestamp and hash
 	return Block(index, timestamp, previousHash, hash, transactions);
 }
 

@@ -8,18 +8,22 @@
 
 MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
 {
-    // payload = YYYY-MM-DD HH:MM:SS
+    // time = YYYY-MM-DD HH:MM:SS
     MessageP2P message;
 
     std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
 
     message.setType(MessageType::PING);
     message.setAuthor(address);
-
+    
+    json j;
     // Time of message
     std::string time = getCurrentDateTime();
-    message.setLength(time.length());
-    message.setPayload(time);
+    j["time"] = time;
+    std::string payload = j.dump();
+
+    message.setLength(payload.length());
+    message.setPayload(payload);
 
     return message;
 }
@@ -34,9 +38,12 @@ MessageP2P MessageManager::createPongMessage(const std::string& publicKey, const
     message.setType(MessageType::PING);
     message.setAuthor(address);
 
+    json j;
     // Time of PING message
-    message.setLength(time.length());
-    message.setPayload(time);
+    j["time"] = time;
+    std::string payload = j.dump();
+    message.setLength(payload.length());
+    message.setPayload(payload);
 
     return message;
 }
@@ -62,7 +69,11 @@ MessageP2P MessageManager::createGetBlockMessage(const std::string& publicKey, c
     message.setType(MessageType::GET_BLOCK);
     message.setAuthor(address);
 
-    std::string payload = blockHash + "|" + prevBlockHash;
+    json j;
+    j["blockHash"] = blockHash;
+    j["prevBlockHash"] = prevBlockHash;
+    std::string payload = j.dump();
+
     message.setLength(payload.length());
     message.setPayload(payload);
 
@@ -71,10 +82,6 @@ MessageP2P MessageManager::createGetBlockMessage(const std::string& publicKey, c
 
 MessageP2P MessageManager::createBlockMessage(const std::string& publicKey, const Block& block)
 {
-    // payload = _index|time|_previousHash|_hash|transactions;
-        // transaction = txid$timestamp$inputs$outputs&...
-            // inputs = i*previousPointTxID*previousPointIndex*scriptSig^...
-            // outputs = i*value*scriptPubKey^...
     MessageP2P message;
 
     std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
@@ -82,7 +89,7 @@ MessageP2P MessageManager::createBlockMessage(const std::string& publicKey, cons
     message.setType(MessageType::GET_BLOCK);
     message.setAuthor(address);
 
-    std::string payload = block.toMessageString();
+    std::string payload = block.toJson();
     message.setLength(payload.length());
     message.setPayload(payload);
 
@@ -91,9 +98,6 @@ MessageP2P MessageManager::createBlockMessage(const std::string& publicKey, cons
 
 MessageP2P MessageManager::createNewTransactionMessage(const std::string& publicKey, const Transaction& tx)
 {
-    // transaction = txid$timestamp$inputs$outputs&...
-        // inputs = i*previousPointTxID*previousPointIndex*scriptSig^...
-        // outputs = i*value*scriptPubKey^...
     MessageP2P message;
 
     std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
@@ -101,7 +105,7 @@ MessageP2P MessageManager::createNewTransactionMessage(const std::string& public
     message.setType(MessageType::NEW_TRANSACTION);
     message.setAuthor(address);
 
-    std::string payload = tx.toMessageString();
+    std::string payload = tx.toJson();
     message.setLength(payload.length());
     message.setPayload(payload);
 
@@ -117,7 +121,10 @@ MessageP2P MessageManager::createGetTransactionMessage(const std::string& public
     message.setType(MessageType::GET_TRANSACTION);
     message.setAuthor(address);
 
-    std::string payload = txID;
+    json j;
+    j["txID"] = txID;
+    std::string payload = j.dump();
+
     message.setLength(payload.length());
     message.setPayload(payload);
 
@@ -133,7 +140,7 @@ MessageP2P MessageManager::createInventoryMessage(const std::string& publicKey, 
     message.setType(MessageType::INVENTORY);
     message.setAuthor(address);
 
-    std::string payload = inventoryData.toMessageString();
+    std::string payload = inventoryData.toJson();
     message.setLength(payload.length());
     message.setPayload(payload);
 
