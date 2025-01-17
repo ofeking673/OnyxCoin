@@ -330,13 +330,13 @@ void Test::testRIPEMD160()
 void Test::testAddressGenerator()
 {
 	{
-		std::string output = AddressGenerator::generateAddress("d8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
+		std::string output = AddressGenerator::generateAddressFromPublicKey("d8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
 		std::string expected = "6GzqttWiuPEFeq9CKBnExR2dWfeFPWkA";
 		assert(expected == output);
 	}
 
 	{
-		std::string output = AddressGenerator::generateAddress("00ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
+		std::string output = AddressGenerator::generateAddressFromPublicKey("00ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6");
 		std::string expected = "6GtoDZ575yj77RcUsd6S7gdxg9fz6Zbd";
 		assert(expected == output);
 	}

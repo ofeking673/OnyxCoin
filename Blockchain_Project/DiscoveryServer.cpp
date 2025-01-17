@@ -1,5 +1,6 @@
 #include "DiscoveryServer.h"
 Socket DiscoveryServer::serverSock(4444);
+std::map<std::string, std::pair<std::string, int>> DiscoveryServer::peers;
 
 DiscoveryServer::DiscoveryServer()
 {

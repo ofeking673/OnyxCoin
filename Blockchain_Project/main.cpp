@@ -6,13 +6,15 @@
 #include "DiscoveryServer.h"
 #include "P2PNode.h"
 
+#include "IMessageHandler.h"
+
 void main2();
 
 int main()
 {
 	WSAInitializer wsa; //initialize WSA for socket usage
-	P2PNode p2p1("../client1", 1234);
-	P2PNode p2p2("../client2", 1235);
+	P2PNode p2p1(FULL_NODE_MESSAGE_HANDLER, "../client1", 1234);
+	P2PNode p2p2(FULL_NODE_MESSAGE_HANDLER, "../client2", 1235);
 
 	p2p1.pingAll();
 

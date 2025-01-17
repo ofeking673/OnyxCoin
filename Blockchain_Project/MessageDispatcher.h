@@ -2,8 +2,9 @@
 
 #include <unordered_map>
 #include <functional>
-#include "IMessageHandler.h"
-#include "MessageTypes.h"
+#include "MessageP2P.h"
+
+class IMessageHandler;
 
 ///
 /// Dispatches messages to the appropriate handler function based on the message type.

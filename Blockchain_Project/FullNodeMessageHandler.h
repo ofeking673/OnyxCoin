@@ -1,9 +1,9 @@
 #pragma once
 
 #include "IMessageHandler.h"
-#include "PeerManager.h"
 #include "Blockchain.h"
 #include "UTXOSet.h"
+#include "PeerManager.h"
 
 // A concrete class that implements IMessageHandler,
 // suitable for a full node in the blockchain network.
@@ -15,7 +15,7 @@ public:
     virtual ~FullNodeMessageHandler();
 
     // Implement IMessageHandler Interface
-    void onError(const MessageP2P& msg) override;
+    void onError(const MessageP2P& msg) override {};
 
     void onPing(const MessageP2P& msg) override;
     void onPong(const MessageP2P& msg) override;
@@ -33,11 +33,6 @@ public:
 
     void onGetHeaders(const MessageP2P& msg) override;
     void onHeaders(const MessageP2P& msg) override;
-
-    // Utility for keeping the "alive" state updated for each node
-    std::vector<SOCKET> getAllClients() { return _peerManager.getAllClients(); };
-    std::string getPublicKey() { return _peerManager.getPubKey(); };
-    std::string signMessage(std::string msg);
 private:
     /*
     PeerManager (tracks connected peers, their addresses, last-seen timestamps, etc.)
@@ -46,8 +41,11 @@ private:
     Network or P2PManager (responsible for actually sending messages across the network)
     */
 
+
+
     Blockchain* _blockchain;
     UTXOSet* _utxoSet;
-    PeerManager _peerManager;
-    MessageManager _messageManager;
+    // Inherits from IMessageHandler:
+    //     PeerManager _peerManager;
+    //     MessageManager _messageManager;
 };

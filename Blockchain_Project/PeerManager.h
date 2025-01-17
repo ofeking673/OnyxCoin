@@ -1,5 +1,4 @@
 #pragma once
-#include "Networking/ClientSocket.h"
 #include "map"
 #include "Client.h"
 #include "Server.h"
@@ -7,7 +6,7 @@
 class PeerManager
 {
 public:
-	PeerManager(FullNodeMessageHandler* handler, std::string keyPath, int port) : _cli(4444, keyPath), _serv(&_cli, port, handler) {
+	PeerManager(IMessageHandler* handler, std::string keyPath, int port) : _cli(4444, keyPath), _serv(&_cli, port, handler) {
 		discoverPeers(_cli.sock.sendAndRecv(_cli.pubKey));
 	};
 

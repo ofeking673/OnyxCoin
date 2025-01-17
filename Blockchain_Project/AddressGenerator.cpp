@@ -29,6 +29,7 @@ std::string AddressGenerator::generateAddressFromPrivateKey(std::string privateK
 	Point* publicK = ecc.ECMul(privateK, ecc.GPoint);
 	std::string publicKey = publicK->ToStringNoSeperator();
 	std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+	return address;
 }
 
 std::string AddressGenerator::padHexTo64Bytes(std::string hexStr)

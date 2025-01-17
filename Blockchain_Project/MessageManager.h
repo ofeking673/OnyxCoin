@@ -3,7 +3,6 @@
 #include <string>
 #include <memory>
 #include "MessageP2P.h"
-#include "MessageTypes.h"
 #include "Encryptions/ECDSASigner.h"
 #include "Blockchain.h"
 #include "InventoryData.h"
@@ -59,11 +58,11 @@ public:
         const InventoryData& inventoryData);
 
     /// Create a GET_HEADERS message
-    MessageP2P createGetHeadersMessage(const std::string& publicKey,
+    MessageP2P createGetHeadersMessage(const std::string& publicKey
         /*const std::vector<uint8_t>& locatorData*/);
 
     /// Create a HEADERS message
-    MessageP2P createHeadersMessage(const std::string& publicKey,
+    MessageP2P createHeadersMessage(const std::string& publicKey
         /*const std::vector<uint8_t>& serializedHeaders*/);
 
     // ------------------------------------------------------------------------

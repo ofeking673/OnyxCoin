@@ -3,9 +3,7 @@
 #include <string>
 #include <vector>
 #include "MessageTypes.h"
-#include "json.hpp"
 
-using nlohmann::json;
 
 // Represents a P2P message with a header and payload.
 class MessageP2P
@@ -19,7 +17,6 @@ public:
         uint32_t length,
         const std::string& payload);
 
-    void parseJson(json j);
     /// Getters
     const std::string& getSignature() const;
     const std::string& getAuthor() const;
@@ -35,7 +32,8 @@ public:
     void setPayload(const std::string& payload);
 
     /// Utility
-    std::string ToString() const;
+    std::string toJson() const;
+    static MessageP2P fromJson(const std::string& data);
 private:
     // Header fields
     std::string _signature;

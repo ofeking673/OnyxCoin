@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "FullNodeMessageHandler.h"
 
 // Define the static members
 Socket* Server::serverSock_ = nullptr;
@@ -8,7 +9,7 @@ MessageManager* Server::messageManager = nullptr;
 MakeTransaction = 100,
 Mine = 200,*/
 
-Server::Server(IClient* cli, int port, FullNodeMessageHandler* handler) :
+Server::Server(IClient* cli, int port, IMessageHandler* handler) :
 	dispatcher(new MessageDispatcher(handler))
 {
 	_cli = cli;

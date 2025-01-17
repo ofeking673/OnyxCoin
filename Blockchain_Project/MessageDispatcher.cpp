@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <functional>
 #include <iostream>
+#include "IMessageHandler.h"
 
 std::unordered_map<MessageType, std::function<void(IMessageHandler*, const MessageP2P&)>> MessageDispatcher::_dispatchTable;
 
@@ -14,7 +15,7 @@ MessageDispatcher::MessageDispatcher(IMessageHandler* handler)
     _dispatchTable =
     {
         {
-            MessageType::ERROR,
+            MessageType::ERROR_MESSAGE,
             [](IMessageHandler* h, const MessageP2P& msg) { h->onError(msg); }
         },
         {

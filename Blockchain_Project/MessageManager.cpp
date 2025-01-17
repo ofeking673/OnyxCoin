@@ -5,6 +5,9 @@
 #include <ctime>
 #include <sstream>
 #include <iomanip>
+#include "json.hpp"
+
+using nlohmann::json;
 
 MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
 {

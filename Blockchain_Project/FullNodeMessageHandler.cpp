@@ -2,7 +2,7 @@
 #include "iostream"
 
 FullNodeMessageHandler::FullNodeMessageHandler(std::string keyPath, int port) :
-    _peerManager(this, keyPath, port)
+    IMessageHandler(keyPath, port)
 {
 	_blockchain = Blockchain::getInstance();
 	_utxoSet = UTXOSet::getInstance();
@@ -39,7 +39,7 @@ void FullNodeMessageHandler::onPing(const MessageP2P& msg)
     // network->send(pongMsg);
 
     MessageP2P pongMsg = _messageManager.createPongMessage(_peerManager.getPubKey(), msg.getPayload());
-    _peerManager.sendMessage(msg.getAuthor(), pongMsg.ToString());
+    _peerManager.sendMessage(msg.getAuthor(), pongMsg.toJson());
 
     /*
     Typical Logic
@@ -272,9 +272,4 @@ void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
     Store or update them in your local chain’s header index.
     If they extend your chain, request those blocks with GetBlock or another mechanism for full sync.
     */
-}
-
-std::string FullNodeMessageHandler::signMessage(std::string msg)
-{
-    return _peerManager.signMessage(msg);
 }

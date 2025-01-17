@@ -4,65 +4,68 @@
 
 MessageP2P MessageParser::parse(const std::string& buffer)
 {
-    // Minimum bytes needed
-    static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
-
-    if (buffer.size() < M_HEADER_SIZE)
-    {
-        return MessageP2P(); // Not enough data to parse the header
-    }
-
-    // Parse signature
-    std::string signature;
-    if(!parseSignature(buffer, signature))
-    {
-        // Couldn't parse signature
-        return MessageP2P();
-    }
-
-    // Parse author
-    std::string author;
-    if(!parseAuthor(buffer, author))
-    {
-        // Couldn't parse author
-        return MessageP2P();
-    }
-
-    // Parse message type
-    MessageType messageType;
-    if (!parseMessageType(buffer, messageType))
-    {
-        // Couldn't parse type
-        return MessageP2P();
-    }
-
-    // Parse payload length
-    uint32_t payloadLength;
-    if(!parsePayloadLength(buffer, payloadLength))
-    {
-        // Couldn't parse payload length
-        return MessageP2P();
-    }
-
-    // Parse payload
-    std::string payload;
-    if (!parsePayload(buffer, payload, payloadLength))
-    {
-        // Couldn't parse payload
-        return MessageP2P();
-    }
-
-
-    // Construct the MessageP2P object
-    MessageP2P msg = MessageP2P(
-        signature,
-        author,
-        messageType,
-        payloadLength,
-        payload
-    );
-
+    MessageP2P msg = MessageP2P::fromJson(buffer);
     return msg;
+
+    //// Minimum bytes needed
+    //static constexpr size_t M_HEADER_SIZE = M_SIGNATURE_SIZE + M_AUTHOR_SIZE + M_TYPE_SIZE + M_PAYLOAD_LENGTH_SIZE;
+
+    //if (buffer.size() < M_HEADER_SIZE)
+    //{
+    //    return MessageP2P(); // Not enough data to parse the header
+    //}
+
+    //// Parse signature
+    //std::string signature;
+    //if(!parseSignature(buffer, signature))
+    //{
+    //    // Couldn't parse signature
+    //    return MessageP2P();
+    //}
+
+    //// Parse author
+    //std::string author;
+    //if(!parseAuthor(buffer, author))
+    //{
+    //    // Couldn't parse author
+    //    return MessageP2P();
+    //}
+
+    //// Parse message type
+    //MessageType messageType;
+    //if (!parseMessageType(buffer, messageType))
+    //{
+    //    // Couldn't parse type
+    //    return MessageP2P();
+    //}
+
+    //// Parse payload length
+    //uint32_t payloadLength;
+    //if(!parsePayloadLength(buffer, payloadLength))
+    //{
+    //    // Couldn't parse payload length
+    //    return MessageP2P();
+    //}
+
+    //// Parse payload
+    //std::string payload;
+    //if (!parsePayload(buffer, payload, payloadLength))
+    //{
+    //    // Couldn't parse payload
+    //    return MessageP2P();
+    //}
+
+
+    //// Construct the MessageP2P object
+    //MessageP2P msg = MessageP2P(
+    //    signature,
+    //    author,
+    //    messageType,
+    //    payloadLength,
+    //    payload
+    //);
+
+    //return msg;
 }
 
 bool MessageParser::parseSignature(const std::string& buffer, std::string& signature)
@@ -86,28 +89,6 @@ bool MessageParser::parseSignature(const std::string& buffer, std::string& signa
     return true;
 }
 
-bool MessageParser::parseAuthor(const std::string& buffer, std::string& author)
-{
-    author.reserve(M_AUTHOR_SIZE);
-
-    size_t startPosAuthor = M_SIGNATURE_SIZE;
-
-    // TO-DO: add better checks for parsing
-
-
-    // Check if buffer contains signature size
-    if (buffer.size() < startPosAuthor + M_AUTHOR_SIZE)
-    {
-        return false;
-    }
-
-    // Parse the author as a string
-    for (size_t i = 0; i < M_AUTHOR_SIZE; i++)
-    {
-        author.append(1, static_cast<char>(buffer[i]));
-    }
-    return true;
-}
 
 bool MessageParser::parseAuthor(const std::string& buffer, std::string& author)
 {
