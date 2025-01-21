@@ -115,6 +115,10 @@ void FullNodeMessageHandler::onPeerList(const MessageP2P& msg)
 
 void FullNodeMessageHandler::onGetBlock(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::GET_BLOCK)
+    {
+        return;
+    }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received GetBlock from peer." << std::endl;
 
@@ -134,10 +138,24 @@ void FullNodeMessageHandler::onGetBlock(const MessageP2P& msg)
     If found, create a MessageP2P of type BLOCK with the serialized block data as payload.
     Send the BLOCK message back.
     */
+
+    auto blkHash = MessageParser::parseGetBlockMessage(msg);
+
+    // Find the requested block
+    Block block = _blockchain->findBlock(blkHash.first, blkHash.second);
+
+
+    // Send the Block back to the peer requested it
+    MessageP2P blockMsg = _messageManager.createBlockMessage(_peerManager.getPubKey(), block);
+    _peerManager.sendMessage(msg.getAuthor(), blockMsg.toJson());
 }
 
 void FullNodeMessageHandler::onBlock(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::BLOCK)
+    {
+        return;
+    }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received Block from peer." << std::endl;
 
@@ -158,6 +176,27 @@ void FullNodeMessageHandler::onBlock(const MessageP2P& msg)
     If valid, add it to your blockchain (handle chain reorganization if necessary).
     Broadcast or announce this new block to other peers via an inventory or block message.
     */
+
+    Block block = Block::fromJson(msg.getPayload());
+    if (block.isErrorBlock())
+    {
+        // Recieved error block
+        // Might be because asked for worng block hash and previous hash,
+        // or the node doesn't have the block searched for
+        // TO-DO: Send something about it to the network.
+    }
+
+    // TO-DO: Verify the recieved block
+    // When impplementing consensus mechanism
+    // if(!block.verifyBlock())...
+
+
+    // TO-DO: Add the block to the chain, if not already in it
+    // When implementing consensus mechanism
+    
+
+    // TO-DO: Broadcast block or inventory.
+    // Need to think about the implementation
 }
 
 void FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)
@@ -188,12 +227,12 @@ void FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)
     */
 
     Transaction tx = Transaction::fromJson(msg.getPayload());
-    if (tx.getTransactionID() == std::to_string(ERROR_TRANSACTION_ID))
+    if (tx.isErrorTransaction())
     {
         // Recieved error transaction
-        // Moght be because asked for worng trnasaction ID,
+        // Might be because asked for worng trnasaction ID,
         // or the node doesn't have the transaction searched for
-        // Send something about it to the network.
+        // TO-DO: Send something about it to the network.
     }
     if (!tx.verifyTransactionSignature())
     {
@@ -235,7 +274,7 @@ void FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)
     */
     std::string txID = MessageParser::parseGetTransactionMessage(msg);
     Transaction tx = _blockchain->findTransactionInPending(txID);
-    if (tx.getTransactionID() == std::to_string(ERROR_TRANSACTION_ID))
+    if (tx.isErrorTransaction())
     {
         // Transaction NOT found in pending transactions
         // Search trnasaction in whole chain

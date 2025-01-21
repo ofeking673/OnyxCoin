@@ -11,6 +11,14 @@ Block::Block(int index, const std::string& previousHash)
 	_hash = calculateHash();
 }
 
+Block::Block()
+{
+	_index = ERROR_BLOCK_HASH;
+	_previousHash = ERROR_BLOCK_HASH;
+	_hash = ERROR_BLOCK_HASH;
+	_timestamp = std::time(nullptr);
+}
+
 Block::Block(const int& index, const time_t& timestamp, const std::string& previousHash, const std::string& hash, const std::vector<Transaction>& transactions)
 
 	: _index(index)
@@ -24,6 +32,21 @@ Block::Block(const int& index, const time_t& timestamp, const std::string& previ
 Block::~Block()
 {
 	_transactions.clear();
+}
+
+/// <summary>
+/// Check if the block is indicating error
+/// </summary>
+/// <returns>True if error block, False if not error</returns>
+bool Block::isErrorBlock() const
+{
+	if (_index == ERROR_BLOCK_HASH
+		|| _previousHash == std::to_string(ERROR_BLOCK_HASH)
+		|| _hash == std::to_string(ERROR_BLOCK_HASH))
+	{
+		return true;
+	}
+	return false;
 }
 
 void Block::addTransaction(const Transaction& transaction)
@@ -176,7 +199,7 @@ void Block::setHash(const std::string& hash)
 /// </summary>
 /// <param name="txID">Transaction ID searching for</param>
 /// <returns>Transaction if found. Else returns error transaction</returns>
-const Transaction Block::findTransaction(std::string txID) const
+const Transaction Block::findTransaction(const std::string& txID) const
 {
 	auto it = std::find_if(_transactions.begin(), _transactions.end(), [txID](const Transaction& tx)
 		{

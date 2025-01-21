@@ -191,7 +191,7 @@ bool Blockchain::isChainValid() const
 /// </summary>
 /// <param name="txID">Transaction ID searching for</param>
 /// <returns>Transaction if found. Else returns error transaction</returns>
-const Transaction Blockchain::findTransactionInPending(std::string txID) const
+const Transaction Blockchain::findTransactionInPending(const std::string& txID) const
 {
 	auto it = std::find_if(_pendingTransactions.begin(), _pendingTransactions.end(), [txID](const Transaction& tx)
 		{
@@ -215,13 +215,13 @@ const Transaction Blockchain::findTransactionInPending(std::string txID) const
 /// </summary>
 /// <param name="txID">Transaction ID searching for</param>
 /// <returns>Transaction if found. Else returns error transaction</returns>
-const Transaction Blockchain::findTransactionInChain(std::string txID) const
+const Transaction Blockchain::findTransactionInChain(const std::string& txID) const
 {
 	for (auto& blk : _chain)
 	{
 		Transaction tx = blk.findTransaction(txID);
 
-		if (tx.getTransactionID() != std::to_string(ERROR_TRANSACTION_ID))
+		if (!tx.isErrorTransaction())
 		{
 			// Found the transaction
 			return tx;
@@ -229,6 +229,25 @@ const Transaction Blockchain::findTransactionInChain(std::string txID) const
 	}
 	// Transaction ID not found 
 	return Transaction();
+}
+
+const Block Blockchain::findBlock(const std::string& blockHash, const std::string& prevBlockHash) const
+{
+	auto it = std::find_if(_chain.begin(), _chain.end(), [blockHash, prevBlockHash](const Block& block)
+		{
+			return block.getHash() == blockHash && block.getPreviousHash() == prevBlockHash;
+		});
+
+	if (it != _chain.end())
+	{
+		// Found the Block
+		return *it;
+	}
+	else
+	{
+		// Block not found
+		return Block();
+	}
 }
 
 Block Blockchain::createGenesisBlock()

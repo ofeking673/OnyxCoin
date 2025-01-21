@@ -71,15 +71,32 @@ MessageP2P MessageParser::parse(const std::string& buffer)
     //return msg;
 }
 
-std::string MessageParser::parseGetTransactionMessage(const MessageP2P& msg)
+const std::string MessageParser::parseGetTransactionMessage(const MessageP2P& msg)
 {
     // Parse the JSON string back into a JSON object
-    json j2 = json::parse(msg.getPayload());
+    json j = json::parse(msg.getPayload());
 
     // Retrieve the value for "txID"
-    std::string parsedTxID = j2["txID"].get<std::string>();
+    std::string parsedTxID = j["txID"].get<std::string>();
 
     return parsedTxID;
+}
+
+const std::pair<std::string, std::string> MessageParser::parseGetBlockMessage(const MessageP2P& msg)
+{
+    // Parse the JSON string back into a JSON object
+    json j = json::parse(msg.getPayload());
+
+    // Retrieve the values for block hash and previous block hash
+    std::string blockHash = j["blockHash"].get<std::string>();
+    std::string prevBlockHash = j["prevBlockHash"].get<std::string>();
+
+
+    std::pair<std::string, std::string> blkHash;
+    blkHash.first = blockHash;
+    blkHash.second = prevBlockHash;
+
+    return blkHash;
 }
 
 bool MessageParser::parseSignature(const std::string& buffer, std::string& signature)

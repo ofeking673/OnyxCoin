@@ -3,12 +3,15 @@
 #include <vector>
 #include <sstream>
 
+#define ERROR_BLOCK_HASH -1
 class Block
 {
 public:
 	Block(int index, const std::string& previousHash);
+	Block(); // Error
 	~Block();
 
+	bool isErrorBlock() const;
 	void addTransaction(const Transaction& transaction);
 	std::string calculateHash() const;
 	std::string getCurrentBlockInfo() const; //Mining purposes
@@ -23,7 +26,7 @@ public:
 	std::string getPreviousHash() const;
 	void setHash(const std::string& hash);
 
-	const Transaction findTransaction(std::string txID) const;
+	const Transaction findTransaction(const std::string& txID) const;
 
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 private:

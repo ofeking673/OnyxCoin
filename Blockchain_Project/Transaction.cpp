@@ -25,6 +25,19 @@ Transaction::Transaction()
 	_timestamp = std::time(nullptr);
 }
 
+/// <summary>
+/// Checks if the transaction indicating error
+/// </summary>
+/// <returns>True if error transaction, false if not error</returns>
+bool Transaction::isErrorTransaction() const
+{
+	if (_transactionID == std::to_string(ERROR_TRANSACTION_ID))
+	{
+		return true;
+	}
+	return false;
+}
+
 Transaction::Transaction(const std::string& transactionID, const time_t& timestamp, const std::vector<TxInput>& inputs, const std::vector<TxOutput>& outputs)
 	: _transactionID(transactionID)
 		, _timestamp(timestamp)

@@ -35,9 +35,9 @@ public:
 	bool isChainValid() const;
 	const std::vector<Block> getChain() { return _chain; }; //this is not a pointer nor a reference to avoid changing the chain, Thus this is a read only chain.
 
-	const Transaction findTransactionInPending(std::string txID) const;
-	const Transaction findTransactionInChain(std::string txID) const;
-
+	const Transaction findTransactionInPending(const std::string& txID) const;
+	const Transaction findTransactionInChain(const std::string& txID) const;
+	const Block findBlock(const std::string& blockHash, const std::string& prevBlockHash) const;
 private:
 	Blockchain();
 	static Blockchain* _instance;

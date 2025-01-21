@@ -31,6 +31,8 @@ public:
 	Transaction();
 	~Transaction() = default;
 
+	bool isErrorTransaction() const;
+
 	// Return all inputs
 	std::vector<TxInput> getInputs() const;
 

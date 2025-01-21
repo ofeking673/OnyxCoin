@@ -17,6 +17,14 @@ public:
     /// Returns MessageP2P with ERROR type, if the buffer is invalid or incomplete.
     static MessageP2P parse(const std::string& buffer);
 
+    // Parses GET_TRANSACTION message
+    // Returns transaction ID
+    static const std::string parseGetTransactionMessage(const MessageP2P& msg);
+
+    // Parses GET_BLOCK message
+    // Returns pair of block hash and previous block hash
+    static const std::pair<std::string, std::string> parseGetBlockMessage(const MessageP2P& msg);
+
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageParser() = default;
