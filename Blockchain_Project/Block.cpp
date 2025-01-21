@@ -171,6 +171,30 @@ void Block::setHash(const std::string& hash)
 	_hash = hash;
 }
 
+/// <summary>
+/// Find transaction in transaction of the block, searching for transaction ID
+/// </summary>
+/// <param name="txID">Transaction ID searching for</param>
+/// <returns>Transaction if found. Else returns error transaction</returns>
+const Transaction Block::findTransaction(std::string txID) const
+{
+	auto it = std::find_if(_transactions.begin(), _transactions.end(), [txID](const Transaction& tx)
+		{
+			return tx.getTransactionID() == txID;
+		});
+
+	if (it != _transactions.end())
+	{
+		// Found the transaction
+		return *it;
+	}
+	else
+	{
+		// Transaction ID not found
+		return Transaction();
+	}
+}
+
 std::string Block::getPreviousHash() const
 {
 	return _previousHash;

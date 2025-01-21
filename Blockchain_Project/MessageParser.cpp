@@ -1,6 +1,9 @@
 #include "MessageParser.h"
 #include "MessageP2P.h"
 #include <cstdint>
+#include "json.hpp"
+
+using nlohmann::json;
 
 MessageP2P MessageParser::parse(const std::string& buffer)
 {
@@ -66,6 +69,17 @@ MessageP2P MessageParser::parse(const std::string& buffer)
     //);
 
     //return msg;
+}
+
+std::string MessageParser::parseGetTransactionMessage(const MessageP2P& msg)
+{
+    // Parse the JSON string back into a JSON object
+    json j2 = json::parse(msg.getPayload());
+
+    // Retrieve the value for "txID"
+    std::string parsedTxID = j2["txID"].get<std::string>();
+
+    return parsedTxID;
 }
 
 bool MessageParser::parseSignature(const std::string& buffer, std::string& signature)

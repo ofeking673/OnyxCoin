@@ -26,6 +26,7 @@ public:
 		return os;
 	}
 
+	bool operator==(const TxOutput& other) const;
 private:
 	uint64_t _value;
 	std::string _scriptPubKey;

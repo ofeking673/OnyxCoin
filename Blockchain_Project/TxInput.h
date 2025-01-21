@@ -21,6 +21,8 @@ public:
 		os << ")";
 		return os;
 	}
+
+	bool operator==(const TxInput& other) const;
 private:
 	OutPoint _previousOutPoint; // Which UTXO this input is spending
 	std::string _scriptSig;

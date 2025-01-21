@@ -1,5 +1,6 @@
 #include "FullNodeMessageHandler.h"
 #include "iostream"
+#include "MessageParser.h"
 
 FullNodeMessageHandler::FullNodeMessageHandler(std::string keyPath, int port) :
     IMessageHandler(keyPath, port)
@@ -161,6 +162,11 @@ void FullNodeMessageHandler::onBlock(const MessageP2P& msg)
 
 void FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::NEW_TRANSACTION)
+    {
+        return;
+    }
+
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received New Transaction from peer." << std::endl;
 
@@ -180,10 +186,34 @@ void FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)
     If valid, store it in your mempool.
     Broadcast a “NewTransaction” or “Inventory” message to alert other peers.
     */
+
+    Transaction tx = Transaction::fromJson(msg.getPayload());
+    if (tx.getTransactionID() == std::to_string(ERROR_TRANSACTION_ID))
+    {
+        // Recieved error transaction
+        // Moght be because asked for worng trnasaction ID,
+        // or the node doesn't have the transaction searched for
+        // Send something about it to the network.
+    }
+    if (!tx.verifyTransactionSignature())
+    {
+        // Send something that says that the transaction is invalid
+    }
+
+    // Add to pending transaction, if not already in it
+    _blockchain->addTransaction(tx);
+
+
+    // TO-DO: Broadcast new transaction or inventory.
+    // Need to think about the implementation
 }
 
 void FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::GET_TRANSACTION)
+    {
+        return;
+    }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received GetTransaction from peer." << std::endl;
 
@@ -203,6 +233,18 @@ void FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)
     If found, construct a MessageP2P with TRANSACTION type and the serialized transaction.
     Send the message back.
     */
+    std::string txID = MessageParser::parseGetTransactionMessage(msg);
+    Transaction tx = _blockchain->findTransactionInPending(txID);
+    if (tx.getTransactionID() == std::to_string(ERROR_TRANSACTION_ID))
+    {
+        // Transaction NOT found in pending transactions
+        // Search trnasaction in whole chain
+        tx = _blockchain->findTransactionInChain(txID);
+    }
+
+    // Send the transaction back to the peer requested it
+    MessageP2P newTxMsg = _messageManager.createNewTransactionMessage(_peerManager.getPubKey(), tx);
+    _peerManager.sendMessage(msg.getAuthor(), newTxMsg.toJson());
 }
 
 void FullNodeMessageHandler::onInventory(const MessageP2P& msg)

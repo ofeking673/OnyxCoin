@@ -31,7 +31,12 @@ Block Blockchain::getLatestBlock() const
 
 void Blockchain::addTransaction(const Transaction& tx)
 {
-	_pendingTransactions.push_back(tx);
+	// Check if new transaction is already in pending transactions.
+	if (std::find(_pendingTransactions.begin(), _pendingTransactions.end(), tx) == _pendingTransactions.end())
+	{
+		// Not found, so insert the new transaction.
+		_pendingTransactions.push_back(tx);
+	}
 }
 
 bool Blockchain::submitMiningHash(const std::string minerAddress, std::string finalHash, int nonce, time_t timestamp)
@@ -179,6 +184,51 @@ bool Blockchain::isChainValid() const
 		}
 	}
 	return true;
+}
+
+/// <summary>
+/// Find transaction in pending transaction, searching for transaction ID
+/// </summary>
+/// <param name="txID">Transaction ID searching for</param>
+/// <returns>Transaction if found. Else returns error transaction</returns>
+const Transaction Blockchain::findTransactionInPending(std::string txID) const
+{
+	auto it = std::find_if(_pendingTransactions.begin(), _pendingTransactions.end(), [txID](const Transaction& tx)
+		{
+		return tx.getTransactionID() == txID;
+		});
+
+	if (it != _pendingTransactions.end())
+	{
+		// Found the transaction
+		return *it;
+	}
+	else 
+	{
+		// Transaction ID not found
+		return Transaction();
+	}
+}
+
+/// <summary>
+/// Find transaction in the blockchain, searching for transaction ID
+/// </summary>
+/// <param name="txID">Transaction ID searching for</param>
+/// <returns>Transaction if found. Else returns error transaction</returns>
+const Transaction Blockchain::findTransactionInChain(std::string txID) const
+{
+	for (auto& blk : _chain)
+	{
+		Transaction tx = blk.findTransaction(txID);
+
+		if (tx.getTransactionID() != std::to_string(ERROR_TRANSACTION_ID))
+		{
+			// Found the transaction
+			return tx;
+		}
+	}
+	// Transaction ID not found 
+	return Transaction();
 }
 
 Block Blockchain::createGenesisBlock()

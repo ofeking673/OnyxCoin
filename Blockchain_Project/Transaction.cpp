@@ -21,7 +21,7 @@ Transaction::Transaction(const Transaction& other)
 
 Transaction::Transaction()
 {
-	_transactionID = ERROR_TRANSACTION_ID;
+	_transactionID = std::to_string(ERROR_TRANSACTION_ID);
 	_timestamp = std::time(nullptr);
 }
 
@@ -129,7 +129,7 @@ void Transaction::signTransaction(const std::string& privateKey)
 	}
 }
 
-bool Transaction::verifyTransactionSignature(const std::string& scriptPubKey)
+bool Transaction::verifyTransactionSignature(/*const std::string& scriptPubKey*/)
 {
 	// If there is no ID can't verify
 	if (_transactionID.empty()) 
@@ -446,6 +446,14 @@ std::string Transaction::generateTransactionID()
 void Transaction::refreshTransactionID()
 {
 	_transactionID = generateTransactionID();
+}
+
+bool Transaction::operator==(const Transaction& other) const
+{
+	return _transactionID == other._transactionID
+		&& _timestamp == other._timestamp
+		&& _inputs == other._inputs
+		&& _outputs == other._outputs;
 }
 
 std::string Transaction::hashPublicKey(const std::string& hexPubKey)

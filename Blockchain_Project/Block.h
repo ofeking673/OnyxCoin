@@ -23,6 +23,8 @@ public:
 	std::string getPreviousHash() const;
 	void setHash(const std::string& hash);
 
+	const Transaction findTransaction(std::string txID) const;
+
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 private:
 	int _index;

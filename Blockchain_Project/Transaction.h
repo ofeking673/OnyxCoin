@@ -63,7 +63,7 @@ public:
 	void signTransaction(const std::string& privateKey);
 
 	// Checks that each input's scriptSig is correct with respect to the output's scriptPubKey
-	bool verifyTransactionSignature(const std::string& scriptPubKey);
+	bool verifyTransactionSignature(/*const std::string& scriptPubKey*/);
 
 
 	std::string toString() const;
@@ -90,6 +90,10 @@ public:
 	std::string generateTransactionID();
 	// Helper for refreshing transaction ID
 	void refreshTransactionID();
+
+
+	bool operator==(const Transaction& other) const;
+
 private:
 	std::vector<TxInput>  _inputs;
 	std::vector<TxOutput> _outputs;
