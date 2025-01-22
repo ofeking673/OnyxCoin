@@ -288,6 +288,10 @@ void FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)
 
 void FullNodeMessageHandler::onInventory(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::INVENTORY)
+    {
+        return;
+    }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received INVENTORY ANNOUUNCEMENT from peer." << std::endl;
 
@@ -306,6 +310,33 @@ void FullNodeMessageHandler::onInventory(const MessageP2P& msg)
     For each item, check if you already have it (e.g., check blockchain or mempool).
     If missing, request the item from the peer (using onGetBlock, onGetTransaction, or a direct “GetData”-type message).
     */
+
+    InventoryData inventory = InventoryData::fromJson(msg.getPayload());
+    std::vector<std::string> txIDs = inventory.getTxIDs();
+    for (auto& txID : txIDs)
+    {
+        if (!_blockchain->hasTransaction(txID))
+        {
+            // We don't have the transaction. add it to the chain.
+            // Create getTransaction message and send it to the peer that sent the inventory message
+            MessageP2P getTxMsg = _messageManager.createGetTransactionMessage(_peerManager.getPubKey(), txID);
+            _peerManager.sendMessage(msg.getAuthor(), getTxMsg.toJson());
+        }
+    }
+
+    // blockHash | prevBlockHash
+    auto blocksHashes = inventory.getBlocksHash();
+
+    for (auto& blockHashes : blocksHashes)
+    {
+        if (!_blockchain->hasBlock(blockHashes.first, blockHashes.second))
+        {
+            // We don't have the Block. add it to the chain.
+            // Create getBlock message and send it to the peer that sent the inventory message
+            MessageP2P getBlockMsg = _messageManager.createGetBlockMessage(_peerManager.getPubKey(), blockHashes.first, blockHashes.second);
+            _peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
+        }
+    }
 }
 
 void FullNodeMessageHandler::onGetHeaders(const MessageP2P& msg)

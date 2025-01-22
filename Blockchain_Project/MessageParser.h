@@ -25,6 +25,10 @@ public:
     // Returns pair of block hash and previous block hash
     static const std::pair<std::string, std::string> parseGetBlockMessage(const MessageP2P& msg);
 
+    // Parses GET_HEADERS message
+    // Returns vector of pairs of block hash and previous block hash,
+    // and the stop hash
+    static const void parseGetHeadersMessage(const MessageP2P& msg, std::vector<std::pair<std::string, std::string>>& blockHashes, std::string& stopHash);
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageParser() = default;

@@ -150,6 +150,54 @@ MessageP2P MessageManager::createInventoryMessage(const std::string& publicKey, 
     return message;
 }
 
+MessageP2P MessageManager::createGetHeadersMessage(const std::string& publicKey, const std::vector<std::pair<std::string, std::string>>& blockHashes, const std::string& stopHash)
+{
+    MessageP2P message;
+
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+
+    message.setType(MessageType::GET_HEADERS);
+    message.setAuthor(address);
+
+    json j;
+    // Create a JSON array for blockHashes
+    j["blockHashes"] = json::array();
+    for (const auto& p : blockHashes) {
+        j["blockHashes"].push_back({
+            {"blockHash", p.first},
+            {"prevBlockHash", p.second}
+            });
+    }
+    // Assign the stopHash value
+    j["stopHash"] = stopHash;
+
+
+    std::string payload = j.dump();
+
+    message.setLength(payload.length());
+    message.setPayload(payload);
+
+    return message;
+}
+
+MessageP2P MessageManager::createHeadersMessage(const std::string& publicKey, const std::vector<BlockHeader>& blockHeaders)
+{
+    MessageP2P message;
+
+    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+
+    message.setType(MessageType::HEADERS);
+    message.setAuthor(address);
+
+
+    std::string payload = BlockHeader::vectorToJson(blockHeaders);
+    message.setLength(payload.length());
+    message.setPayload(payload);
+
+    return message;
+}
+
+
 std::string MessageManager::getCurrentDateTime()
 {
     // Get the current time using the system clock.

@@ -58,12 +58,13 @@ public:
         const InventoryData& inventoryData);
 
     /// Create a GET_HEADERS message
-    MessageP2P createGetHeadersMessage(const std::string& publicKey
-        /*const std::vector<uint8_t>& locatorData*/);
+    MessageP2P createGetHeadersMessage(const std::string& publicKey,
+        const std::vector<std::pair<std::string, std::string>>& blockHashes,
+        const std::string& stopHash);
 
     /// Create a HEADERS message
-    MessageP2P createHeadersMessage(const std::string& publicKey
-        /*const std::vector<uint8_t>& serializedHeaders*/);
+    MessageP2P createHeadersMessage(const std::string& publicKey,
+        const std::vector<BlockHeader>& blockHeaders);
 
     // ------------------------------------------------------------------------
     // Receiving messages (incoming)

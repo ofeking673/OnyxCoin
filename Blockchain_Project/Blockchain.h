@@ -38,6 +38,13 @@ public:
 	const Transaction findTransactionInPending(const std::string& txID) const;
 	const Transaction findTransactionInChain(const std::string& txID) const;
 	const Block findBlock(const std::string& blockHash, const std::string& prevBlockHash) const;
+	const BlockHeader findHeader(const std::string& blockHash, const std::string& prevBlockHash) const;
+
+	bool hasTransaction(const std::string& txID) const;
+	bool hasBlock(const std::string& blockHash, const std::string& prevBlockHash) const;
+
+	std::vector<BlockHeader> getHeadersFrom(int startIndex, int maxCount, const std::string& stopHash = "") const;
+
 private:
 	Blockchain();
 	static Blockchain* _instance;

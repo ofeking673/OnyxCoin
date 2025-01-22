@@ -99,6 +99,35 @@ const std::pair<std::string, std::string> MessageParser::parseGetBlockMessage(co
     return blkHash;
 }
 
+const void MessageParser::parseGetHeadersMessage(const MessageP2P& msg, std::vector<std::pair<std::string, std::string>>& blockHashes, std::string& stopHash)
+{
+    // Parse the JSON string into a json object.
+    json j = json::parse(msg.getPayload());
+
+
+    // Clear blockHashes and stopHash in case they have previous data.
+    blockHashes.clear();
+    stopHash.clear();
+
+    // Check if the expected keys exist.
+    if (!j.contains("blockHashes") || !j.contains("stopHash")) 
+    {
+        return;
+    }
+
+    // Parse stopHash.
+    stopHash = j["stopHash"].get<std::string>();
+
+    // Parse the blockHashes array.
+    // Each element is expected to be an object containing "blockHash" and "prevBlockHash"
+    for (const auto& element : j["blockHashes"]) 
+    {
+        std::string blockHash = element.at("blockHash").get<std::string>();
+        std::string prevBlockHash = element.at("prevBlockHash").get<std::string>();
+        blockHashes.emplace_back(blockHash, prevBlockHash);
+    }
+}
+
 bool MessageParser::parseSignature(const std::string& buffer, std::string& signature)
 {
     signature.reserve(M_SIGNATURE_SIZE);

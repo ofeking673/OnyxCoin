@@ -250,6 +250,59 @@ const Block Blockchain::findBlock(const std::string& blockHash, const std::strin
 	}
 }
 
+const BlockHeader Blockchain::findHeader(const std::string& blockHash, const std::string& prevBlockHash) const
+{
+	auto it = std::find_if(_chain.begin(), _chain.end(), [blockHash, prevBlockHash](const Block& block)
+		{
+			return block.getHash() == blockHash && block.getPreviousHash() == prevBlockHash;
+		});
+
+	if (it != _chain.end())
+	{
+		// Found the Block
+		return it->getBlockHeader();
+	}
+	else
+	{
+		// Block not found
+		return BlockHeader();
+	}
+}
+
+bool Blockchain::hasTransaction(const std::string& txID) const
+{
+	if (findTransactionInPending(txID).isErrorTransaction() && findTransactionInChain(txID).isErrorTransaction())
+	{
+		return false;
+	}
+	return true;
+}
+
+bool Blockchain::hasBlock(const std::string& blockHash, const std::string& prevBlockHash) const
+{
+	if (findBlock(blockHash, prevBlockHash).isErrorBlock())
+	{
+		return false;
+	}
+	return true;
+}
+
+// Get a sub-range of headers from a given index up to a count or stop hash.
+std::vector<BlockHeader> Blockchain::getHeadersFrom(int startIndex, int maxCount, const std::string& stopHash) const
+{
+	std::vector<BlockHeader> result;
+	for (int i = startIndex; i < (int)_chain.size() && result.size() < (size_t)maxCount; i++) 
+	{
+		if (!stopHash.empty() && _chain[i].getHash() == stopHash) {
+			// Include the stopHash's header, then stop.
+			result.push_back(_chain[i].getBlockHeader());
+			break;
+		}
+		result.push_back(_chain[i].getBlockHeader());
+	}
+	return result;
+}
+
 Block Blockchain::createGenesisBlock()
 {
 	Block genesis(0, "0");

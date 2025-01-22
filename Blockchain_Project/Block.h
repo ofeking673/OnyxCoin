@@ -1,5 +1,6 @@
 #pragma once
 #include "Transaction.h"
+#include "BlockHeader.h"
 #include <vector>
 #include <sstream>
 
@@ -26,15 +27,18 @@ public:
 	std::string getPreviousHash() const;
 	void setHash(const std::string& hash);
 
+	const BlockHeader getBlockHeader() const;
+
 	const Transaction findTransaction(const std::string& txID) const;
 
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 private:
-	int _index;
-	time_t _timestamp;
-	std::string _previousHash;
-	std::string _hash;
-	
+	//int _index;
+	//time_t _timestamp;
+	//std::string _previousHash;
+	//std::string _hash;
+	BlockHeader _blockHeader;
+
 	// When parsing a block
 	Block(const int& index, const time_t& timestamp, const std::string& previousHash, const std::string& hash, const std::vector<Transaction>& transactions);
 };
