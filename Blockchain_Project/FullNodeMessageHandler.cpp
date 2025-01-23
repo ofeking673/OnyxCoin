@@ -2,6 +2,7 @@
 #include "iostream"
 #include "MessageParser.h"
 
+
 FullNodeMessageHandler::FullNodeMessageHandler(std::string keyPath, int port) :
     IMessageHandler(keyPath, port)
 {
@@ -341,6 +342,10 @@ void FullNodeMessageHandler::onInventory(const MessageP2P& msg)
 
 void FullNodeMessageHandler::onGetHeaders(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::GET_HEADERS)
+    {
+        return;
+    }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received GetHeaders from peer." << std::endl;
 
@@ -360,10 +365,49 @@ void FullNodeMessageHandler::onGetHeaders(const MessageP2P& msg)
     Serialize those headers into a MessageP2P of type HEADERS.
     Send the HEADERS message back to the requesting peer.
     */
+
+    std::vector<std::pair<std::string, std::string>> blockHashes;
+    std::string stopHash;
+    MessageParser::parseGetHeadersMessage(msg, blockHashes, stopHash);
+
+    // Find fork point
+    //    The locator is in order from newest to oldest. We find the first hash we know.
+    int forkIndex = -1;
+    for (const auto& hash : blockHashes)
+    {
+        int localIndex = _blockchain->getHeightByHash(hash.first);
+        if (localIndex >= 0) 
+        {
+            forkIndex = localIndex;
+            break;
+        }
+    }
+
+    // If none of the locator hashes are known, start from genesis (index 0).
+    if (forkIndex == -1) 
+    {
+        forkIndex = 0;
+    }
+    else 
+    {
+        // Start from the block after the fork point to get next headers
+        forkIndex += 1;
+    }
+
+    // Gather up to MAX_HEADERS from forkIndex
+    auto headersToSend = _blockchain->getHeadersFrom(forkIndex, MAX_HEADERS, stopHash);
+
+    // Send the transaction back to the peer requested it
+    MessageP2P headersMsg = _messageManager.createHeadersMessage(_peerManager.getPubKey(), headersToSend);
+    _peerManager.sendMessage(msg.getAuthor(), headersMsg.toJson());
 }
 
 void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::HEADERS)
+    {
+        return;
+    }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received Block Headers from peer." << std::endl;
 
@@ -384,4 +428,44 @@ void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
     Store or update them in your local chain’s header index.
     If they extend your chain, request those blocks with GetBlock or another mechanism for full sync.
     */
+
+    std::vector<BlockHeader> receivedHeaders = BlockHeader::jsonToVector(msg.getPayload());
+
+    // Validate / append
+    _blockchain->appendHeaders(receivedHeaders);
+
+
+    // Decide whether to request more headers or start requesting blocks
+    //    If we got MAX_HEADERS in the response, there's likely more to fetch.
+    if (receivedHeaders.size() == MAX_HEADERS) 
+    {
+        // Request more headers from the last known header
+        // Build a new locator starting from the last header we got.
+        std::string lastHash = receivedHeaders.back().getHash();
+        std::string lastPrevHash = receivedHeaders.back().getPreviousHash();
+        std::vector<std::pair<std::string, std::string>> blockLocatorHashes;
+        std::pair<std::string, std::string> locatorHashes(lastHash, lastPrevHash);
+        blockLocatorHashes.push_back(locatorHashes);
+
+
+        MessageP2P getMoreHeaders = _messageManager.createGetHeadersMessage(_peerManager.getPubKey(), blockLocatorHashes, "");
+
+        // Requesting more headers from last hash recieved
+        _peerManager.sendMessage(msg.getAuthor(), getMoreHeaders.toJson());
+
+    }
+    else 
+    {
+        // We either have all headers or reached the tip from that peer's perspective.
+        // Start requesting blocks for the newly discovered headers.
+        auto queuedHeaders = _blockchain->getAppendedHeaders();
+
+        for (auto qHeader : queuedHeaders)
+        {
+            MessageP2P getBlockMsg = _messageManager.createGetBlockMessage(_peerManager.getPubKey(), qHeader.getHash(), qHeader.getPreviousHash());
+
+            // Maybe broadcast instead?
+            _peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
+        }
+    }
 }

@@ -15,6 +15,11 @@ Block::Block() :
 	_blockHeader.setHash(std::to_string(ERROR_BLOCK_HASH));
 }
 
+Block::Block(BlockHeader blockHeader)
+	: _blockHeader(blockHeader)
+{
+}
+
 Block::Block(const int& index, const time_t& timestamp, const std::string& previousHash, const std::string& hash, const std::vector<Transaction>& transactions)
 	: _blockHeader(index, timestamp, previousHash)
 	, _transactions(transactions)

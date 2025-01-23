@@ -4,6 +4,7 @@
 #include <vector>
 
 #define ERROR_BLOCK_HEADER -1
+#define MAX_HEADERS 200
 
 class BlockHeader
 {
@@ -21,6 +22,7 @@ public:
 	std::string toJson() const;
 	static BlockHeader fromJson(const std::string& data);
 	static std::string vectorToJson(const std::vector<BlockHeader>& blockHeaders);
+	static std::vector<BlockHeader> jsonToVector(const std::string& data);
 
 private:
 	int _index;
