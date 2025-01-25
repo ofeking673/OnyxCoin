@@ -132,6 +132,7 @@
     <ClInclude Include="AddressGenerator.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Blockchain.h" />
+    <ClInclude Include="BlockHeader.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="DiscoveryServer.h" />
     <ClInclude Include="Encryptions\AES256CBC.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="AddressGenerator.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Blockchain.cpp" />
+    <ClCompile Include="BlockHeader.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="DiscoveryServer.cpp" />
     <ClCompile Include="Encryptions\AES256CBC.cpp" />

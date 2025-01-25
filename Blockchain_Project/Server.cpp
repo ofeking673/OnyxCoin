@@ -15,13 +15,16 @@ Server::Server(IClient* cli, int port, IMessageHandler* handler) :
 	_cli = cli;
 	messageManager = new MessageManager();
 	serverSock_ = new Socket(port);
-	serverSock_->WaitForClients(HandleClient);
+
+	std::thread th(&Socket::WaitForClients, serverSock_, &Server::HandleClient, this);
+	th.detach();
 }
 
 void Server::HandleClient(SOCKET clientSock)
 {
 	std::string address = Socket::readFromSock(clientSock);
-
+	std::string pubKey = this->_cli->pubKey;
+	Socket::sendMessage(clientSock, pubKey);
 	try {
 		char buf[READ_SIZE];
 		while (true) {

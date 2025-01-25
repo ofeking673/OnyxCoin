@@ -6,8 +6,8 @@
 class PeerManager
 {
 public:
-	PeerManager(IMessageHandler* handler, std::string keyPath, int port) : _cli(4444, keyPath), _serv(&_cli, port, handler) {
-		discoverPeers(_cli.sock.sendAndRecv(_cli.pubKey));
+	PeerManager(IMessageHandler* handler, std::string keyPath, int port) : _cli(4444, keyPath, port), _serv(&_cli, port, handler) {
+		discoverPeers(_cli.sock.recvMsg());
 	};
 
 	//discoverPeers(_cli.sock.sendAndRecv(_cli.wallet->getPublicKey()));

@@ -5,10 +5,11 @@
 #include "IClient.h"
 #include <map>
 
+
 class Server {
 public:
 	Server(IClient* cli, int port, IMessageHandler* handler);
-	static void HandleClient(SOCKET clientSock);
+	void HandleClient(SOCKET clientSock);
 private:
 	IClient* _cli;
 	MessageDispatcher* dispatcher;

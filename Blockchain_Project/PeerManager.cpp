@@ -10,30 +10,16 @@ void PeerManager::addPeer(std::string ip, int port)
 void PeerManager::discoverPeers(std::string msg)
 {
     json j = json::parse(msg);
+    std::map<std::string, std::pair<std::string, std::string>> Temppeers = j.get<std::map<std::string, std::pair<std::string, std::string>>>();
+    auto lastElement = std::prev(Temppeers.end());
+    _personalSocketDetails.first = lastElement->second.first;
+    _personalSocketDetails.second = std::stoi(lastElement->second.second);
 
-    if (j.is_array() && !j.empty())
-    {
-        json lastItem = j.back();
-        if (lastItem.is_object())
+    for (auto& [key, value] : Temppeers) {
+        std::cout << "IP: " << value.first << ", Port: " << value.second << std::endl;
+        if (value.second != std::to_string(_personalSocketDetails.second))
         {
-            for (auto& [key, value] : lastItem.items()) {
-                std::cout << "Key: " << key << ", Value: " << value << std::endl;
-            }
-        }
-        else
-        {
-            std::cout << "The last item is not a dictionary (object)!" << std::endl;
-        }
-    }
-    else
-    {
-        std::cout << "JSON is not an array or it's empty!" << std::endl;
-    }
-
-    for (auto& [key, value] : j.items()) {
-        if (key != _personalSocketDetails.first && value != _personalSocketDetails.second)
-        {
-            addPeer(key, value);
+            addPeer(value.first, std::stoi(value.second));
         }
     }
 }

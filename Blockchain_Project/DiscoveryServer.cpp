@@ -1,45 +1,39 @@
 #include "DiscoveryServer.h"
-Socket DiscoveryServer::serverSock(4444);
 std::map<std::string, std::pair<std::string, int>> DiscoveryServer::peers;
 
-DiscoveryServer::DiscoveryServer()
+DiscoveryServer::DiscoveryServer() : serverSock(4444)
 {
 	serverSock.WaitForClients(DiscoveryServer::HandleClient);
 }
 
 void DiscoveryServer::HandleClient(SOCKET sock) 
 {
-    std::string pubKey = serverSock.readFromSock(sock);
-    peers[pubKey] = getSocketInfo(sock);
+    std::string data = Socket::readFromSock(sock);
+    std::string ip = getSocketInfo(sock);
+    auto pair = splitData(data);
+
+    peers[pair.first] = std::make_pair(ip, std::stoi(pair.second));
 
     std::string peerString = str();
-    serverSock.sendMessage(sock, peerString);
+    std::cout << peerString << std::endl;
+    Socket::sendMessage(sock, peerString);
     closesocket(sock);
 }
 
-std::pair<std::string, int> DiscoveryServer::getSocketInfo(SOCKET sock)
+std::string DiscoveryServer::getSocketInfo(SOCKET sock)
 {
     sockaddr_in addr;
     int addrLen = sizeof(addr);
 
-    // Get remote address (peer)
-    //if (getpeername(sock, (sockaddr*)&addr, &addrLen) == 0) {
-    //    std::cout << "Remote IP: " << inet_ntoa(addr.sin_addr)
-    //        << ", Remote Port: " << ntohs(addr.sin_port) << std::endl;
-    //}
-    //else {
-    //    std::cerr << "getpeername failed: " << WSAGetLastError() << std::endl;
-    //}
-
     // Get local address
-    if (getsockname(sock, (sockaddr*)&addr, &addrLen) == 0) {
+    if (getpeername(sock, (sockaddr*)&addr, &addrLen) == 0) {
         std::cout << "Local IP: " << inet_ntoa(addr.sin_addr)
             << ", Local Port: " << ntohs(addr.sin_port) << std::endl;
     }
     else {
         std::cerr << "getsockname failed: " << WSAGetLastError() << std::endl;
     }
-    return { inet_ntoa(addr.sin_addr) , ntohs(addr.sin_port) };
+    return inet_ntoa(addr.sin_addr);
 }
 
 std::string DiscoveryServer::str()
@@ -48,11 +42,19 @@ std::string DiscoveryServer::str()
     ss += "{";
     for (const auto& [key, value] : peers) 
     {
-        ss += key + ": " + "[" + value.first + ',' + std::to_string(value.second) + "], ";
+        ss += "\"" + key + "\": " + "[\"" + value.first + "\",\"" + std::to_string(value.second) + "\"], ";
     }
 
     if (!peers.empty()) { ss.pop_back(); ss.pop_back(); }
 
     ss += "}";
     return ss;
+}
+
+std::pair<std::string, std::string> DiscoveryServer::splitData(std::string data)
+{
+    std::pair<std::string, std::string> pair;
+    pair.first = data.substr(0, data.find_first_of("|"));
+    pair.second = data.substr(data.find_first_of("|")+1);
+    return pair;
 }

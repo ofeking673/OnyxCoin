@@ -48,7 +48,7 @@ std::string RequestHandler::transaction(std::string& address, json j)
 		TxInputSum += utxo->getUTXOData(inp.getPreviousOutPoint()).getValue();
 	}
 
-	if(!tran.verifyTransactionSignature(tran.getOutputs()[0].getScriptPubKey())) { //if transaction only has one recipient
+	if(!tran.verifyTransactionSignature()) { //if transaction only has one recipient
 		throw new std::runtime_error(__FUNCTION__": Transaction signature is incorrect!");
 	}
 

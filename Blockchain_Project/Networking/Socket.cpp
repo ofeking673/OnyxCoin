@@ -1,11 +1,14 @@
 #include "Socket.h"
+#include "../Server.h"
 
 Socket::Socket(int destPort)
 {
 	
 	auto serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-
-	sockaddr_in serverAddress;
+	if (serverSocket == -1) {
+		perror("socket() failed");
+		system("pause");
+	}	sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port = htons(destPort);
 	serverAddress.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -14,7 +17,7 @@ Socket::Socket(int destPort)
 	serverSocket_ = serverSocket;
 }
 
-void Socket::WaitForClients(void(*func)(SOCKET)) const
+void Socket::WaitForClients(void(*func)(SOCKET), Server* serv) const
 {
 	listen(serverSocket_, 5);
 	while (true)
@@ -25,8 +28,14 @@ void Socket::WaitForClients(void(*func)(SOCKET)) const
 		}
 		else {
 			std::cout << __FUNCTION__ ": Client connected!" << std::endl;
-			std::thread client(func, clientSocket);
-			client.detach();
+			if (serv) {
+				std::thread client(&Server::HandleClient, serv, clientSocket);
+				client.detach();
+			}
+			else {
+				std::thread client(func, clientSocket);
+				client.detach();
+			}
 		}
 	}
 }

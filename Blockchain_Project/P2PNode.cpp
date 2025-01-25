@@ -7,6 +7,7 @@ P2PNode::P2PNode(int handlerIdentifier, std::string keyPath, int port)
 	{
 		case(FULL_NODE_MESSAGE_HANDLER):
 			_handler = new FullNodeMessageHandler(keyPath, port);
+			break;
 		default:
 			_handler = nullptr;
 	}
