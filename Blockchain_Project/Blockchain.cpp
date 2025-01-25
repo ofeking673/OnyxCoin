@@ -287,6 +287,39 @@ bool Blockchain::hasBlock(const std::string& blockHash, const std::string& prevB
 	return true;
 }
 
+// Append new headers to the chain if they are valid and follow the current chain.
+void Blockchain::appendHeaders(const std::vector<BlockHeader>& newHeaders)
+{
+	for (const auto& header : newHeaders) 
+	{
+		// Example check: the new header's previousHash matches the last chain header's hash
+		if (!_chain.empty()) {
+			const auto& lastHash = _chain.back().getHash();
+			if (header.getPreviousHash() != lastHash) 
+			{
+				std::cerr << "Header continuity mismatch. Expected prevHash = "
+					<< lastHash << ", but got " << header.getPreviousHash() << "\n";
+				break; // Stop or fork logic
+			}
+		}
+		Block block(header);
+		_chain.push_back(block);
+	}
+}
+
+// Return the height (index) of a header if known, otherwise -1.
+int Blockchain::getHeightByHash(const std::string& hash) const
+{
+	for (size_t i = 0; i < _chain.size(); i++) 
+	{
+		if (_chain[i].getHash() == hash)
+		{
+			return static_cast<int>(i);
+		}
+	}
+	return -1;
+}
+
 // Get a sub-range of headers from a given index up to a count or stop hash.
 std::vector<BlockHeader> Blockchain::getHeadersFrom(int startIndex, int maxCount, const std::string& stopHash) const
 {
@@ -301,6 +334,20 @@ std::vector<BlockHeader> Blockchain::getHeadersFrom(int startIndex, int maxCount
 		result.push_back(_chain[i].getBlockHeader());
 	}
 	return result;
+}
+
+// Get all the headers appended to the chain without a real block. 
+// In order to request the full blocks
+std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
+{
+	for (size_t i = 0; i < _chain.size(); i++)
+	{
+		if (_chain[i]._transactions.empty())
+		{
+			return getHeadersFrom(i, MAX_HEADERS, "");
+		}
+	}
+	return std::vector<BlockHeader>();
 }
 
 Block Blockchain::createGenesisBlock()

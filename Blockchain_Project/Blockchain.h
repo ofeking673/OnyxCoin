@@ -43,7 +43,10 @@ public:
 	bool hasTransaction(const std::string& txID) const;
 	bool hasBlock(const std::string& blockHash, const std::string& prevBlockHash) const;
 
+	void appendHeaders(const std::vector<BlockHeader>& newHeaders);
+	int getHeightByHash(const std::string& hash) const;
 	std::vector<BlockHeader> getHeadersFrom(int startIndex, int maxCount, const std::string& stopHash = "") const;
+	std::vector<BlockHeader> getAppendedHeaders() const;
 
 private:
 	Blockchain();

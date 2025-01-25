@@ -43,6 +43,7 @@ void BlockHeader::setHash(const std::string& hash)
 	_hash = hash;
 }
 
+// Serialzie block header to Json
 std::string BlockHeader::toJson() const
 {
 	json j;
@@ -53,6 +54,7 @@ std::string BlockHeader::toJson() const
 	return j.dump();
 }
 
+// Deserialize block header from json
 BlockHeader BlockHeader::fromJson(const std::string& data)
 {
 	// Parse the input JSON string
@@ -70,6 +72,7 @@ BlockHeader BlockHeader::fromJson(const std::string& data)
 	return header;
 }
 
+// Serialize vector of block headers to Json
 std::string BlockHeader::vectorToJson(const std::vector<BlockHeader>& blockHeaders)
 {
 	json j;
@@ -83,4 +86,25 @@ std::string BlockHeader::vectorToJson(const std::vector<BlockHeader>& blockHeade
 	j["headers"] = headers;
 
 	return j.dump();
+}
+
+// Deserialize json object to a vector of block headers
+std::vector<BlockHeader> BlockHeader::jsonToVector(const std::string& data)
+{
+	std::vector<BlockHeader> blockHeaders;
+
+	// Parse the input JSON string
+	json j = json::parse(data);
+
+	// Iterate over each header in the JSON array
+	for (const auto& headerJson : j["headers"]) 
+	{
+		// Deserialize to BlockHeader object
+		BlockHeader header = BlockHeader::fromJson(headerJson.dump());
+
+		// Add to the vector
+		blockHeaders.push_back(header);
+	}
+
+	return blockHeaders;
 }

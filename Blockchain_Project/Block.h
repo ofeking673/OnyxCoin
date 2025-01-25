@@ -10,6 +10,7 @@ class Block
 public:
 	Block(int index, const std::string& previousHash);
 	Block(); // Error
+	Block(BlockHeader blockHeader);
 	~Block();
 
 	bool isErrorBlock() const;
