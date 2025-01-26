@@ -12,7 +12,7 @@ public:
 	void HandleClient(SOCKET clientSock);
 private:
 	IClient* _cli;
-	MessageDispatcher* dispatcher;
+	MessageDispatcher* _dispatcher;
 	Socket* serverSock_;
 	static MessageManager* messageManager;
 };

@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "FullNodeMessageHandler.h"
+#include "MessageParser.h"
 
 // Define the static members
 MessageManager* Server::messageManager = nullptr;
@@ -9,7 +10,7 @@ MakeTransaction = 100,
 Mine = 200,*/
 
 Server::Server(IClient* cli, int port, IMessageHandler* handler) :
-	dispatcher(new MessageDispatcher(handler))
+	_dispatcher(new MessageDispatcher(handler))
 {
 	_cli = cli;
 	messageManager = new MessageManager();
@@ -35,18 +36,26 @@ void Server::HandleClient(SOCKET clientSock)
 				buf[i] = 0;
 			}
 			
-			std::string msg = serverSock_->readFromSock(clientSock);
-			json j = JsonPacketDeserializer::DeserializeRequest(msg);
-			std::string response;
-			std::cout << j.at("status").get<Requests>() << std::endl;
-			switch (j.at("status").get<Requests>())
-			{
-			
-			default:
-				std::cout << "Message code does not exist! {" << j["status"] << "}\n";
-				break;
-			}
-			serverSock_->sendMessage(clientSock, response);
+			std::string strmsg = serverSock_->readFromSock(clientSock);
+
+			MessageP2P msg = MessageParser::parse(strmsg);
+			_dispatcher->dispatch(msg);
+
+
+
+
+
+			//json j = JsonPacketDeserializer::DeserializeRequest(msg);
+			//std::string response;
+			//std::cout << j.at("status").get<Requests>() << std::endl;
+			//switch (j.at("status").get<Requests>())
+			//{
+			//
+			//default:
+			//	std::cout << "Message code does not exist! {" << j["status"] << "}\n";
+			//	break;
+			//}
+			//serverSock_->sendMessage(clientSock, response);
 		}
 	} 
 	catch(std::exception& e) 

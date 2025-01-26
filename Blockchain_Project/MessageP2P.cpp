@@ -88,7 +88,9 @@ std::string MessageP2P::toJson() const
     // Store enum as an integer (uint16_t)
     j["type"] = static_cast<uint16_t>(_type);
     j["length"] = _payloadLength;
-    j["payload"] = _payload;
+
+    json jsonPayload = json::parse(_payload);
+    j["payload"] = jsonPayload;
 
     return j.dump();
 }
@@ -105,7 +107,8 @@ MessageP2P MessageP2P::fromJson(const std::string& data)
     MessageType type = static_cast<MessageType>(j["type"].get<uint16_t>());
 
     uint32_t length = j["length"].get<uint32_t>();
-    std::string payload = j["payload"].get<std::string>();
+
+    std::string payload = j["payload"].dump();
 
     return MessageP2P(signature, author, type, length, payload);
 }

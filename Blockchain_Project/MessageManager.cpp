@@ -14,7 +14,7 @@ MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
     // time = YYYY-MM-DD HH:MM:SS
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::PING);
     message.setAuthor(address);
@@ -37,7 +37,7 @@ MessageP2P MessageManager::createPongMessage(const std::string& publicKey, const
     // payload = YYYY-MM-DD HH:MM:SS
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::PING);
     message.setAuthor(address);
@@ -68,7 +68,7 @@ MessageP2P MessageManager::createGetBlockMessage(const std::string& publicKey, c
     // payload = blockHash|prevBlockHash
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::GET_BLOCK);
     message.setAuthor(address);
@@ -88,7 +88,7 @@ MessageP2P MessageManager::createBlockMessage(const std::string& publicKey, cons
 {
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::GET_BLOCK);
     message.setAuthor(address);
@@ -104,7 +104,7 @@ MessageP2P MessageManager::createNewTransactionMessage(const std::string& public
 {
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::NEW_TRANSACTION);
     message.setAuthor(address);
@@ -120,7 +120,7 @@ MessageP2P MessageManager::createGetTransactionMessage(const std::string& public
 {
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::GET_TRANSACTION);
     message.setAuthor(address);
@@ -139,7 +139,7 @@ MessageP2P MessageManager::createInventoryMessage(const std::string& publicKey, 
 {
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::INVENTORY);
     message.setAuthor(address);
@@ -155,7 +155,7 @@ MessageP2P MessageManager::createGetHeadersMessage(const std::string& publicKey,
 {
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::GET_HEADERS);
     message.setAuthor(address);
@@ -185,7 +185,7 @@ MessageP2P MessageManager::createHeadersMessage(const std::string& publicKey, co
 {
     MessageP2P message;
 
-    std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+    std::string address = publicKey;
 
     message.setType(MessageType::HEADERS);
     message.setAuthor(address);

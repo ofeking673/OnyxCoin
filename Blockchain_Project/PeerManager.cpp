@@ -26,7 +26,7 @@ void PeerManager::discoverPeers(std::string msg)
 
 void PeerManager::sendMessage(std::string dst, std::string msg)
 {
-    SOCKET sock = peers.at(dst).second;
+    SOCKET sock = peers.at(dst).first;
     Socket::sendMessage(sock, msg);
 }
 
