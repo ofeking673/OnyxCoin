@@ -1,5 +1,4 @@
 #include "Transaction.h"
-#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -239,7 +238,7 @@ std::string Transaction::toString() const
 	return oss.str();
 }
 
-std::string Transaction::toJson() const
+json Transaction::toJson() const
 {
 	json j;
 	j["transactionID"] = _transactionID;
@@ -370,10 +369,10 @@ Transaction Transaction::parseMessageString(const std::string& data)
 	return Transaction(transactionID, timestamp, inputs, outputs);
 }
 
-Transaction Transaction::fromJson(const std::string& jsonStr)
+Transaction Transaction::fromJson(json jsonTx)
 {
 	// Parse the incoming string as JSON
-	json j = json::parse(jsonStr);
+	json j = jsonTx;
 
 	// Extract transactionID and timestamp
 	std::string txid = j["transactionID"].get<std::string>();

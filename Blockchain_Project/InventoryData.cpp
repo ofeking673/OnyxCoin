@@ -1,7 +1,6 @@
 #include "InventoryData.h"
 #include "HelperT.h"
 #include <algorithm>
-#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -143,7 +142,7 @@ InventoryData InventoryData::parseMessageString(const std::string& data)
     return InventoryData(txIDs, blocksHash);
 }
 
-std::string InventoryData::toJson() const
+json InventoryData::toJson() const
 {
     json j;
 
@@ -162,13 +161,13 @@ std::string InventoryData::toJson() const
     j["blocksHash"] = blocksJson;
 
     // Return the complete JSON string
-    return j.dump();
+    return j;
 }
 
-InventoryData InventoryData::fromJson(const std::string& data)
+InventoryData InventoryData::fromJson(json data)
 {
     // Parse the incoming JSON string into a JSON object
-    json j = json::parse(data);
+    json j = data;
 
     // Extract the txIDs array
     std::vector<std::string> txIDs = j["txIDs"].get<std::vector<std::string>>();

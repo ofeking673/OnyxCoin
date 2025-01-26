@@ -1,5 +1,4 @@
 #include "BlockHeader.h"
-#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -44,21 +43,21 @@ void BlockHeader::setHash(const std::string& hash)
 }
 
 // Serialzie block header to Json
-std::string BlockHeader::toJson() const
+json BlockHeader::toJson() const
 {
 	json j;
 	j["index"] = _index;
 	j["timestamp"] = static_cast<uint64_t>(_timestamp);
 	j["previousHash"] = _previousHash;
 	j["hash"] = _hash;
-	return j.dump();
+	return j;
 }
 
 // Deserialize block header from json
-BlockHeader BlockHeader::fromJson(const std::string& data)
+BlockHeader BlockHeader::fromJson(json data)
 {
 	// Parse the input JSON string
-	json j = json::parse(data);
+	json j = data;
 
 	// Extract the block properties
 	int index = j["index"].get<int>();
@@ -73,7 +72,7 @@ BlockHeader BlockHeader::fromJson(const std::string& data)
 }
 
 // Serialize vector of block headers to Json
-std::string BlockHeader::vectorToJson(const std::vector<BlockHeader>& blockHeaders)
+json BlockHeader::vectorToJson(const std::vector<BlockHeader>& blockHeaders)
 {
 	json j;
 	// Serialize all BlockHeaders using their toJson() functions
@@ -81,26 +80,26 @@ std::string BlockHeader::vectorToJson(const std::vector<BlockHeader>& blockHeade
 	for (const auto& header : blockHeaders)
 	{
 		// Convert the BlockHeader JSON string into a JSON object before pushing it
-		headers.push_back(json::parse(header.toJson()));
+		headers.push_back(header.toJson());
 	}
 	j["headers"] = headers;
 
-	return j.dump();
+	return j;
 }
 
 // Deserialize json object to a vector of block headers
-std::vector<BlockHeader> BlockHeader::jsonToVector(const std::string& data)
+std::vector<BlockHeader> BlockHeader::jsonToVector(json data)
 {
 	std::vector<BlockHeader> blockHeaders;
 
 	// Parse the input JSON string
-	json j = json::parse(data);
+	json j = data;
 
 	// Iterate over each header in the JSON array
 	for (const auto& headerJson : j["headers"]) 
 	{
 		// Deserialize to BlockHeader object
-		BlockHeader header = BlockHeader::fromJson(headerJson.dump());
+		BlockHeader header = BlockHeader::fromJson(headerJson);
 
 		// Add to the vector
 		blockHeaders.push_back(header);

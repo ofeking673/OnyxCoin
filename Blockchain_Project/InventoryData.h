@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include "json.hpp"
 
 class InventoryData
 {
@@ -21,8 +22,8 @@ public:
 	std::string toMessageString() const;
 	static InventoryData parseMessageString(const std::string& data);
 
-	std::string toJson() const;
-	static InventoryData fromJson(const std::string& data);
+	nlohmann::json toJson() const;
+	static InventoryData fromJson(nlohmann::json data);
 private:
 	std::vector<std::string> _txIDs;
 	std::vector<std::pair<std::string, std::string>> _blocksHash; // blockHash | prevBlockHash

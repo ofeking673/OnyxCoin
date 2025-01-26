@@ -15,24 +15,24 @@ public:
     IMessageHandler(std::string keyPath, int port) : _peerManager(this, keyPath, port) {};
     virtual ~IMessageHandler() = default;
 
-    virtual void onError(const MessageP2P& msg) = 0;
-
-    virtual void onPing(const MessageP2P& msg) = 0;
-    virtual void onPong(const MessageP2P& msg) = 0;
-
-    virtual void onGetPeers(const MessageP2P& msg) = 0;
-    virtual void onPeerList(const MessageP2P& msg) = 0;
-
-    virtual void onGetBlock(const MessageP2P& msg) = 0;
-    virtual void onBlock(const MessageP2P& msg) = 0;
-
-    virtual void onNewTransaction(const MessageP2P& msg) = 0;
-    virtual void onGetTransaction(const MessageP2P& msg) = 0;
-
-    virtual void onInventory(const MessageP2P& msg) = 0;
-
-    virtual void onGetHeaders(const MessageP2P& msg) = 0;
-    virtual void onHeaders(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onError(const MessageP2P& msg) = 0;
+            
+    virtual std::vector<MessageP2P> onPing(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onPong(const MessageP2P& msg) = 0;
+            
+    virtual std::vector<MessageP2P> onGetPeers(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onPeerList(const MessageP2P& msg) = 0;
+            
+    virtual std::vector<MessageP2P> onGetBlock(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onBlock(const MessageP2P& msg) = 0;
+            
+    virtual std::vector<MessageP2P> onNewTransaction(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onGetTransaction(const MessageP2P& msg) = 0;
+            
+    virtual std::vector<MessageP2P> onInventory(const MessageP2P& msg) = 0;
+            
+    virtual std::vector<MessageP2P> onGetHeaders(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onHeaders(const MessageP2P& msg) = 0;
 
     // Utility for keeping the "alive" state updated for each node
     virtual std::vector<SOCKET> getAllClients();

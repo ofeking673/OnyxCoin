@@ -1,5 +1,4 @@
 #include "Block.h"
-#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -135,7 +134,7 @@ Block Block::parseMessageString(const std::string& data)
 	return Block(index, timestamp, previousHash, hash, transactions);
 }
 
-std::string Block::toJson() const
+json Block::toJson() const
 {
 	// Create a JSON object for the block
 	json j;
@@ -149,7 +148,7 @@ std::string Block::toJson() const
 	for (const auto& tx : _transactions)
 	{
 		// Convert the transaction JSON string into a JSON object before pushing it
-		transactionsJson.push_back(json::parse(tx.toJson()));
+		transactionsJson.push_back(tx.toJson());
 	}
 	j["transactions"] = transactionsJson;
 
@@ -157,10 +156,10 @@ std::string Block::toJson() const
 	return j.dump();
 }
 
-Block Block::fromJson(const std::string& data)
+Block Block::fromJson(json data)
 {
 	// Parse the input JSON string
-	json j = json::parse(data);
+	json j = data;
 
 	// Extract the block properties
 	int index = j["index"].get<int>();
@@ -173,7 +172,7 @@ Block Block::fromJson(const std::string& data)
 	for (const auto& txJson : j["transactions"])
 	{
 		// Convert the JSON object back to a string for Transaction::fromJson
-		Transaction tx = Transaction::fromJson(txJson.dump());
+		Transaction tx = Transaction::fromJson(txJson);
 		transactions.push_back(tx);
 	}
 

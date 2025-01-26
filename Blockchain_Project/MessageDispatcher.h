@@ -16,10 +16,10 @@ public:
     explicit MessageDispatcher(IMessageHandler* handler);
 
     /// Dispatch the message by calling the correct handler method.
-    void dispatch(const MessageP2P& msg);
+    std::vector<MessageP2P> dispatch(const MessageP2P& msg);
 
 private:
     IMessageHandler* _handler;
-    static std::unordered_map<MessageType, std::function<void(IMessageHandler*, const MessageP2P&)>> _dispatchTable;
+    static std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> _dispatchTable;
 
 };

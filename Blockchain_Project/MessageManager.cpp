@@ -7,48 +7,30 @@
 #include <iomanip>
 #include "json.hpp"
 
-using nlohmann::json;
+using json = nlohmann::json;
 
 MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
 {
     // time = YYYY-MM-DD HH:MM:SS
-    MessageP2P message;
-
-    std::string address = publicKey;
-
-    message.setType(MessageType::PING);
-    message.setAuthor(address);
     
     json j;
     // Time of message
     std::string time = getCurrentDateTime();
-    std::cout << time << std::endl;
     j["time"] = time;
-    std::string payload = j.dump();
-    std::cout << payload << std::endl;
-    message.setLength(payload.length());
-    message.setPayload(payload);
 
+    MessageP2P message("", publicKey, MessageType::PING, j.dump().length(), j);
     return message;
 }
 
 MessageP2P MessageManager::createPongMessage(const std::string& publicKey, const std::string& time)
 {
     // payload = YYYY-MM-DD HH:MM:SS
-    MessageP2P message;
-
-    std::string address = publicKey;
-
-    message.setType(MessageType::PING);
-    message.setAuthor(address);
 
     json j;
     // Time of PING message
     j["time"] = time;
-    std::string payload = j.dump();
-    message.setLength(payload.length());
-    message.setPayload(payload);
 
+    MessageP2P message("", publicKey, MessageType::PONG, j.dump().length(), j);
     return message;
 }
 
@@ -66,100 +48,50 @@ MessageP2P MessageManager::createGetPeersMessage(const std::string& publicKey)
 MessageP2P MessageManager::createGetBlockMessage(const std::string& publicKey, const std::string& blockHash, const std::string& prevBlockHash)
 {
     // payload = blockHash|prevBlockHash
-    MessageP2P message;
-
-    std::string address = publicKey;
-
-    message.setType(MessageType::GET_BLOCK);
-    message.setAuthor(address);
 
     json j;
     j["blockHash"] = blockHash;
     j["prevBlockHash"] = prevBlockHash;
-    std::string payload = j.dump();
 
-    message.setLength(payload.length());
-    message.setPayload(payload);
-
+    MessageP2P message("", publicKey, MessageType::GET_BLOCK, j.dump().length(), j);
     return message;
 }
 
 MessageP2P MessageManager::createBlockMessage(const std::string& publicKey, const Block& block)
 {
-    MessageP2P message;
+    json j = block.toJson();
 
-    std::string address = publicKey;
-
-    message.setType(MessageType::GET_BLOCK);
-    message.setAuthor(address);
-
-    std::string payload = block.toJson();
-    message.setLength(payload.length());
-    message.setPayload(payload);
-
+    MessageP2P message("", publicKey, MessageType::BLOCK, j.dump().length(), j);
     return message;
 }
 
 MessageP2P MessageManager::createNewTransactionMessage(const std::string& publicKey, const Transaction& tx)
 {
-    MessageP2P message;
+    json j = tx.toJson();
 
-    std::string address = publicKey;
-
-    message.setType(MessageType::NEW_TRANSACTION);
-    message.setAuthor(address);
-
-    std::string payload = tx.toJson();
-    message.setLength(payload.length());
-    message.setPayload(payload);
-
+    MessageP2P message("", publicKey, MessageType::NEW_TRANSACTION, j.dump().length(), j);
     return message;
 }
 
 MessageP2P MessageManager::createGetTransactionMessage(const std::string& publicKey, const std::string& txID)
 {
-    MessageP2P message;
-
-    std::string address = publicKey;
-
-    message.setType(MessageType::GET_TRANSACTION);
-    message.setAuthor(address);
-
     json j;
     j["txID"] = txID;
-    std::string payload = j.dump();
 
-    message.setLength(payload.length());
-    message.setPayload(payload);
-
+    MessageP2P message("", publicKey, MessageType::GET_TRANSACTION, j.dump().length(), j);
     return message;
 }
 
 MessageP2P MessageManager::createInventoryMessage(const std::string& publicKey, const InventoryData& inventoryData)
 {
-    MessageP2P message;
+    json j = inventoryData.toJson();
 
-    std::string address = publicKey;
-
-    message.setType(MessageType::INVENTORY);
-    message.setAuthor(address);
-
-    std::string payload = inventoryData.toJson();
-    message.setLength(payload.length());
-    message.setPayload(payload);
-
+    MessageP2P message("", publicKey, MessageType::INVENTORY, j.dump().length(), j);
     return message;
 }
 
 MessageP2P MessageManager::createGetHeadersMessage(const std::string& publicKey, const std::vector<std::pair<std::string, std::string>>& blockHashes, const std::string& stopHash)
 {
-    MessageP2P message;
-
-    std::string address = publicKey;
-
-    message.setType(MessageType::GET_HEADERS);
-    message.setAuthor(address);
-
     json j;
     // Create a JSON array for blockHashes
     j["blockHashes"] = json::array();
@@ -172,29 +104,15 @@ MessageP2P MessageManager::createGetHeadersMessage(const std::string& publicKey,
     // Assign the stopHash value
     j["stopHash"] = stopHash;
 
-
-    std::string payload = j.dump();
-
-    message.setLength(payload.length());
-    message.setPayload(payload);
-
+    MessageP2P message("", publicKey, MessageType::GET_HEADERS, j.dump().length(), j);
     return message;
 }
 
 MessageP2P MessageManager::createHeadersMessage(const std::string& publicKey, const std::vector<BlockHeader>& blockHeaders)
 {
-    MessageP2P message;
+    json j = BlockHeader::vectorToJson(blockHeaders);
 
-    std::string address = publicKey;
-
-    message.setType(MessageType::HEADERS);
-    message.setAuthor(address);
-
-
-    std::string payload = BlockHeader::vectorToJson(blockHeaders);
-    message.setLength(payload.length());
-    message.setPayload(payload);
-
+    MessageP2P message("", publicKey, MessageType::HEADERS, j.dump().length(), j);
     return message;
 }
 

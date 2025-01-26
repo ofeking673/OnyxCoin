@@ -1,5 +1,7 @@
 #include "JsonPacketDeserializer.h"
 
+using json = nlohmann::json;
+
 json JsonPacketDeserializer::DeserializeRequest(std::string& str)
 {
     json j = json::parse(str);

@@ -5,7 +5,7 @@
 #include <iostream>
 #include "IMessageHandler.h"
 
-std::unordered_map<MessageType, std::function<void(IMessageHandler*, const MessageP2P&)>> MessageDispatcher::_dispatchTable;
+std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> MessageDispatcher::_dispatchTable;
 
 // Constructor: store the handler pointer and initialize a dispatch table.
 MessageDispatcher::MessageDispatcher(IMessageHandler* handler)
@@ -16,62 +16,62 @@ MessageDispatcher::MessageDispatcher(IMessageHandler* handler)
     {
         {
             MessageType::ERROR_MESSAGE,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onError(msg); }
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onError(msg); }
         },
         {
             MessageType::PING,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onPing(msg); }
-        },
-        {
-            MessageType::PONG,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onPong(msg); }
-        },
-        {
-            MessageType::GET_PEERS,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onGetPeers(msg); }
-        },
-        {
-            MessageType::PEER_LIST,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onPeerList(msg); }
-        },
-        {
-            MessageType::GET_BLOCK,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onGetBlock(msg); }
-        },
-        {
-            MessageType::BLOCK,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onBlock(msg); }
-        },
-        {
-            MessageType::NEW_TRANSACTION,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onNewTransaction(msg); }
-        },
-        {
-            MessageType::GET_TRANSACTION,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onGetTransaction(msg); }
-        },
-        {
-            MessageType::INVENTORY,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onInventory(msg); }
-        },
-        {
-            MessageType::GET_HEADERS,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onGetHeaders(msg); }
-        },
-        {
-            MessageType::HEADERS,
-            [](IMessageHandler* h, const MessageP2P& msg) { h->onHeaders(msg); }
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onPing(msg); }
+        },                                                   
+        {                                                    
+            MessageType::PONG,                               
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onPong(msg); }
+        },                                                   
+        {                                                    
+            MessageType::GET_PEERS,                          
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onGetPeers(msg); }
+        },                                                   
+        {                                                    
+            MessageType::PEER_LIST,                          
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onPeerList(msg); }
+        },                                                   
+        {                                                    
+            MessageType::GET_BLOCK,                          
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onGetBlock(msg); }
+        },                                                   
+        {                                                    
+            MessageType::BLOCK,                              
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onBlock(msg); }
+        },                                                   
+        {                                                    
+            MessageType::NEW_TRANSACTION,                    
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onNewTransaction(msg); }
+        },                                                   
+        {                                                    
+            MessageType::GET_TRANSACTION,                    
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onGetTransaction(msg); }
+        },                                                   
+        {                                                    
+            MessageType::INVENTORY,                          
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onInventory(msg); }
+        },                                                   
+        {                                                    
+            MessageType::GET_HEADERS,                        
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onGetHeaders(msg); }
+        },                                                   
+        {                                                    
+            MessageType::HEADERS,                            
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onHeaders(msg); }
         }
     };
 }
 
 // Dispatch the message by calling the correct handler method.
-void MessageDispatcher::dispatch(const MessageP2P& msg)
+std::vector<MessageP2P> MessageDispatcher::dispatch(const MessageP2P& msg)
 {
     if (!_handler) 
     {
         // If there's no handler set, just return
-        return;
+        return {};
     }
     
     // Find the message type in the dispatch table
@@ -79,11 +79,12 @@ void MessageDispatcher::dispatch(const MessageP2P& msg)
     if (it != _dispatchTable.end())
     {
         // Call the associated handler
-        (it->second)(_handler, msg);
+        return (it->second)(_handler, msg);
     }
     else
     {
         // Handle unknown or unimplemented message type
         std::cout << "Unknown message type received" << std::endl;
+        return {};
     }
 }

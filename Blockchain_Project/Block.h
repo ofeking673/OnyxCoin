@@ -3,6 +3,9 @@
 #include "BlockHeader.h"
 #include <vector>
 #include <sstream>
+#include "json.hpp"
+
+
 
 #define ERROR_BLOCK_HASH -1
 class Block
@@ -21,8 +24,8 @@ public:
 	void displayBlock() const;
 	std::string toMessageString() const;
 	static Block parseMessageString(const std::string& data);
-	std::string toJson() const;
-	static Block fromJson(const std::string& data);
+	nlohmann::json toJson() const;
+	static Block fromJson(nlohmann::json data);
 
 	std::string getHash() const;
 	std::string getPreviousHash() const;

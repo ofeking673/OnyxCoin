@@ -2,6 +2,7 @@
 #include <string>
 #include <ctime>
 #include <vector>
+#include "json.hpp"
 
 #define ERROR_BLOCK_HEADER -1
 #define MAX_HEADERS 200
@@ -19,10 +20,10 @@ public:
 
 	void setHash(const std::string& hash);
 
-	std::string toJson() const;
-	static BlockHeader fromJson(const std::string& data);
-	static std::string vectorToJson(const std::vector<BlockHeader>& blockHeaders);
-	static std::vector<BlockHeader> jsonToVector(const std::string& data);
+	nlohmann::json toJson() const;
+	static BlockHeader fromJson(nlohmann::json data);
+	static nlohmann::json vectorToJson(const std::vector<BlockHeader>& blockHeaders);
+	static std::vector<BlockHeader> jsonToVector(nlohmann::json data);
 
 private:
 	int _index;

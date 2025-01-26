@@ -15,11 +15,11 @@ FullNodeMessageHandler::~FullNodeMessageHandler()
     // Cleanup if necessary
 }
 
-void FullNodeMessageHandler::onPing(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onPing(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::PING)
     {
-        return;
+        return {};
     }
 
     // Log the event
@@ -39,9 +39,11 @@ void FullNodeMessageHandler::onPing(const MessageP2P& msg)
     // );
     // Source address is stored in msg._author
     // network->send(pongMsg);
-
+    std::vector<MessageP2P> messages;
     MessageP2P pongMsg = _messageManager.createPongMessage(_peerManager.getPubKey(), msg.getPayload());
-    _peerManager.sendMessage(msg.getAuthor(), pongMsg.toJson());
+    //_peerManager.sendMessage(msg.getAuthor(), pongMsg.toJson());
+    messages.push_back(pongMsg);
+    return messages;
 
     /*
     Typical Logic
@@ -57,20 +59,21 @@ void FullNodeMessageHandler::onPing(const MessageP2P& msg)
     */
 }
 
-void FullNodeMessageHandler::onPong(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onPong(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::PONG)
     {
-        return;
+        return {};
     }
 
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received PONG from peer." << std::endl;
+    return {};
     // Because peerManager automatically updates the alive state of each peer when recieve is called
     // there is no handling needed for this type of message
 }
 
-void FullNodeMessageHandler::onGetPeers(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onGetPeers(const MessageP2P& msg)
 {
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received GetPeers from peer." << std::endl;
@@ -90,9 +93,10 @@ void FullNodeMessageHandler::onGetPeers(const MessageP2P& msg)
     Send the PEER_LIST to the requester.
 
     */
+    return {};
 }
 
-void FullNodeMessageHandler::onPeerList(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onPeerList(const MessageP2P& msg)
 {
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received Peer List from peer." << std::endl;
@@ -112,13 +116,14 @@ void FullNodeMessageHandler::onPeerList(const MessageP2P& msg)
     For each peer, check if it’s already known, otherwise add it to your peer manager.
     Optionally initiate new outbound connections to some of these peers.
     */
+    return {};
 }
 
-void FullNodeMessageHandler::onGetBlock(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onGetBlock(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::GET_BLOCK)
     {
-        return;
+        return {};
     }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received GetBlock from peer." << std::endl;
@@ -145,17 +150,19 @@ void FullNodeMessageHandler::onGetBlock(const MessageP2P& msg)
     // Find the requested block
     Block block = _blockchain->findBlock(blkHash.first, blkHash.second);
 
-
+    std::vector<MessageP2P> messages;
     // Send the Block back to the peer requested it
     MessageP2P blockMsg = _messageManager.createBlockMessage(_peerManager.getPubKey(), block);
-    _peerManager.sendMessage(msg.getAuthor(), blockMsg.toJson());
+    //_peerManager.sendMessage(msg.getAuthor(), blockMsg.toJson());
+    messages.push_back(blockMsg);
+    return messages;
 }
 
-void FullNodeMessageHandler::onBlock(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onBlock(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::BLOCK)
     {
-        return;
+        return {};
     }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received Block from peer." << std::endl;
@@ -198,13 +205,18 @@ void FullNodeMessageHandler::onBlock(const MessageP2P& msg)
 
     // TO-DO: Broadcast block or inventory.
     // Need to think about the implementation
+
+
+
+
+    return {}; // REMOVE THIS
 }
 
-void FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::NEW_TRANSACTION)
     {
-        return;
+        return {};
     }
 
     // Log the event
@@ -246,13 +258,16 @@ void FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)
 
     // TO-DO: Broadcast new transaction or inventory.
     // Need to think about the implementation
+
+
+    return {}; // REMOVE THIS
 }
 
-void FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::GET_TRANSACTION)
     {
-        return;
+        return {};
     }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received GetTransaction from peer." << std::endl;
@@ -283,15 +298,18 @@ void FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)
     }
 
     // Send the transaction back to the peer requested it
+    std::vector<MessageP2P> messages;
     MessageP2P newTxMsg = _messageManager.createNewTransactionMessage(_peerManager.getPubKey(), tx);
-    _peerManager.sendMessage(msg.getAuthor(), newTxMsg.toJson());
+    //_peerManager.sendMessage(msg.getAuthor(), newTxMsg.toJson());
+    messages.push_back(newTxMsg);
+    return messages;
 }
 
-void FullNodeMessageHandler::onInventory(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onInventory(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::INVENTORY)
     {
-        return;
+        return {};
     }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received INVENTORY ANNOUUNCEMENT from peer." << std::endl;
@@ -311,6 +329,7 @@ void FullNodeMessageHandler::onInventory(const MessageP2P& msg)
     For each item, check if you already have it (e.g., check blockchain or mempool).
     If missing, request the item from the peer (using onGetBlock, onGetTransaction, or a direct “GetData”-type message).
     */
+    std::vector<MessageP2P> messages;
 
     InventoryData inventory = InventoryData::fromJson(msg.getPayload());
     std::vector<std::string> txIDs = inventory.getTxIDs();
@@ -321,7 +340,8 @@ void FullNodeMessageHandler::onInventory(const MessageP2P& msg)
             // We don't have the transaction. add it to the chain.
             // Create getTransaction message and send it to the peer that sent the inventory message
             MessageP2P getTxMsg = _messageManager.createGetTransactionMessage(_peerManager.getPubKey(), txID);
-            _peerManager.sendMessage(msg.getAuthor(), getTxMsg.toJson());
+            //_peerManager.sendMessage(msg.getAuthor(), getTxMsg.toJson());
+            messages.push_back(getTxMsg);
         }
     }
 
@@ -335,16 +355,18 @@ void FullNodeMessageHandler::onInventory(const MessageP2P& msg)
             // We don't have the Block. add it to the chain.
             // Create getBlock message and send it to the peer that sent the inventory message
             MessageP2P getBlockMsg = _messageManager.createGetBlockMessage(_peerManager.getPubKey(), blockHashes.first, blockHashes.second);
-            _peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
+            //_peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
+            messages.push_back(getBlockMsg);
         }
     }
+    return messages;
 }
 
-void FullNodeMessageHandler::onGetHeaders(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onGetHeaders(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::GET_HEADERS)
     {
-        return;
+        return {};
     }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received GetHeaders from peer." << std::endl;
@@ -397,16 +419,19 @@ void FullNodeMessageHandler::onGetHeaders(const MessageP2P& msg)
     // Gather up to MAX_HEADERS from forkIndex
     auto headersToSend = _blockchain->getHeadersFrom(forkIndex, MAX_HEADERS, stopHash);
 
+    std::vector<MessageP2P> messages;
     // Send the transaction back to the peer requested it
     MessageP2P headersMsg = _messageManager.createHeadersMessage(_peerManager.getPubKey(), headersToSend);
-    _peerManager.sendMessage(msg.getAuthor(), headersMsg.toJson());
+    //_peerManager.sendMessage(msg.getAuthor(), headersMsg.toJson());
+    messages.push_back(headersMsg);
+    return messages;
 }
 
-void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
+std::vector<MessageP2P> FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::HEADERS)
     {
-        return;
+        return {};
     }
     // Log the event
     std::cout << "[FullNodeMessageHandler] Received Block Headers from peer." << std::endl;
@@ -434,6 +459,7 @@ void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
     // Validate / append
     _blockchain->appendHeaders(receivedHeaders);
 
+    std::vector<MessageP2P> messages;
 
     // Decide whether to request more headers or start requesting blocks
     //    If we got MAX_HEADERS in the response, there's likely more to fetch.
@@ -451,7 +477,8 @@ void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
         MessageP2P getMoreHeaders = _messageManager.createGetHeadersMessage(_peerManager.getPubKey(), blockLocatorHashes, "");
 
         // Requesting more headers from last hash recieved
-        _peerManager.sendMessage(msg.getAuthor(), getMoreHeaders.toJson());
+        //_peerManager.sendMessage(msg.getAuthor(), getMoreHeaders.toJson());
+        messages.push_back(getMoreHeaders);
 
     }
     else 
@@ -465,7 +492,9 @@ void FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
             MessageP2P getBlockMsg = _messageManager.createGetBlockMessage(_peerManager.getPubKey(), qHeader.getHash(), qHeader.getPreviousHash());
 
             // Maybe broadcast instead?
-            _peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
+            //_peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
+            messages.push_back(getBlockMsg);
         }
     }
+    return messages;
 }

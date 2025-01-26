@@ -13,6 +13,8 @@
 #include "TxInput.h"
 #include "TxOutput.h"
 
+#include "json.hpp"
+
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
 #define TAX_RATE 0.5
 
@@ -69,11 +71,12 @@ public:
 
 
 	std::string toString() const;
-	std::string toJson() const;
+	nlohmann::json toJson() const;
+	static Transaction fromJson(nlohmann::json jsonTx);
+
 	std::string toMessageString() const;
 	static Transaction parseMessageString(const std::string& data);
 
-	static Transaction fromJson(const std::string& jsonStr);
 	static std::string hashPublicKey(const std::string& hexPubKey);
 
 	// scriptPubKey = <type (1 byte)><public key hash (20 bytes)>

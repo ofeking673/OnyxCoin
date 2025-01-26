@@ -74,7 +74,7 @@ MessageP2P MessageParser::parse(const std::string& buffer)
 const std::string MessageParser::parseGetTransactionMessage(const MessageP2P& msg)
 {
     // Parse the JSON string back into a JSON object
-    json j = json::parse(msg.getPayload());
+    json j = msg.getPayload();
 
     // Retrieve the value for "txID"
     std::string parsedTxID = j["txID"].get<std::string>();
@@ -85,7 +85,7 @@ const std::string MessageParser::parseGetTransactionMessage(const MessageP2P& ms
 const std::pair<std::string, std::string> MessageParser::parseGetBlockMessage(const MessageP2P& msg)
 {
     // Parse the JSON string back into a JSON object
-    json j = json::parse(msg.getPayload());
+    json j = msg.getPayload();
 
     // Retrieve the values for block hash and previous block hash
     std::string blockHash = j["blockHash"].get<std::string>();
@@ -102,7 +102,7 @@ const std::pair<std::string, std::string> MessageParser::parseGetBlockMessage(co
 const void MessageParser::parseGetHeadersMessage(const MessageP2P& msg, std::vector<std::pair<std::string, std::string>>& blockHashes, std::string& stopHash)
 {
     // Parse the JSON string into a json object.
-    json j = json::parse(msg.getPayload());
+    json j = msg.getPayload();
 
 
     // Clear blockHashes and stopHash in case they have previous data.
