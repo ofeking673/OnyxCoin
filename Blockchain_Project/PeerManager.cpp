@@ -10,16 +10,16 @@ void PeerManager::addPeer(std::string ip, int port)
 void PeerManager::discoverPeers(std::string msg)
 {
     json j = json::parse(msg);
-    std::map<std::string, std::pair<std::string, std::string>> Temppeers = j.get<std::map<std::string, std::pair<std::string, std::string>>>();
+    std::map<std::string, std::pair<std::string, int>> Temppeers = j.get<std::map<std::string, std::pair<std::string, int>>>();
     auto lastElement = std::prev(Temppeers.end());
     _personalSocketDetails.first = lastElement->second.first;
-    _personalSocketDetails.second = std::stoi(lastElement->second.second);
+    _personalSocketDetails.second = lastElement->second.second;
 
     for (auto& [key, value] : Temppeers) {
         std::cout << "IP: " << value.first << ", Port: " << value.second << std::endl;
-        if (value.second != std::to_string(_personalSocketDetails.second))
+        if (value.second != _personalSocketDetails.second)
         {
-            addPeer(value.first, std::stoi(value.second));
+            addPeer(value.first, value.second);
         }
     }
 }

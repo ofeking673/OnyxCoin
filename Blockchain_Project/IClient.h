@@ -15,7 +15,7 @@ public:
 		{
 			wallet = new Wallet();
 		}
-		_k = wallet->getPrivateKey();
+
 		pubKey = wallet->getPublicKey();
 		if (port == 4444 && srcPort != 0) {
 			sock.sendMsg(pubKey + "|" + std::to_string(srcPort));

@@ -38,17 +38,11 @@ std::string DiscoveryServer::getSocketInfo(SOCKET sock)
 
 std::string DiscoveryServer::str()
 {
-    std::string ss;
-    ss += "{";
-    for (const auto& [key, value] : peers) 
-    {
-        ss += "\"" + key + "\": " + "[\"" + value.first + "\",\"" + std::to_string(value.second) + "\"], ";
-    }
+    json j;
+    j["test"] = peers;
 
-    if (!peers.empty()) { ss.pop_back(); ss.pop_back(); }
-
-    ss += "}";
-    return ss;
+    std::cout << j["test"].dump();
+    return j["test"].dump();
 }
 
 std::pair<std::string, std::string> DiscoveryServer::splitData(std::string data)

@@ -22,9 +22,10 @@ MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
     json j;
     // Time of message
     std::string time = getCurrentDateTime();
+    std::cout << time << std::endl;
     j["time"] = time;
     std::string payload = j.dump();
-
+    std::cout << payload << std::endl;
     message.setLength(payload.length());
     message.setPayload(payload);
 

@@ -30,7 +30,7 @@ public:
     void setType(MessageType type);
     void setLength(uint32_t length);
     void setPayload(const std::string& payload);
-
+    void parsePayload(const std::string& payload);
     /// Utility
     std::string toJson() const;
     static MessageP2P fromJson(const std::string& data);
