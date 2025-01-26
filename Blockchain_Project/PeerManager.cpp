@@ -24,6 +24,18 @@ void PeerManager::discoverPeers(std::string msg)
     }
 }
 
+void PeerManager::addPeer(const std::string& pubkey, SOCKET sock)
+{
+    if (sock != INVALID_SOCKET) {
+        peers[pubkey] = std::make_pair(sock, true);
+    }
+}
+
+void PeerManager::handleSocket(SOCKET sock)
+{
+
+}
+
 void PeerManager::sendMessage(std::string dst, std::string msg)
 {
     SOCKET sock = peers.at(dst).first;
@@ -48,6 +60,18 @@ std::vector<SOCKET> PeerManager::getAllClients()
         }
     }
 
+    return clients;
+}
+
+std::vector<std::string> PeerManager::getAllPublicKeys()
+{
+    std::vector<std::string> clients;
+
+    for (const auto& [key, value] : peers) {
+        if (value.second) {
+            clients.push_back(key);
+        }
+    }
     return clients;
 }
 

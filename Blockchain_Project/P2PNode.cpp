@@ -21,10 +21,11 @@ P2PNode::~P2PNode()
 void P2PNode::pingAll()
 {
 	MessageP2P pingMsg = _messageCreator.createPingMessage(_handler->getPublicKey());
-	pingMsg.setSignature(signMessage(pingMsg.toJson()));
+	std::string signature = signMessage(pingMsg.toJson().dump());
+	pingMsg.setSignature(signature);
 	std::vector<SOCKET> clients = _handler->getAllClients();
 	for (const auto& client : clients) {
-		std::string msg = pingMsg.toJson();
+		std::string msg = pingMsg.toJson().dump();
 		Socket::sendMessage(client, msg);
 	}
 }

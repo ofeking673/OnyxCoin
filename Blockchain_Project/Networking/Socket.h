@@ -4,7 +4,6 @@
 #include <iostream>
 #include "../json.hpp"
 #include "../Blockchain.h"
-#include "../JsonPacketSerializer.h"
 
 //This is the base include for all socket related classes, So I'm defining everything here.
 using json = nlohmann::json;

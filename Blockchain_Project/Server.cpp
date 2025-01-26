@@ -26,6 +26,9 @@ Server::Server(IClient* cli, int port, IMessageHandler* handler) :
 void Server::HandleClient(SOCKET clientSock)
 {
 	std::string address = Socket::readFromSock(clientSock);
+	if (!_dispatcher->isKnownUser(address)) {
+		_dispatcher->addPeer(address, clientSock);
+	}
 	std::string pubKey = this->_cli->pubKey;
 	Socket::sendMessage(clientSock, pubKey);
 	try {
@@ -39,23 +42,10 @@ void Server::HandleClient(SOCKET clientSock)
 			std::string strmsg = serverSock_->readFromSock(clientSock);
 
 			MessageP2P msg = MessageParser::parse(strmsg);
-			_dispatcher->dispatch(msg);
+			auto messageList = _dispatcher->dispatch(msg);
+			// Currently no message is supposed to be over 1 block, so just send the first one.
+			_dispatcher->sendClient(address, messageList[0]);
 
-
-
-
-
-			//json j = JsonPacketDeserializer::DeserializeRequest(msg);
-			//std::string response;
-			//std::cout << j.at("status").get<Requests>() << std::endl;
-			//switch (j.at("status").get<Requests>())
-			//{
-			//
-			//default:
-			//	std::cout << "Message code does not exist! {" << j["status"] << "}\n";
-			//	break;
-			//}
-			//serverSock_->sendMessage(clientSock, response);
 		}
 	} 
 	catch(std::exception& e) 

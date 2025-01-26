@@ -40,7 +40,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPing(const MessageP2P& msg)
     // Source address is stored in msg._author
     // network->send(pongMsg);
     std::vector<MessageP2P> messages;
-    MessageP2P pongMsg = _messageManager.createPongMessage(_peerManager.getPubKey(), msg.getPayload());
+    MessageP2P pongMsg = _messageManager.createPongMessage(_peerManager.getPubKey(), msg.getPayload()["time"]);
     //_peerManager.sendMessage(msg.getAuthor(), pongMsg.toJson());
     messages.push_back(pongMsg);
     return messages;

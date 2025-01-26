@@ -3,7 +3,6 @@
 #include "Blockchain.h"
 #include "Networking/ClientSocket.h"
 #include "Encryptions/SHA256.h"
-#include "JsonPacketSerializer.h"
 
 class Miner : public IClient
 {

@@ -199,8 +199,6 @@
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="IMessageHandler.cpp" />
     <ClCompile Include="InventoryData.cpp" />
-    <ClCompile Include="JsonPacketDeserializer.cpp" />
-    <ClCompile Include="JsonPacketSerializer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageDispatcher.cpp" />
     <ClCompile Include="MessageManager.cpp" />
@@ -216,7 +214,6 @@
     <ClCompile Include="P2PNode.cpp" />
     <ClCompile Include="PeerManager.cpp" />
     <ClCompile Include="Point.cpp" />
-    <ClCompile Include="RequestHandler.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="Transaction.cpp" />
     <ClCompile Include="TxInput.cpp" />

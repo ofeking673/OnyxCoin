@@ -106,7 +106,5 @@ MessageP2P MessageP2P::fromJson(json data)
 
     uint32_t length = j["length"].get<uint32_t>();
 
-    std::string payload = j["payload"];
-
-    return MessageP2P(signature, author, type, length, payload);
+    return MessageP2P(signature, author, type, length, j["payload"]);
 }

@@ -14,6 +14,10 @@ public:
 	void addPeer(std::string ip, int port);
 	void discoverPeers(std::string msg);
 
+	/// Add peer if this client connects to your server, so connection is already alive, and should be saved.
+	void addPeer(const std::string& pubkey, SOCKET sock);
+
+	void handleSocket(SOCKET sock);
 
 	void sendMessage(std::string dst, std::string msg);
 	std::string recvMessage(std::string src);
@@ -21,6 +25,7 @@ public:
 	// Utility
 	std::string getPubKey() { return _cli.pubKey; }
 	std::vector<SOCKET> getAllClients();
+	std::vector<std::string> getAllPublicKeys();
 	std::string signMessage(std::string msg);
 private:
 	// Map the public key, and the boolean value for Alive to the peer's socket

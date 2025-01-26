@@ -36,8 +36,12 @@ public:
 
     // Utility for keeping the "alive" state updated for each node
     virtual std::vector<SOCKET> getAllClients();
+    virtual std::vector<std::string> getAllPublicKeys();
     virtual std::string getPublicKey();
     virtual std::string signMessage(std::string msg);
+    virtual std::string sendMessage(const std::string& pubkey, MessageP2P msg);
+
+    void addPeer(const std::string& pubkey, SOCKET sock);
 
 protected:
     PeerManager _peerManager;
