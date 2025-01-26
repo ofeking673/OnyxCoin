@@ -17,7 +17,7 @@ class Socket
 {
 public:
 	Socket(int destPort);
-	void WaitForClients(void(*func)(SOCKET), Server* serv = nullptr) const;
+	void WaitForClients(std::function<void(SOCKET)> handleClient) const;
 	static void sendMessage(SOCKET sock, std::string& msg);
 	static std::string readFromSock(SOCKET sock);
 private:

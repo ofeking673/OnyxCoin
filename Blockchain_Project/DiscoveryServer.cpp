@@ -3,7 +3,7 @@ std::map<std::string, std::pair<std::string, int>> DiscoveryServer::peers;
 
 DiscoveryServer::DiscoveryServer() : serverSock(4444)
 {
-	serverSock.WaitForClients(DiscoveryServer::HandleClient);
+	serverSock.WaitForClients(&DiscoveryServer::HandleClient);
 }
 
 void DiscoveryServer::HandleClient(SOCKET sock) 

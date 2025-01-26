@@ -2,7 +2,6 @@
 #include "FullNodeMessageHandler.h"
 
 // Define the static members
-Socket* Server::serverSock_ = nullptr;
 MessageManager* Server::messageManager = nullptr;
 
 /*
@@ -15,9 +14,12 @@ Server::Server(IClient* cli, int port, IMessageHandler* handler) :
 	_cli = cli;
 	messageManager = new MessageManager();
 	serverSock_ = new Socket(port);
-
-	std::thread th(&Socket::WaitForClients, serverSock_, &Server::HandleClient, this);
-	th.detach();
+	
+	std::thread([this]() {
+		serverSock_->WaitForClients([this](SOCKET clientSock) {
+			HandleClient(clientSock);
+		});
+	}).detach();
 }
 
 void Server::HandleClient(SOCKET clientSock)

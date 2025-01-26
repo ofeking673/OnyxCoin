@@ -13,6 +13,6 @@ public:
 private:
 	IClient* _cli;
 	MessageDispatcher* dispatcher;
-	static Socket* serverSock_;
+	Socket* serverSock_;
 	static MessageManager* messageManager;
 };

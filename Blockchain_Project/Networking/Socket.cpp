@@ -17,7 +17,7 @@ Socket::Socket(int destPort)
 	serverSocket_ = serverSocket;
 }
 
-void Socket::WaitForClients(void(*func)(SOCKET), Server* serv) const
+void Socket::WaitForClients(std::function<void(SOCKET)> handleClient) const
 {
 	listen(serverSocket_, 5);
 	while (true)
@@ -28,14 +28,9 @@ void Socket::WaitForClients(void(*func)(SOCKET), Server* serv) const
 		}
 		else {
 			std::cout << __FUNCTION__ ": Client connected!" << std::endl;
-			if (serv) {
-				std::thread client(&Server::HandleClient, serv, clientSocket);
-				client.detach();
-			}
-			else {
-				std::thread client(func, clientSocket);
-				client.detach();
-			}
+			std::thread([handleClient, clientSocket]() {
+				handleClient(clientSocket);
+			}).detach();
 		}
 	}
 }
