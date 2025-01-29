@@ -165,6 +165,7 @@
     <ClInclude Include="OutPoint.h" />
     <ClInclude Include="OutPointHash.h" />
     <ClInclude Include="P2PNode.h" />
+    <ClInclude Include="PeerInfo.h" />
     <ClInclude Include="PeerManager.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="RequestHandler.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="OutPoint.cpp" />
     <ClCompile Include="OutPointHash.cpp" />
     <ClCompile Include="P2PNode.cpp" />
+    <ClCompile Include="PeerInfo.cpp" />
     <ClCompile Include="PeerManager.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Server.cpp" />
