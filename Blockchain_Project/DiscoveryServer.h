@@ -19,7 +19,6 @@
 //};
 
 #include "P2PNode.h"
-#include "NetworkNodeInfo.h"
 
 class DiscoveryServer : public P2PNode
 {

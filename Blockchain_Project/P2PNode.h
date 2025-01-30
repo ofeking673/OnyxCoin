@@ -61,6 +61,25 @@ public:
     // Broadcast a message to all connected peers
     void broadcastMessage(MessageP2P& msg);
 
+
+    // Add new peer to the peers map. When establishing a new connection, or when a new node coneects to us.
+    void addPeer(const PeerInfo& newPeer);
+
+    // Update last contact with the peer
+    void updatePeersLastContact(const std::string& peerPublicKey);
+
+    // Getters
+    std::string getMyPublicKey() const;
+
+
+    // Serialize peer list into json
+    json peersToJson();
+    // Deserialize peer list from json to the peers map
+    static std::unordered_map<std::string, PeerInfo> fromJsonToPeers(const json& data);
+
+    // Given two peer maps, return a map of the new peers not found in the owned map.
+    std::unordered_map<std::string, PeerInfo> getNewPeers(const std::unordered_map<std::string, PeerInfo>& newPeers);
+
 protected:
     // Main loop that accepts incoming connections
     void acceptLoop();
@@ -95,6 +114,8 @@ protected:
     // TO-DO: Adjust constructor of class to include those:
     MessageDispatcher m_dispatcher;
     std::string m_myPrivateKey;
+    std::string m_myIP;
+    uint16_t m_myPort;
 };
 
 

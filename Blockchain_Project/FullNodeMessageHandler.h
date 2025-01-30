@@ -33,19 +33,12 @@ public:
     
     std::vector<MessageP2P> onGetHeaders(const MessageP2P& msg) override;
     std::vector<MessageP2P> onHeaders(const MessageP2P& msg) override;
+
+    std::vector<MessageP2P> onHandshake(const MessageP2P& msg) override;
 private:
-    /*
-    PeerManager (tracks connected peers, their addresses, last-seen timestamps, etc.)
-    Blockchain (manages the chain of blocks, including validation and storage)
-    TransactionPool or Mempool (temporary store for unconfirmed transactions)
-    Network or P2PManager (responsible for actually sending messages across the network)
-    */
-
-
 
     Blockchain* _blockchain;
     UTXOSet* _utxoSet;
     // Inherits from IMessageHandler:
-    //     PeerManager _peerManager;
-    //     MessageManager _messageManager;
+    //     P2PNode _node;
 };

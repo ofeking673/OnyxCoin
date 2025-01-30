@@ -16,5 +16,6 @@ enum class MessageType : uint16_t
     GET_TRANSACTION,
     INVENTORY,
     GET_HEADERS,
-    HEADERS
+    HEADERS,
+    HANDSHAKE
 };

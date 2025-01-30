@@ -61,6 +61,10 @@ MessageDispatcher::MessageDispatcher(IMessageHandler* handler)
         {                                                    
             MessageType::HEADERS,                            
             [](IMessageHandler* h, const MessageP2P& msg) { return h->onHeaders(msg); }
+        },
+        {
+            MessageType::HANDSHAKE,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onHandshake(msg); }
         }
     };
 }
@@ -89,21 +93,21 @@ std::vector<MessageP2P> MessageDispatcher::dispatch(const MessageP2P& msg)
     }
 }
 
-std::string MessageDispatcher::sendClient(const std::string& pubkey, const MessageP2P& msg)
-{
-    if (isKnownUser(pubkey)) {
-        return _handler->sendMessage(pubkey, msg);
-    }
-    return "";
-}
-
-bool MessageDispatcher::isKnownUser(const std::string& pubkey)
-{
-    auto clients = _handler->getAllPublicKeys();
-    return std::find(clients.begin(), clients.end(), pubkey) != clients.end();
-}
-
-void MessageDispatcher::addPeer(const std::string& pubkey, SOCKET sock)
-{
-    _handler->addPeer(pubkey, sock);
-}
+//std::string MessageDispatcher::sendClient(const std::string& pubkey, const MessageP2P& msg)
+//{
+//    if (isKnownUser(pubkey)) {
+//        return _handler->sendMessage(pubkey, msg);
+//    }
+//    return "";
+//}
+//
+//bool MessageDispatcher::isKnownUser(const std::string& pubkey)
+//{
+//    auto clients = _handler->getAllPublicKeys();
+//    return std::find(clients.begin(), clients.end(), pubkey) != clients.end();
+//}
+//
+//void MessageDispatcher::addPeer(const std::string& pubkey, SOCKET sock)
+//{
+//    _handler->addPeer(pubkey, sock);
+//}

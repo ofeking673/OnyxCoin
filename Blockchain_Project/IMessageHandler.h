@@ -3,7 +3,9 @@
 #include "MessageP2P.h"
 #include "string"
 
-#include "PeerManager.h"
+//#include "PeerManager.h"
+#include "P2PNode.h"
+#include "MessageManager.h"
 
 #define FULL_NODE_MESSAGE_HANDLER 1
 
@@ -34,6 +36,9 @@ public:
     virtual std::vector<MessageP2P> onGetHeaders(const MessageP2P& msg) = 0;
     virtual std::vector<MessageP2P> onHeaders(const MessageP2P& msg) = 0;
 
+    virtual std::vector<MessageP2P> onHandshake(const MessageP2P& msg) = 0;
+
+
     // Utility for keeping the "alive" state updated for each node
     virtual std::vector<SOCKET> getAllClients();
     virtual std::vector<std::string> getAllPublicKeys();
@@ -44,6 +49,5 @@ public:
     void addPeer(const std::string& pubkey, SOCKET sock);
 
 protected:
-    PeerManager _peerManager;
-    MessageManager _messageManager;
+    P2PNode _node;
 };

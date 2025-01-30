@@ -34,14 +34,17 @@ MessageP2P MessageManager::createPongMessage(const std::string& publicKey, const
     return message;
 }
 
-
 MessageP2P MessageManager::createGetPeersMessage(const std::string& publicKey)
 {
-    MessageP2P message;
-    message.setType(MessageType::GET_PEERS);
-    message.setAuthor(publicKey);
+    json j;
 
+    MessageP2P message("", publicKey, MessageType::GET_PEERS, j.dump().length(), j);
+    return message;
+}
 
+MessageP2P MessageManager::createPeerListMessage(const std::string& publicKey, const json& serializedPeerList)
+{
+    MessageP2P message("", publicKey, MessageType::PEER_LIST, serializedPeerList.dump().length(), serializedPeerList);
     return message;
 }
 
@@ -113,6 +116,14 @@ MessageP2P MessageManager::createHeadersMessage(const std::string& publicKey, co
     json j = BlockHeader::vectorToJson(blockHeaders);
 
     MessageP2P message("", publicKey, MessageType::HEADERS, j.dump().length(), j);
+    return message;
+}
+
+MessageP2P MessageManager::createHandshakeMessage(const std::string& publicKey, const PeerInfo& myPeerInfo)
+{
+    json j = myPeerInfo.toJson();
+
+    MessageP2P message("", publicKey, MessageType::HANDSHAKE, j.dump().length(), j);
     return message;
 }
 

@@ -32,11 +32,4 @@ public:
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageParser() = default;
-
-    // Optional helper methods for parsing could be declared here, e.g.:
-    static bool parseSignature(const std::string& buffer, std::string& signature);
-    static bool parseAuthor(const std::string& buffer, std::string& author);
-    static bool parseMessageType(const std::string& buffer, MessageType& messageType);
-    static bool parsePayloadLength(const std::string& buffer, uint32_t& payloadLength);
-    static bool parsePayload(const std::string& buffer, std::string& payload, const uint32_t& payloadLength);
 };

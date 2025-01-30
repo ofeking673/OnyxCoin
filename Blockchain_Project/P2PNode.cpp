@@ -37,6 +37,7 @@
 
 #include "P2PNode.h"
 #include "MessageParser.h"
+#include "Messagemanager.h"
 
 P2PNode::P2PNode(const std::string& myNodeId, const std::string& myPublicKey, bool isDiscoveryServer)
     : m_myNodeId(myNodeId)
@@ -168,15 +169,22 @@ bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::str
 
     // If connected, store peer info
     PeerInfo peer;
+    peer.ip = ip;
+    peer.port = port;
     peer.publicKey = remotePublicKey;
     peer.nodeId = remoteNodeId;
     peer.socket = sock;
     peer.lastContact = std::chrono::steady_clock::now();
 
-    {
-        std::lock_guard<std::mutex> lock(m_peerMutex);
-        m_peers[remotePublicKey] = peer;
-    }
+    addPeer(peer);
+
+
+    // Send a handshake message to the node, to notify you established a connection
+    PeerInfo myPeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
+    MessageP2P handshakeMsg = MessageManager::createHandshakeMessage(m_myPublicKey, myPeerInfo);
+
+    sendMessageTo(handshakeMsg, remotePublicKey);
+
 
     // Launch a receive thread for this peer
     std::thread(&P2PNode::receiveLoop, this, sock, remotePublicKey).detach();
@@ -225,6 +233,27 @@ void P2PNode::broadcastMessage(MessageP2P& msg)
     }
 }
 
+void P2PNode::addPeer(const PeerInfo& newPeer)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    m_peers[newPeer.publicKey] = newPeer;
+}
+
+void P2PNode::updatePeersLastContact(const std::string& peerPublicKey)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    auto it = m_peers.find(peerPublicKey);
+    if (it != m_peers.end())
+    {
+        it->second.lastContact = std::chrono::steady_clock::now();
+    }
+}
+
+std::string P2PNode::getMyPublicKey() const
+{
+    return m_myPublicKey;
+}
+
 void P2PNode::acceptLoop()
 {
     while (m_isRunning)
@@ -242,30 +271,48 @@ void P2PNode::acceptLoop()
             continue;
         }
 
-        // You don't yet know the remote node's ID or public key. Typically you'd
-        // exchange them after a handshake. For this example, let's assume we
-        // read them from the first message or do an immediate handshake.
+        // After accepted, the other peer should send a handshake message
 
-        // For demonstration, create a temporary nodeId. In real scenarios,
-        // you'd do an actual handshake to get these details.
-        std::string remoteNodeId = "UnknownNodeId_" + std::to_string(clientSocket);
-        std::string remotePublicKey = "UnknownPublicKey";
+        // Recieve the handshake message, before starting the recieve loop
 
+        const int BUFFER_SIZE = 4096;
+        char buffer[BUFFER_SIZE];
+
+        while (m_isRunning)
         {
-            std::lock_guard<std::mutex> lock(m_peerMutex);
-            PeerInfo peer;
-            peer.socket = clientSocket;
-            peer.nodeId = remoteNodeId;
-            peer.publicKey = remotePublicKey;
-            peer.lastContact = std::chrono::steady_clock::now();
+            int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+            if (bytesReceived > 0)
+            {
+                // Get the handshake message
+                std::string data(buffer, bytesReceived);
 
-            m_peers[remotePublicKey] = peer;
-        }
+                MessageP2P msg = MessageParser::parse(data);
 
-        std::cout << "[Info] Accepted connection from a peer (socket=" << clientSocket << ")" << std::endl;
+                if (msg.getType() == MessageType::HANDSHAKE)
+                {
+                    // Handle the incoming handshake message.
+                    // Handler adds the peer to the peer list
+                    // Returns a vector of messages to send back (PEER_LIST).
+                    std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
 
-        // Start a thread to receive messages from this new peer
-        std::thread(&P2PNode::receiveLoop, this, clientSocket, remotePublicKey).detach();
+
+                    // Find the new peer public key:
+                    PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
+                    std::string remotePublicKey = newPeer.publicKey;
+
+
+                    // Send back the response messages
+                    for (auto& respMsg : responses)
+                    {
+                        sendMessageTo(respMsg, msg.getAuthor());
+                    }
+
+                    std::cout << "[Info] Accepted connection from a peer (socket=" << clientSocket << ")" << std::endl;
+
+                    // Start a thread to receive messages from this new peer
+                    std::thread(&P2PNode::receiveLoop, this, clientSocket, remotePublicKey).detach();
+                }
+            }
     }
 }
 
@@ -307,17 +354,6 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
 
             if (msg.getType() != MessageType::ERROR_MESSAGE)
             {
-                // Mark last contact
-                {
-                    std::lock_guard<std::mutex> lock(m_peerMutex);
-                    auto it = m_peers.find(peerPublicKey);
-                    if (it != m_peers.end())
-                    {
-                        it->second.lastContact = std::chrono::steady_clock::now();
-                    }
-                }
-
-
                 // Handle the incoming message. Returns a vector of messages to send back.
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
 
@@ -341,4 +377,57 @@ void P2PNode::signMessage(MessageP2P& msg)
     ECDSASigner ecd;
     msg.setSignature(""); // Clear signature if there is any; signing the message without the signature
     msg.setSignature(ecd.signMessage(cpp_int("0x" + m_myPrivateKey), msg.toJson().dump())->ToString());
+}
+
+json P2PNode::peersToJson()
+{
+    // If the map is modified concurrently, lock it as needed
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+
+    // We'll store all PeerInfo objects in a JSON array
+    json j = json::array();
+    for (const auto& kv : m_peers)
+    {
+        const PeerInfo& peerInfo = kv.second;
+        j.push_back(peerInfo.toJson());
+    }
+    return j;
+}
+
+std::unordered_map<std::string, PeerInfo> P2PNode::fromJsonToPeers(const json& data)
+{
+    std::unordered_map<std::string, PeerInfo> result;
+
+    if (!data.is_array())
+    {
+        // Return an empty result if it's not an array.
+        return result;
+    }
+
+    for (const auto& item : data)
+    {
+        PeerInfo p = PeerInfo::fromJson(item);
+        result[p.publicKey] = p;
+    }
+
+    return result;
+}
+
+std::unordered_map<std::string, PeerInfo> P2PNode::getNewPeers(const std::unordered_map<std::string, PeerInfo>& newPeers)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+
+    std::unordered_map<std::string, PeerInfo> result;
+    for (const auto& kv : newPeers)
+    {
+        const std::string& newPeerPublicKey = kv.first;
+        const PeerInfo& newPeerInfo = kv.second;
+
+        // If this publicKey does not exist in the owned map, it's new
+        if (m_peers.find(newPeerPublicKey) == m_peers.end())
+        {
+            result[newPeerPublicKey] = newPeerInfo;
+        }
+    }
+    return result;
 }
