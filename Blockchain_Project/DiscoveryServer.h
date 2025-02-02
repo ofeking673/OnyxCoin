@@ -36,5 +36,5 @@ protected:
 private:
     std::atomic<uint64_t> m_nextNodeId;
     std::mutex            m_knownNodesMutex;
-    std::vector<NetworkNodeInfo> m_knownNodes;
+    std::vector<PeerInfo> m_knownNodes;
 };

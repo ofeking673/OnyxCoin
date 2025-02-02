@@ -67,8 +67,7 @@ DiscoveryServer::DiscoveryServer(const std::string& myNodeId, const std::string&
 void DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
 {
     // Check type
-    int type = msg.getType();
-    if (type == static_cast<int>(ExtendedMessageType::DISCOVERY_REQUEST))
+    if (msg.getType() == MessageType::DISCOVERY_REQUEST)
     {
         // Extract IP/port from incoming message
         std::string ip;
@@ -90,7 +89,7 @@ void DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
         // Save new node in the internal list
         {
             std::lock_guard<std::mutex> lock(m_knownNodesMutex);
-            NetworkNodeInfo info;
+            PeerInfo info;
             info.ip = ip;
             info.port = port;
             info.publicKey = msg.getAuthor();  // The public key of the request
@@ -100,7 +99,7 @@ void DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
 
         // Respond with DISCOVERY_RESPONSE
         MessageP2P response;
-        response.setType(static_cast<int>(ExtendedMessageType::DISCOVERY_RESPONSE));
+        response.setType(MessageType::DISCOVERY_RESPONSE);
         response.setAuthor(this->m_myPublicKey); // server's pubkey
 
         json respPayload;
@@ -133,8 +132,7 @@ void DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
 void DiscoveryServer::handleDiscoveryMessage(const MessageP2P& msg)
 {
     // Check type
-    int type = msg.getType();
-    if (type == static_cast<int>(ExtendedMessageType::DISCOVERY_REQUEST))
+    if (msg.getType() == MessageType::DISCOVERY_REQUEST)
     {
         // Extract IP/port from incoming message
         std::string ip;
@@ -156,7 +154,7 @@ void DiscoveryServer::handleDiscoveryMessage(const MessageP2P& msg)
         // Save new node in the internal list
         {
             std::lock_guard<std::mutex> lock(m_knownNodesMutex);
-            NetworkNodeInfo info;
+            PeerInfo info;
             info.ip = ip;
             info.port = port;
             info.publicKey = msg.getAuthor();  // The public key of the request
@@ -166,7 +164,7 @@ void DiscoveryServer::handleDiscoveryMessage(const MessageP2P& msg)
 
         // Respond with DISCOVERY_RESPONSE
         MessageP2P response;
-        response.setType(static_cast<int>(ExtendedMessageType::DISCOVERY_RESPONSE));
+        response.setType(MessageType::DISCOVERY_RESPONSE);
         response.setAuthor(this->m_myPublicKey); // server's pubkey
 
         json respPayload;

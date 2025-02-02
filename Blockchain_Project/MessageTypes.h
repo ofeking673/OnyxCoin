@@ -2,6 +2,13 @@
 
 #include <cstdint>
 
+
+#define DISCOVERY_PAYLOAD_LISTEN_IP "LISTEN_IP"
+#define DISCOVERY_PAYLOAD_LISTEN_PORT "LISTEN_PORT"
+#define DISCOVERY_PAYLOAD_ASSIGNED_ID "ID"
+#define DISCOVERY_PAYLOAD_NODE_LIST "LIST"
+
+
 /// Define all supported message types.
 enum class MessageType : uint16_t
 {
@@ -17,5 +24,7 @@ enum class MessageType : uint16_t
     INVENTORY,
     GET_HEADERS,
     HEADERS,
-    HANDSHAKE
+    HANDSHAKE,
+    DISCOVERY_REQUEST,
+    DISCOVERY_RESPONSE,
 };
