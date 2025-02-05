@@ -3,8 +3,8 @@
 #include "MessageParser.h"
 
 
-FullNodeMessageHandler::FullNodeMessageHandler(std::string keyPath, int port) :
-    IMessageHandler(keyPath, port)
+FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node) :
+    IMessageHandler(node)
 {
 	_blockchain = Blockchain::getInstance();
 	_utxoSet = UTXOSet::getInstance();
@@ -26,7 +26,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPing(const MessageP2P& msg)
     std::cout << "[FullNodeMessageHandler] Received PING from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
     
     // Typical behavior might include sending a PONG message back.
     // That would require access to a network interface or peer manager
@@ -42,7 +42,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPing(const MessageP2P& msg)
     // Source address is stored in msg._author
     // network->send(pongMsg);
     std::vector<MessageP2P> messages;
-    MessageP2P pongMsg = MessageManager::createPongMessage(_node.getMyPublicKey(), msg.getPayload()["time"]);
+    MessageP2P pongMsg = MessageManager::createPongMessage(_node->getMyPublicKey(), msg.getPayload()["time"]);
     //_peerManager.sendMessage(msg.getAuthor(), pongMsg.toJson());
     messages.push_back(pongMsg);
     return messages;
@@ -72,7 +72,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPong(const MessageP2P& msg)
     std::cout << "[FullNodeMessageHandler] Received PONG from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // No handling needed. Only updating the last contact time.
     return {};
@@ -88,7 +88,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetPeers(const MessageP2P& msg
     std::cout << "[FullNodeMessageHandler] Received GetPeers from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic to handle a request for peer information
 
@@ -106,11 +106,11 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetPeers(const MessageP2P& msg
 
     */
 
-    json serializedPeerList = _node.peersToJson();
+    json serializedPeerList = _node->peersToJson();
 
     std::vector<MessageP2P> messages;
     // Send the peer list back to the peer requested it
-    MessageP2P peerListMsg = MessageManager::createPeerListMessage(_node.getMyPublicKey(), serializedPeerList);
+    MessageP2P peerListMsg = MessageManager::createPeerListMessage(_node->getMyPublicKey(), serializedPeerList);
     messages.push_back(peerListMsg);
     return messages;
 }
@@ -125,7 +125,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPeerList(const MessageP2P& msg
     std::cout << "[FullNodeMessageHandler] Received Peer List from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic to handle a list of peers
 
@@ -143,14 +143,14 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPeerList(const MessageP2P& msg
     Optionally initiate new outbound connections to some of these peers.
     */
 
-    auto newPeersList = _node.fromJsonToPeers(msg.getPayload());
+    auto newPeersList = _node->fromJsonToPeers(msg.getPayload());
 
-    auto newPeers = _node.getNewPeers(newPeersList);
+    auto newPeers = _node->getNewPeers(newPeersList);
 
     
     for (auto peer : newPeers)
     {
-        _node.connectToNode(peer.second.ip, peer.second.port, peer.second.publicKey, peer.second.nodeId);
+        _node->connectToNode(peer.second.ip, peer.second.port, peer.second.publicKey, peer.second.nodeId);
     }
 
     // No need to return messages to the sender
@@ -167,7 +167,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetBlock(const MessageP2P& msg
     std::cout << "[FullNodeMessageHandler] Received GetBlock from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic to handle a request for a block
 
@@ -193,7 +193,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetBlock(const MessageP2P& msg
 
     std::vector<MessageP2P> messages;
     // Send the Block back to the peer requested it
-    MessageP2P blockMsg = MessageManager::createBlockMessage(_node.getMyPublicKey(), block);
+    MessageP2P blockMsg = MessageManager::createBlockMessage(_node->getMyPublicKey(), block);
     //_peerManager.sendMessage(msg.getAuthor(), blockMsg.toJson());
     messages.push_back(blockMsg);
     return messages;
@@ -209,7 +209,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onBlock(const MessageP2P& msg)
     std::cout << "[FullNodeMessageHandler] Received Block from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic to handle incoming block data
 
@@ -267,7 +267,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
     std::cout << "[FullNodeMessageHandler] Received New Transaction from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic for receiving broadcast of a new transaction
 
@@ -320,7 +320,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetTransaction(const MessageP2
     std::cout << "[FullNodeMessageHandler] Received GetTransaction from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic for handling transaction data
 
@@ -349,7 +349,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetTransaction(const MessageP2
 
     // Send the transaction back to the peer requested it
     std::vector<MessageP2P> messages;
-    MessageP2P newTxMsg = MessageManager::createNewTransactionMessage(_node.getMyPublicKey(), tx);
+    MessageP2P newTxMsg = MessageManager::createNewTransactionMessage(_node->getMyPublicKey(), tx);
     //_peerManager.sendMessage(msg.getAuthor(), newTxMsg.toJson());
     messages.push_back(newTxMsg);
     return messages;
@@ -365,7 +365,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onInventory(const MessageP2P& ms
     std::cout << "[FullNodeMessageHandler] Received INVENTORY ANNOUUNCEMENT from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic for receiving inventory announcements (blocks/tx)
 
@@ -392,7 +392,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onInventory(const MessageP2P& ms
         {
             // We don't have the transaction. add it to the chain.
             // Create getTransaction message and send it to the peer that sent the inventory message
-            MessageP2P getTxMsg = MessageManager::createGetTransactionMessage(_node.getMyPublicKey(), txID);
+            MessageP2P getTxMsg = MessageManager::createGetTransactionMessage(_node->getMyPublicKey(), txID);
             //_peerManager.sendMessage(msg.getAuthor(), getTxMsg.toJson());
             messages.push_back(getTxMsg);
         }
@@ -407,7 +407,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onInventory(const MessageP2P& ms
         {
             // We don't have the Block. add it to the chain.
             // Create getBlock message and send it to the peer that sent the inventory message
-            MessageP2P getBlockMsg = MessageManager::createGetBlockMessage(_node.getMyPublicKey(), blockHashes.first, blockHashes.second);
+            MessageP2P getBlockMsg = MessageManager::createGetBlockMessage(_node->getMyPublicKey(), blockHashes.first, blockHashes.second);
             //_peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
             messages.push_back(getBlockMsg);
         }
@@ -425,7 +425,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetHeaders(const MessageP2P& m
     std::cout << "[FullNodeMessageHandler] Received GetHeaders from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic for a request for block headers
 
@@ -477,7 +477,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetHeaders(const MessageP2P& m
 
     std::vector<MessageP2P> messages;
     // Send the transaction back to the peer requested it
-    MessageP2P headersMsg = MessageManager::createHeadersMessage(_node.getMyPublicKey(), headersToSend);
+    MessageP2P headersMsg = MessageManager::createHeadersMessage(_node->getMyPublicKey(), headersToSend);
     //_peerManager.sendMessage(msg.getAuthor(), headersMsg.toJson());
     messages.push_back(headersMsg);
     return messages;
@@ -493,7 +493,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
     std::cout << "[FullNodeMessageHandler] Received Block Headers from peer." << std::endl;
 
     // Update last contact with peer
-    _node.updatePeersLastContact(msg.getAuthor());
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Stub: implement logic to handle incoming block headers
 
@@ -533,7 +533,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
         blockLocatorHashes.push_back(locatorHashes);
 
 
-        MessageP2P getMoreHeaders = MessageManager::createGetHeadersMessage(_node.getMyPublicKey(), blockLocatorHashes, "");
+        MessageP2P getMoreHeaders = MessageManager::createGetHeadersMessage(_node->getMyPublicKey(), blockLocatorHashes, "");
 
         // Requesting more headers from last hash recieved
         //_peerManager.sendMessage(msg.getAuthor(), getMoreHeaders.toJson());
@@ -548,7 +548,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
 
         for (auto qHeader : queuedHeaders)
         {
-            MessageP2P getBlockMsg = MessageManager::createGetBlockMessage(_node.getMyPublicKey(), qHeader.getHash(), qHeader.getPreviousHash());
+            MessageP2P getBlockMsg = MessageManager::createGetBlockMessage(_node->getMyPublicKey(), qHeader.getHash(), qHeader.getPreviousHash());
 
             // Maybe broadcast instead?
             //_peerManager.sendMessage(msg.getAuthor(), getBlockMsg.toJson());
@@ -560,7 +560,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
 
 std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& msg)
 {
-    if (msg.getType() != MessageType::HEADERS)
+    if (msg.getType() != MessageType::HANDSHAKE)
     {
         return {};
     }
@@ -571,14 +571,14 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& ms
     PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
 
     // Get my peer list (before adding the new peer)
-    json serializedPeerList = _node.peersToJson();
+    json serializedPeerList = _node->peersToJson();
 
     // Add the new peer to the node's peer list
-    _node.addPeer(newPeer);
+    _node->addPeer(newPeer);
 
     std::vector<MessageP2P> messages;
     // Send my peer list back to the new peer started communication
-    MessageP2P peerListMsg = MessageManager::createPeerListMessage(_node.getMyPublicKey(), serializedPeerList);
+    MessageP2P peerListMsg = MessageManager::createPeerListMessage(_node->getMyPublicKey(), serializedPeerList);
     messages.push_back(peerListMsg);
 
     return messages;

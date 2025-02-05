@@ -127,6 +127,15 @@ MessageP2P MessageManager::createHandshakeMessage(const std::string& publicKey, 
     return message;
 }
 
+MessageP2P MessageManager::createDiscoveryRequestMessage(const std::string& publicKey, const PeerInfo& myPeerInfo)
+{
+    json j;
+    j[DISCOVERY_PAYLOAD_LISTEN_IP] = myPeerInfo.ip;
+    j[DISCOVERY_PAYLOAD_LISTEN_PORT] = myPeerInfo.port;
+    MessageP2P message("", publicKey, MessageType::DISCOVERY_REQUEST, j.dump().length(), j);
+    return message;
+}
+
 
 std::string MessageManager::getCurrentDateTime()
 {

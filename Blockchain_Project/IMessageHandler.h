@@ -14,7 +14,7 @@
 class IMessageHandler
 {
 public:
-    IMessageHandler(std::string keyPath, int port) : _peerManager(this, keyPath, port) {};
+    IMessageHandler(P2PNode* node) : _node(node) {};
     virtual ~IMessageHandler() = default;
 
     virtual std::vector<MessageP2P> onError(const MessageP2P& msg) = 0;
@@ -40,14 +40,10 @@ public:
 
 
     // Utility for keeping the "alive" state updated for each node
-    virtual std::vector<SOCKET> getAllClients();
-    virtual std::vector<std::string> getAllPublicKeys();
     virtual std::string getPublicKey();
-    virtual std::string signMessage(std::string msg);
-    virtual std::string sendMessage(const std::string& pubkey, MessageP2P msg);
 
-    void addPeer(const std::string& pubkey, SOCKET sock);
+    void addPeer(PeerInfo info);
 
 protected:
-    P2PNode _node;
+    P2PNode* _node;
 };

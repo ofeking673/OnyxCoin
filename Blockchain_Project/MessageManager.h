@@ -66,6 +66,7 @@ public:
     // Creates HANDSHAKE message
     static MessageP2P createHandshakeMessage(const std::string& publicKey, const PeerInfo& myPeerInfo);
 
+    static MessageP2P createDiscoveryRequestMessage(const std::string& publicKey, const PeerInfo& myPeerInfo);
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageManager() = default;

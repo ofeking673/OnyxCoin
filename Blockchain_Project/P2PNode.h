@@ -27,6 +27,7 @@
 
 #include "PeerInfo.h"
 #include "MessageDispatcher.h"
+#include "Wallet.h"
 
 #include <ws2tcpip.h>
 #include <iostream>
@@ -36,17 +37,19 @@
 #include <unordered_map>
 #include <atomic>
 
+#define DISCOVERY_SERVER_PORT 4444
+#define LOCALHOST "127.0.0.1"
 // Link with Ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
 
 class P2PNode
 {
 public:
-    P2PNode(const std::string& myNodeId, const std::string& myPublicKey, bool isDiscoveryServer = false);
+    P2PNode(bool isDiscoveryServer = false, const std::string& filePath="");
 
     ~P2PNode();
 
-    bool start(const std::string& listenAddress, uint16_t port);
+    virtual bool start(const std::string& listenAddress, uint16_t port);
 
     void stop();
 
@@ -54,13 +57,16 @@ public:
     bool connectToNode(const std::string& ip, uint16_t port,
         const std::string& remotePublicKey,
         const std::string& remoteNodeId);
+    void connectToPeer(PeerInfo& info);
+    // Get peers from discovery server
+    void getPeers();
+    void sendDiscovery(SOCKET sock);
 
     // Send a message to a specific peer
     bool sendMessageTo(MessageP2P& msg, const std::string toPublicKey);
 
     // Broadcast a message to all connected peers
     void broadcastMessage(MessageP2P& msg);
-
 
     // Add new peer to the peers map. When establishing a new connection, or when a new node coneects to us.
     void addPeer(const PeerInfo& newPeer);
@@ -71,6 +77,8 @@ public:
     // Getters
     std::string getMyPublicKey() const;
 
+    // Get list of all connected peers (for broadcast, etc)
+    std::vector<PeerInfo> getAllClients();
 
     // Serialize peer list into json
     json peersToJson();
@@ -82,7 +90,7 @@ public:
 
 protected:
     // Main loop that accepts incoming connections
-    void acceptLoop();
+    virtual void acceptLoop();
 
     // Thread routine to receive messages from a single peer
     void receiveLoop(SOCKET sock, const std::string& peerPublicKey);
@@ -111,7 +119,7 @@ protected:
     uint16_t    m_discoveryServerPort;
     std::string m_discoveryServerPublicKey;
 
-    // TO-DO: Adjust constructor of class to include those:
+    // Useful parameters for node
     MessageDispatcher m_dispatcher;
     std::string m_myPrivateKey;
     std::string m_myIP;

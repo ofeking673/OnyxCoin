@@ -3,7 +3,6 @@
 #include "IMessageHandler.h"
 #include "Blockchain.h"
 #include "UTXOSet.h"
-#include "PeerManager.h"
 
 // A concrete class that implements IMessageHandler,
 // suitable for a full node in the blockchain network.
@@ -11,7 +10,7 @@ class FullNodeMessageHandler : public IMessageHandler
 {
 public:
     // Constructor and Destructor
-    FullNodeMessageHandler(std::string keyPath, int port);
+    FullNodeMessageHandler(P2PNode* node);
     virtual ~FullNodeMessageHandler();
 
     // Implement IMessageHandler Interface

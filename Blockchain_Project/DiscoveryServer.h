@@ -23,16 +23,17 @@
 class DiscoveryServer : public P2PNode
 {
 public:
-    DiscoveryServer(const std::string& myNodeId,
-        const std::string& myPublicKey);
+    DiscoveryServer(const std::string& filePath);
 
+    virtual bool start(const std::string& listenAddress, uint16_t port) override;
+
+    virtual void acceptLoop() override;
+    void handleClient(SOCKET socket);
     // The main logic that intercepts discovery messages:
-    void onDiscoveryMessage(const MessageP2P& msg);
+    MessageP2P onDiscoveryMessage(const MessageP2P& msg);
 
 protected:
     // Here we override the base class's discovery message handler, invoked by receiveLoop
-    void handleDiscoveryMessage(const MessageP2P& msg);
-
 private:
     std::atomic<uint64_t> m_nextNodeId;
     std::mutex            m_knownNodesMutex;

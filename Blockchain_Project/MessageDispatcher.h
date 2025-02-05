@@ -3,9 +3,9 @@
 #include <unordered_map>
 #include <functional>
 #include "MessageP2P.h"
-#include "Networking/Socket.h"
 
 class IMessageHandler;
+class P2PNode;
 
 ///
 /// Dispatches messages to the appropriate handler function based on the message type.
@@ -14,7 +14,7 @@ class MessageDispatcher
 {
 public:
     /// Constructor takes an IMessageHandler interface implementation.
-    explicit MessageDispatcher(IMessageHandler* handler);
+    MessageDispatcher(P2PNode* node);
 
     /// Dispatch the message by calling the correct handler method.
     std::vector<MessageP2P> dispatch(const MessageP2P& msg);

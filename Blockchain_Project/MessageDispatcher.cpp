@@ -4,12 +4,14 @@
 #include <functional>
 #include <iostream>
 #include "IMessageHandler.h"
+#include "FullNodeMessageHandler.h"
+#include "P2PNode.h"
 
 std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> MessageDispatcher::_dispatchTable;
 
 // Constructor: store the handler pointer and initialize a dispatch table.
-MessageDispatcher::MessageDispatcher(IMessageHandler* handler)
-    : _handler(handler)
+MessageDispatcher::MessageDispatcher(P2PNode* node)
+    : _handler(new FullNodeMessageHandler(node))
 {
     // Build a static dispatch table once, so we don't reconstruct it on every dispatch.
     _dispatchTable =
