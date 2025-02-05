@@ -33,3 +33,20 @@ PeerInfo PeerInfo::fromJson(const json& data)
 
     return p;
 }
+
+std::ostream& operator<<(std::ostream& os, const PeerInfo& peer)
+{
+    // Convert lastContact to seconds since the steady clock's epoch for readability.
+    auto secs = std::chrono::duration_cast<std::chrono::seconds>(
+        peer.lastContact.time_since_epoch()).count();
+
+    os << "PeerInfo {"
+        << "\n  IP: " << peer.ip
+        << "\n  Port: " << peer.port
+        << "\n  Public Key: " << peer.publicKey
+        << "\n  Node ID: " << peer.nodeId
+        << "\n  Socket: " << peer.socket
+        << "\n  Last Contact: " << secs << " seconds since steady_clock epoch"
+        << "\n}";
+    return os;
+}

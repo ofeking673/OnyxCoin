@@ -72,6 +72,9 @@ bool P2PNode::start(const std::string& listenAddress, uint16_t port)
     m_isRunning = true;
     m_acceptThread = std::thread(&P2PNode::acceptLoop, this);
 
+    // Start ping thread
+    startPingThread();
+
     std::cout << "[Info] Node is listening on " << listenAddress << ":" << port << std::endl;
     return true;
 }
@@ -184,6 +187,7 @@ void P2PNode::connectToPeer(PeerInfo& info)
         return;
     }
 
+    // Recieve the handshake message from the other peer
     char buf[2048];
     result = recv(sock, buf, 2048, 0);
     if (result <= 0) {
@@ -191,12 +195,26 @@ void P2PNode::connectToPeer(PeerInfo& info)
         return;
     }
 
+
     msg = MessageParser::parse(std::string(buf, result));
-    PeerInfo otherPeer = PeerInfo::fromJson(msg.getPayload());
+
+    if (msg.getAuthor() != info.publicKey)
     {
-        std::lock_guard<std::mutex> lock(m_peerMutex);
-        m_peers[otherPeer.publicKey].socket = sock;
+        // Public key doesn't match the peers public key
+        removePeer(info);
+        std::cerr << "[Error] recieve second Handshake failed!\n";
+        return;
     }
+
+    // Add the peer to the peers map
+    info.socket = sock;
+    addPeer(info);
+
+
+    // Launch a receive thread for this peer
+    std::thread(&P2PNode::receiveLoop, this, sock, info.publicKey).detach();
+
+    std::cout << "[Info] Connected to node: " << info.publicKey << " at " << info.ip << ":" << info.port << std::endl;
 }
 
 void P2PNode::getPeers()
@@ -242,7 +260,8 @@ void P2PNode::getPeers()
            oneNode["nodeId"] = n.nodeId;
         */
         PeerInfo peer(node["ip"], node["port"], node["publicKey"], node["nodeId"]);
-        addPeer(peer);
+        //addPeer(peer);
+        // Connecting to peer, and adding it to the peers map
         connectToPeer(peer);
     }
 }
@@ -270,6 +289,7 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
         std::cerr << "[Warning] Peer not found: " << toPublicKey << std::endl;
         return false;
     }
+
 
     SOCKET sock = it->second.socket;
     if (sock == INVALID_SOCKET)
@@ -306,6 +326,18 @@ void P2PNode::addPeer(const PeerInfo& newPeer)
     m_peers[newPeer.publicKey] = newPeer;
 }
 
+bool P2PNode::removePeer(const PeerInfo& peer)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    auto it = m_peers.find(peer.publicKey);
+    if (it != m_peers.end())
+    {
+        m_peers.erase(peer.publicKey);
+        return true;
+    }
+    return false;
+}
+
 void P2PNode::updatePeersLastContact(const std::string& peerPublicKey)
 {
     std::lock_guard<std::mutex> lock(m_peerMutex);
@@ -314,6 +346,12 @@ void P2PNode::updatePeersLastContact(const std::string& peerPublicKey)
     {
         it->second.lastContact = std::chrono::steady_clock::now();
     }
+}
+
+void P2PNode::startPingThread()
+{
+    // Launch a background thread that periodically pings inactive peers
+    m_pingThread = std::thread(&P2PNode::pingInactivePeers, this);
 }
 
 std::string P2PNode::getMyPublicKey() const
@@ -369,8 +407,14 @@ void P2PNode::acceptLoop()
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
 
 
-                // Find the new peer public key:
+                // Add the new peer
                 PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
+                // Add the socket connected to the new peer
+                newPeer.socket = clientSocket;
+
+                addPeer(newPeer);
+
+
                 std::string remotePublicKey = newPeer.publicKey;
 
 
@@ -451,6 +495,56 @@ void P2PNode::signMessage(MessageP2P& msg)
     msg.setSignature(""); // Clear signature if there is any; signing the message without the signature
     msg.setSignature(ecd.signMessage(cpp_int("0x" + m_myPrivateKey), msg.toJson().dump())->ToString());
 }
+
+void P2PNode::pingInactivePeers()
+{
+    const auto inactivityThreshold = std::chrono::seconds(30);
+    const auto checkInterval = std::chrono::seconds(5);
+
+    while (m_isRunning)
+    {
+        // Collect peers we need to ping.
+        std::vector<std::string> peersToPing; // Store their public keys
+        {
+            std::lock_guard<std::mutex> lock(m_peerMutex);
+            auto now = std::chrono::steady_clock::now();
+            for (auto& kv : m_peers)
+            {
+                PeerInfo& peer = kv.second;
+                auto elapsed = now - peer.lastContact;
+
+                if (elapsed > inactivityThreshold)
+                {
+                    // Record this peer's public key to ping AFTER we release the lock
+                    peersToPing.push_back(peer.publicKey);
+                }
+            }
+        } // Lock is released
+
+        // Send the ping messages OUTSIDE the lock.
+        for (const auto& pubKey : peersToPing)
+        {
+            MessageP2P pingMsg = MessageManager::createPingMessage(m_myPublicKey);
+            signMessage(pingMsg);
+            sendMessageTo(pingMsg, pubKey);
+            std::cout << "[Ping] Sent ping to peer: " << pubKey << std::endl;
+        }
+
+        // 3) Sleep until the next check
+        std::this_thread::sleep_for(checkInterval);
+    }
+}
+
+void P2PNode::printPeers()
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    for (auto& kv : m_peers)
+    {
+        auto peer = kv.second;
+        std::cout << peer;
+    }
+}
+
 
 json P2PNode::peersToJson()
 {

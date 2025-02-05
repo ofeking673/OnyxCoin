@@ -71,8 +71,14 @@ public:
     // Add new peer to the peers map. When establishing a new connection, or when a new node coneects to us.
     void addPeer(const PeerInfo& newPeer);
 
+    // Removes a peer from the peers map
+    bool removePeer(const PeerInfo& peer);
+
     // Update last contact with the peer
     void updatePeersLastContact(const std::string& peerPublicKey);
+
+    // Start a background thread that periodically pings inactive peers
+    void startPingThread();
 
     // Getters
     std::string getMyPublicKey() const;
@@ -98,6 +104,12 @@ protected:
     // Sign a message with my private key
     void signMessage(MessageP2P& msg);
 
+    // Checks peers last contact time, and send ping messages.
+    void pingInactivePeers();
+
+
+    // Testing
+    void printPeers();
 protected:
     std::string m_myNodeId;
     std::string m_myPublicKey;
@@ -124,6 +136,8 @@ protected:
     std::string m_myPrivateKey;
     std::string m_myIP;
     uint16_t m_myPort;
+
+    std::thread m_pingThread;  // Thread that will run ping logic
 };
 
 

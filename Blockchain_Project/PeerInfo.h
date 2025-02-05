@@ -23,5 +23,8 @@ public:
     std::string nodeId;     // Global node ID (e.g. can be a unique string or hashed public key)
     SOCKET      socket;     // The socket to communicate with this peer
     std::chrono::steady_clock::time_point lastContact; // When we last heard from this peer
+
+    // Print a PeerInfo object.
+    friend std::ostream& operator<<(std::ostream& os, const PeerInfo& peer);
 };
 

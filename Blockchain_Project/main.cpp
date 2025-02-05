@@ -18,10 +18,11 @@ int main()
 
 	P2PNode node(false, "../client1");
 	node.start("127.0.0.1", 1234);
+
 	P2PNode node2(false, "../client2");
 	node2.start("127.0.0.1", 1235);
 
-
+	
 	system("pause");
 	return 0;
 }
