@@ -29,13 +29,12 @@ bool P2PNode::start(const std::string& listenAddress, uint16_t port)
 {
     m_myIP = listenAddress;
     m_myPort = port;
-    if (!this->m_isDiscoveryServer) { getPeers(); }
 
     // Create a listening socket
     m_listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (m_listenSocket == INVALID_SOCKET)
     {
-        std::cerr << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
         WSACleanup();
         return false;
     }
@@ -52,7 +51,7 @@ bool P2PNode::start(const std::string& listenAddress, uint16_t port)
     int iResult = bind(m_listenSocket, reinterpret_cast<SOCKADDR*>(&service), sizeof(service));
     if (iResult == SOCKET_ERROR)
     {
-        std::cerr << "[Error] bind() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] bind() failed: " << WSAGetLastError() << std::endl;
         closesocket(m_listenSocket);
         WSACleanup();
         return false;
@@ -62,7 +61,7 @@ bool P2PNode::start(const std::string& listenAddress, uint16_t port)
     iResult = listen(m_listenSocket, SOMAXCONN);
     if (iResult == SOCKET_ERROR)
     {
-        std::cerr << "[Error] listen() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] listen() failed: " << WSAGetLastError() << std::endl;
         closesocket(m_listenSocket);
         WSACleanup();
         return false;
@@ -72,10 +71,13 @@ bool P2PNode::start(const std::string& listenAddress, uint16_t port)
     m_isRunning = true;
     m_acceptThread = std::thread(&P2PNode::acceptLoop, this);
 
+    // Get peers from the discovery server, and intitate connection.
+    if (!this->m_isDiscoveryServer) { getPeers(); }
+
     // Start ping thread
     startPingThread();
 
-    std::cout << "[Info] Node is listening on " << listenAddress << ":" << port << std::endl;
+    std::cout << "{" << m_myPort << "} " << "[Info] Node is listening on " << listenAddress << ":" << port << std::endl;
     return true;
 }
 
@@ -120,7 +122,7 @@ bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::str
     SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET)
     {
-        std::cerr << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
         return false;
     }
 
@@ -132,7 +134,7 @@ bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::str
     int result = ::connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
     if (result == SOCKET_ERROR)
     {
-        std::cerr << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
         closesocket(sock);
         return false;
     }
@@ -152,7 +154,7 @@ bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::str
     // Launch a receive thread for this peer
     std::thread(&P2PNode::receiveLoop, this, sock, remotePublicKey).detach();
 
-    std::cout << "[Info] Connected to node: " << remotePublicKey << " at " << ip << ":" << port << std::endl;
+    std::cout << "{" << m_myPort << "} " << "[Info] Connected to node: " << remotePublicKey << " at " << ip << ":" << port << std::endl;
     return true;
 }
 
@@ -160,7 +162,7 @@ void P2PNode::connectToPeer(PeerInfo& info)
 {
     SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET) {
-        std::cerr << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
         return;
     }
 
@@ -172,7 +174,7 @@ void P2PNode::connectToPeer(PeerInfo& info)
     int result = ::connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
     if (result == SOCKET_ERROR)
     {
-        std::cerr << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
         closesocket(sock);
         return;
     }
@@ -183,7 +185,7 @@ void P2PNode::connectToPeer(PeerInfo& info)
     std::string data = msg.toJson().dump();
     result = send(sock, data.c_str(), data.length(), 0);
     if (result == SOCKET_ERROR) {
-        std::cerr << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
         return;
     }
 
@@ -191,7 +193,7 @@ void P2PNode::connectToPeer(PeerInfo& info)
     char buf[2048];
     result = recv(sock, buf, 2048, 0);
     if (result <= 0) {
-        std::cerr << "[Error] recv() failed!\n";
+        std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed!\n";
         return;
     }
 
@@ -202,7 +204,7 @@ void P2PNode::connectToPeer(PeerInfo& info)
     {
         // Public key doesn't match the peers public key
         removePeer(info);
-        std::cerr << "[Error] recieve second Handshake failed!\n";
+        std::cerr << "{" << m_myPort << "} " << "[Error] recieve second Handshake failed!\n";
         return;
     }
 
@@ -214,7 +216,7 @@ void P2PNode::connectToPeer(PeerInfo& info)
     // Launch a receive thread for this peer
     std::thread(&P2PNode::receiveLoop, this, sock, info.publicKey).detach();
 
-    std::cout << "[Info] Connected to node: " << info.publicKey << " at " << info.ip << ":" << info.port << std::endl;
+    std::cout << "{" << m_myPort << "} " << "[Info] Connected to node: " << info.publicKey << " at " << info.ip << ":" << info.port << std::endl;
 }
 
 void P2PNode::getPeers()
@@ -222,7 +224,7 @@ void P2PNode::getPeers()
     SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET)
     {
-        std::cerr << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
         return;
     }
 
@@ -234,7 +236,7 @@ void P2PNode::getPeers()
     int result = ::connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
     if (result == SOCKET_ERROR)
     {
-        std::cerr << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
         closesocket(sock);
         return;
     }
@@ -244,7 +246,7 @@ void P2PNode::getPeers()
     char buf[2048];
     int bytesRecieved = recv(sock, buf, 2048, 0);
     if (bytesRecieved <= 0) {
-        std::cerr << "[Error] recv() failed.\n";
+        std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed.\n";
         return;
     }
     std::string res(buf, bytesRecieved);
@@ -276,7 +278,7 @@ void P2PNode::sendDiscovery(SOCKET sock)
     std::string wire = j.dump();
     int result = send(sock, wire.c_str(), wire.size(), 0);
     if (result == SOCKET_ERROR) {
-        std::cerr << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
     }
 } 
 
@@ -286,7 +288,7 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
     auto it = m_peers.find(toPublicKey);
     if (it == m_peers.end())
     {
-        std::cerr << "[Warning] Peer not found: " << toPublicKey << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Warning] Peer not found: " << toPublicKey << std::endl;
         return false;
     }
 
@@ -303,7 +305,7 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
     int result = send(sock, wire.c_str(), wire.size(), 0);
     if (result == SOCKET_ERROR)
     {
-        std::cerr << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
         return false;
     }
 
@@ -359,6 +361,11 @@ std::string P2PNode::getMyPublicKey() const
     return m_myPublicKey;
 }
 
+uint16_t P2PNode::getMyPort() const
+{
+    return m_myPort;
+}
+
 std::vector<PeerInfo> P2PNode::getAllClients()
 {
     std::vector<PeerInfo> vec;
@@ -386,7 +393,7 @@ void P2PNode::acceptLoop()
         {
             if (m_isRunning)
             {
-                std::cerr << "[Error] accept() failed: " << WSAGetLastError() << std::endl;
+                std::cerr << "{" << m_myPort << "} " << "[Error] accept() failed: " << WSAGetLastError() << std::endl;
             }
             continue;
         }
@@ -424,7 +431,7 @@ void P2PNode::acceptLoop()
                     sendMessageTo(respMsg, msg.getAuthor());
                 }
 
-                std::cout << "[Info] Accepted connection from a peer (socket=" << clientSocket << ")" << std::endl;
+                std::cout << "{" << m_myPort << "} " << "[Info] Accepted connection from a peer (socket=" << clientSocket << ")" << std::endl;
 
                 // Start a thread to receive messages from this new peer
                 std::thread(&P2PNode::receiveLoop, this, clientSocket, remotePublicKey).detach();
@@ -444,7 +451,7 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
         int bytesReceived = recv(sock, buffer, BUFFER_SIZE, 0);
         if (bytesReceived == 0)
         {
-            std::cout << "[Info] Connection closed by peer: " << peerPublicKey << std::endl;
+            std::cout << "{" << m_myPort << "} " << "[Info] Connection closed by peer: " << peerPublicKey << std::endl;
             break;
         }
         else if (bytesReceived < 0)
@@ -453,11 +460,11 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
             int err = WSAGetLastError();
             if (err == WSAECONNRESET)
             {
-                std::cerr << "[Warning] Connection reset by peer: " << peerPublicKey << std::endl;
+                std::cerr << "{" << m_myPort << "} " << "[Warning] Connection reset by peer: " << peerPublicKey << std::endl;
             }
             else
             {
-                std::cerr << "[Error] recv() failed for peer " << peerPublicKey << ": " << err << std::endl;
+                std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed for peer " << peerPublicKey << ": " << err << std::endl;
             }
             break;
         }
@@ -527,7 +534,7 @@ void P2PNode::pingInactivePeers()
             MessageP2P pingMsg = MessageManager::createPingMessage(m_myPublicKey);
             signMessage(pingMsg);
             sendMessageTo(pingMsg, pubKey);
-            std::cout << "[Ping] Sent ping to peer: " << pubKey << std::endl;
+            std::cout << "{" << m_myPort << "} " << "[Ping] Sent ping to peer: " << pubKey << std::endl;
         }
 
         // 3) Sleep until the next check

@@ -82,6 +82,7 @@ public:
 
     // Getters
     std::string getMyPublicKey() const;
+    uint16_t getMyPort() const;
 
     // Get list of all connected peers (for broadcast, etc)
     std::vector<PeerInfo> getAllClients();

@@ -69,7 +69,7 @@ bool DiscoveryServer::start(const std::string& listenAddress, uint16_t port)
     m_listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (m_listenSocket == INVALID_SOCKET)
     {
-        std::cerr << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "(" << m_myPort << ") " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
         WSACleanup();
         return false;
     }
@@ -86,7 +86,7 @@ bool DiscoveryServer::start(const std::string& listenAddress, uint16_t port)
     int iResult = bind(m_listenSocket, reinterpret_cast<SOCKADDR*>(&service), sizeof(service));
     if (iResult == SOCKET_ERROR)
     {
-        std::cerr << "[Error] bind() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "(" << m_myPort << ") " << "[Error] bind() failed: " << WSAGetLastError() << std::endl;
         closesocket(m_listenSocket);
         WSACleanup();
         return false;
@@ -96,7 +96,7 @@ bool DiscoveryServer::start(const std::string& listenAddress, uint16_t port)
     iResult = listen(m_listenSocket, SOMAXCONN);
     if (iResult == SOCKET_ERROR)
     {
-        std::cerr << "[Error] listen() failed: " << WSAGetLastError() << std::endl;
+        std::cerr << "(" << m_myPort << ") " << "[Error] listen() failed: " << WSAGetLastError() << std::endl;
         closesocket(m_listenSocket);
         WSACleanup();
         return false;
@@ -106,7 +106,7 @@ bool DiscoveryServer::start(const std::string& listenAddress, uint16_t port)
     m_isRunning = true;
     m_acceptThread = std::thread(&DiscoveryServer::acceptLoop, this);
 
-    std::cout << "[Info] Node is listening on " << listenAddress << ":" << port << std::endl;
+    std::cout << "(" << m_myPort << ") " << "[Info] Node is listening on " << listenAddress << ":" << port << std::endl;
     m_myIP = listenAddress;
     m_myPort = port;
     return true;
@@ -120,7 +120,7 @@ void DiscoveryServer::acceptLoop()
     while (m_isRunning) {
         SOCKET socket = accept(m_listenSocket, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
         if (socket == INVALID_SOCKET) {
-            std::cerr << "[Error] In accept().\n";
+            std::cerr << "(" << m_myPort << ") " << "[Error] In accept().\n";
             continue;
         }
         std::thread(&DiscoveryServer::handleClient, this, socket).detach();
@@ -132,7 +132,7 @@ void DiscoveryServer::handleClient(SOCKET socket)
     char buf[2048];
     int bytesRecieved = recv(socket, buf, 2048, 0);
     if (bytesRecieved <= 0) {
-        std::cerr << "[Error] in recv().\n";
+        std::cerr << "(" << m_myPort << ") " << "[Error] in recv().\n";
         return;
     }
     std::string res(buf, bytesRecieved);
@@ -141,7 +141,7 @@ void DiscoveryServer::handleClient(SOCKET socket)
     std::string temp = resp.toJson().dump();
     int result = send(socket, temp.c_str(), temp.size(), 0);
     if (result == SOCKET_ERROR) {
-        std::cerr << "[Error] In send() Error: " << WSAGetLastError() << std::endl;
+        std::cerr << "(" << m_myPort << ") " << "[Error] In send() Error: " << WSAGetLastError() << std::endl;
     }
 }
 

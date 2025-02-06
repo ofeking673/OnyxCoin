@@ -23,7 +23,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPing(const MessageP2P& msg)
     }
 
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received PING from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PING from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -69,7 +69,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPong(const MessageP2P& msg)
     }
 
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received PONG from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PONG from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -85,7 +85,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetPeers(const MessageP2P& msg
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received GetPeers from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received GetPeers from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -122,7 +122,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPeerList(const MessageP2P& msg
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received Peer List from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received Peer List from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -164,7 +164,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetBlock(const MessageP2P& msg
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received GetBlock from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received GetBlock from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -206,7 +206,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onBlock(const MessageP2P& msg)
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received Block from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received Block from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -264,7 +264,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
     }
 
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received New Transaction from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received New Transaction from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -317,7 +317,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetTransaction(const MessageP2
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received GetTransaction from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received GetTransaction from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -362,7 +362,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onInventory(const MessageP2P& ms
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received INVENTORY ANNOUUNCEMENT from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received INVENTORY ANNOUUNCEMENT from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -422,7 +422,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetHeaders(const MessageP2P& m
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received GetHeaders from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received GetHeaders from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -490,7 +490,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHeaders(const MessageP2P& msg)
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received Block Headers from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received Block Headers from peer." << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -565,7 +565,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& ms
         return {};
     }
     // Log the event
-    std::cout << "[FullNodeMessageHandler] Received Handshake from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received Handshake from peer." << std::endl;
     
 
     PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
