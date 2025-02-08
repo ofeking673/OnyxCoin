@@ -542,6 +542,11 @@ void P2PNode::pingInactivePeers()
     }
 }
 
+void P2PNode::incrementView()
+{
+    m_currentView++;
+}
+
 void P2PNode::printPeers()
 {
     std::lock_guard<std::mutex> lock(m_peerMutex);

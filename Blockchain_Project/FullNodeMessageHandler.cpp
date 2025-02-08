@@ -586,3 +586,8 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& ms
 
     return messages;
 }
+
+std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& msg)
+{
+    
+}

@@ -108,10 +108,12 @@ protected:
     // Checks peers last contact time, and send ping messages.
     void pingInactivePeers();
 
-
+    // Increment view number
+    void incrementView();
     // Testing
     void printPeers();
 protected:
+    int m_currentView;
     std::string m_myNodeId;
     std::string m_myPublicKey;
 

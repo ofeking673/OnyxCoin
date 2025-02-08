@@ -27,4 +27,11 @@ enum class MessageType : uint16_t
     HANDSHAKE,
     DISCOVERY_REQUEST,
     DISCOVERY_RESPONSE,
+    PREPREPARE,
+    PREPARE,
+    COMMIT,
+    HASH_READY,
+    VIEW_CHANGE,
+    NEW_VIEW,
+    GET_VIEW,
 };

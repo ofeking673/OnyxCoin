@@ -136,6 +136,36 @@ MessageP2P MessageManager::createDiscoveryRequestMessage(const std::string& publ
     return message;
 }
 
+MessageP2P MessageManager::createLeaderMessage(const std::string& publickey, const PeerInfo& myPeerInfo, const Block& block, MessageType type)
+{
+    json j;
+    j["BLOCK"] = block.toJson();
+    j["SEQUENCE"] = block.getBlockHeader().getIndex();
+    MessageP2P message("", publickey, type, j.dump().length(), j);
+    return message;
+}
+
+MessageP2P MessageManager::createViewChange(const std::string& publickey, const PeerInfo& myPeerInfo, int currentView)
+{
+    json j;
+    j["VIEW"] = currentView++;
+    return MessageP2P("", publickey, MessageType::VIEW_CHANGE, j.dump().length(), j);
+}
+
+MessageP2P MessageManager::createNewView(const std::string& publickey, const PeerInfo& myPeerInfo)
+{
+    json j;
+    return MessageP2P("", publickey, MessageType::NEW_VIEW, 0, j);
+}
+
+//MessageP2P MessageManager::createHashReadyMessage(const std::string& publickey, const PeerInfo& myPeerInfo, std::string hash, std::string blockID)
+//{
+//    json j;
+//    j["HASH"] = hash;
+//    j["BLOCK_ID"] = blockID;
+//    return MessageP2P("", publickey, MessageType::HASH_READY, j.dump().length(), j);
+//}
+
 
 std::string MessageManager::getCurrentDateTime()
 {

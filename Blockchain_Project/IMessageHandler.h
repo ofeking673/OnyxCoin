@@ -38,6 +38,12 @@ public:
 
     virtual std::vector<MessageP2P> onHandshake(const MessageP2P& msg) = 0;
 
+    virtual std::vector<MessageP2P> onPreprepare(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onPrepare(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onCommit(const MessageP2P& msg) = 0;
+    //virtual std::vector<MessageP2P> onHashReady(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onNewView(const MessageP2P& msg) = 0;
+    virtual std::vector<MessageP2P> onViewChange(const MessageP2P& msg) = 0;
 
     // Utility for keeping the "alive" state updated for each node
     virtual std::string getPublicKey();
