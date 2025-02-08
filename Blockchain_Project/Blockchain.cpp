@@ -29,6 +29,15 @@ Block Blockchain::getLatestBlock() const
 	return _chain.back();
 }
 
+bool Blockchain::isBlockValid(const Block& block) const
+{
+	BlockHeader lastBlock = getLatestBlock().getBlockHeader();
+	BlockHeader thisBlock = block.getBlockHeader();
+	return (lastBlock.getIndex() == thisBlock.getIndex() - 1
+		&& thisBlock.getTimeStamp() > lastBlock.getTimeStamp()
+		&& thisBlock.getPreviousHash() == lastBlock.getHash());
+}
+
 void Blockchain::addTransaction(const Transaction& tx)
 {
 	// Check if new transaction is already in pending transactions.

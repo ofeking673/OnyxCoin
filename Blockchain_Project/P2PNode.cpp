@@ -366,6 +366,11 @@ uint16_t P2PNode::getMyPort() const
     return m_myPort;
 }
 
+PeerInfo P2PNode::getMyInfo() const
+{
+    return PeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
+}
+
 std::vector<PeerInfo> P2PNode::getAllClients()
 {
     std::vector<PeerInfo> vec;

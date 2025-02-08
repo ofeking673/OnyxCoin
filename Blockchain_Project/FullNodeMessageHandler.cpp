@@ -589,5 +589,33 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& ms
 
 std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& msg)
 {
-    
+    Block block = Block::fromJson(msg.getPayload()["BLOCK"]);
+    if (_blockchain->isBlockValid(block)) {
+        std::vector<MessageP2P> messages;
+        messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), _node->getMyInfo(), block, MessageType::PREPARE));
+        return messages;
+    }
+    else return {};
+}
+
+std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
+{
+    _node->incrementPrepare();
+}
+
+std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
+{
+    int networkSize = _node->getAllClients().size();
+    /*
+        Total nodes: X = 3F + 1
+        Maximum faulty nodes: F = (X-1)/3
+        Agreement requirement: 2F honest nodes
+        2F = 2(X-1)/3
+        thus, 2(X-1)/3 nodes must agree
+    */
+    int expectedMinimum = 2 * (networkSize - 1) / 3;
+    if (_node->getPrepareAmount() >= expectedMinimum)
+    { 
+
+    }
 }

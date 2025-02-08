@@ -42,6 +42,14 @@
 // Link with Ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
 
+enum BlockState {
+    UNREADY,
+    PREPREPARED,
+    PREPARED,
+    DONE
+};
+
+
 class P2PNode
 {
 public:
@@ -83,6 +91,7 @@ public:
     // Getters
     std::string getMyPublicKey() const;
     uint16_t getMyPort() const;
+    PeerInfo getMyInfo() const;
 
     // Get list of all connected peers (for broadcast, etc)
     std::vector<PeerInfo> getAllClients();
@@ -95,6 +104,9 @@ public:
     // Given two peer maps, return a map of the new peers not found in the owned map.
     std::unordered_map<std::string, PeerInfo> getNewPeers(const std::unordered_map<std::string, PeerInfo>& newPeers);
 
+    //Increment prepare amount
+    void incrementPrepare() { prepareAmt++; };
+    int getPrepareAmount() { return prepareAmt; };
 protected:
     // Main loop that accepts incoming connections
     virtual void acceptLoop();
@@ -110,6 +122,7 @@ protected:
 
     // Increment view number
     void incrementView();
+
     // Testing
     void printPeers();
 protected:
@@ -141,6 +154,9 @@ protected:
     uint16_t m_myPort;
 
     std::thread m_pingThread;  // Thread that will run ping logic
+
+    BlockState state;
+    int prepareAmt;
 };
 
 

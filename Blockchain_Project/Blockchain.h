@@ -21,6 +21,8 @@ public:
 	// Get the latest Block in the chain
 	Block getLatestBlock() const;
 
+	bool isBlockValid(const Block& block) const;
+
 	void addTransaction(const Transaction& tx);
 
 	// Method to mine pending transactions and add a new block to the chain
