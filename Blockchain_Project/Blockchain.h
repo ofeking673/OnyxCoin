@@ -5,15 +5,9 @@
 class Blockchain
 {
 public:
+	Blockchain();
 	~Blockchain();
-	static Blockchain* getInstance() 
-	{
-		if (!_instance) 
-		{ 
-			_instance = new Blockchain();
-		} 
-		return _instance; 
-	}
+
 	///////////////////////////////////////////////////////////
 	//FOR TESTING ONLY!! REMOVE LATER!
 	void testTransaction(std::string address, uint64_t amt);
@@ -23,13 +17,10 @@ public:
 
 	bool isBlockValid(const Block& block) const;
 
+	void addBlock(const Block& block);
+
 	void addTransaction(const Transaction& tx);
 
-	// Method to mine pending transactions and add a new block to the chain
-	//void minePendingTransaction(const std::string& minerAddress);
-	bool submitMiningHash(const std::string address, std::string finalHash, int nonce, time_t timestamp);
-	std::pair<std::string, time_t> getCurrentBlockInfo(std::string minerAddress); //For mining purposes, need to hash this and find the correct nonce.
-	std::string serverBlockInfo(std::string minerAddress, time_t timestamp); 
 	void displayBlockchain() const;
 	void commitBlock();
 	void addBlockToUtxo(Block block); //Iterate over all transactions and add the outputs to the UTXO set
@@ -51,8 +42,6 @@ public:
 	std::vector<BlockHeader> getAppendedHeaders() const;
 
 private:
-	Blockchain();
-	static Blockchain* _instance;
 	std::vector<Block> _chain;
 	std::vector<Transaction> _pendingTransactions;
 	UTXOSet* utxo;

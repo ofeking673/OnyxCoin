@@ -1,6 +1,5 @@
 #include "Blockchain.h"
 
-Blockchain* Blockchain::_instance = nullptr;
 Blockchain::Blockchain()
 {
 	// Create the genesis block
@@ -38,6 +37,13 @@ bool Blockchain::isBlockValid(const Block& block) const
 		&& thisBlock.getPreviousHash() == lastBlock.getHash());
 }
 
+void Blockchain::addBlock(const Block& block)
+{
+	if (isBlockValid(block)) {
+		_chain.push_back(block);
+	}
+}
+
 void Blockchain::addTransaction(const Transaction& tx)
 {
 	// Check if new transaction is already in pending transactions.
@@ -48,72 +54,6 @@ void Blockchain::addTransaction(const Transaction& tx)
 	}
 }
 
-bool Blockchain::submitMiningHash(const std::string minerAddress, std::string finalHash, int nonce, time_t timestamp)
-{
-	std::string hash = SHA256::digest(serverBlockInfo(minerAddress, timestamp) + std::to_string(nonce));
-	
-	if (hash.starts_with('0') && hash == finalHash) {
-		//loop over all transactions, get fees (0.01) from all outputs, make new transaction from source "Coinbase" HASHED SHA256->RIPE
-		uint64_t taxAmt = 0;
-		for (const auto& tx : _pendingTransactions)
-		{
-			taxAmt += tx.calculateTax();
-		}
-		Transaction trans(
-			{ TxInput(OutPoint(SHA256::digest("00000000c017ba5e00000000c017ba5e" + std::to_string(timestamp)), _pendingTransactions.size()), "Coinbase Coinbase") },
-			{ TxOutput(taxAmt, std::to_string(REGULARE_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(minerAddress))) });
-		trans.setTimestamp(timestamp);
-		//TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", _pendingTransactions.size()), "Coinbase Coinbase")
-		trans.signTransaction("c017ba5e");
-		addTransaction(trans);
-		commitBlock();
-	}
-	return false;
-}
-
-std::pair<std::string, time_t> Blockchain::getCurrentBlockInfo(std::string minerAddress)
-{
-	Block newBlock(_chain.size(), getLatestBlock().getHash());
-	uint64_t taxAmt = 0;
-	for (const auto& tx : _pendingTransactions)
-	{
-		taxAmt += tx.calculateTax();
-		newBlock.addTransaction(tx);
-	}
-	if (minerAddress.find('|') != std::string::npos) {
-		minerAddress.erase(minerAddress.find('|'));
-	}
-	Transaction trans(
-		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase") },
-		{ TxOutput(taxAmt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(minerAddress))) });
-
-	newBlock.addTransaction(trans);
-
-	return {newBlock.getCurrentBlockInfo(), trans.getTimestamp()};
-}
-
-std::string Blockchain::serverBlockInfo(std::string minerAddress, time_t timestamp)
-{
-	Block newBlock(_chain.size(), getLatestBlock().getHash());
-	uint64_t taxAmt = 0;
-	for (const auto& tx : _pendingTransactions)
-	{
-		taxAmt += tx.calculateTax();
-		newBlock.addTransaction(tx);
-	}
-	if (minerAddress.find('|') != std::string::npos) {
-		minerAddress.erase(minerAddress.find('|'));
-	}
-	Transaction trans(
-		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase") },
-		{ TxOutput(taxAmt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(minerAddress))) });
-	trans.setTimestamp(timestamp);
-	trans.refreshTransactionID();
-
-	newBlock.addTransaction(trans);
-
-	return newBlock.getCurrentBlockInfo();
-}
 
 void Blockchain::displayBlockchain() const
 {

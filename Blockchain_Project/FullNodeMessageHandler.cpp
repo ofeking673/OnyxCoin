@@ -6,7 +6,7 @@
 FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node) :
     IMessageHandler(node)
 {
-	_blockchain = Blockchain::getInstance();
+	_blockchain = new Blockchain();
 	_utxoSet = UTXOSet::getInstance();
 }
 
@@ -601,6 +601,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
 std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
 {
     _node->incrementPrepare();
+    return {};
 }
 
 std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
@@ -616,6 +617,17 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
     int expectedMinimum = 2 * (networkSize - 1) / 3;
     if (_node->getPrepareAmount() >= expectedMinimum)
     { 
-
+        _blockchain->addBlock(Block::fromJson(msg.getPayload()["BLOCK"]));
     }
+    return {};
+}
+
+std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)
+{
+    return {};
+}
+
+std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& msg)
+{
+    return {};
 }
