@@ -27,3 +27,15 @@ std::string HelperT::padString(std::string src, int length)
 	ss << std::setw(length) << std::setfill('0') << src;
 	return ss.str();
 }
+
+std::vector<std::string> HelperT::split(const std::string& s, char delim)
+{
+	std::vector<std::string> elems;
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) 
+	{
+		elems.push_back(item);
+	}
+	return elems;
+}

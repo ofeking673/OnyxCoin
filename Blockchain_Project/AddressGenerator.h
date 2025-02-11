@@ -10,7 +10,8 @@
 class AddressGenerator
 {
 public:
-	static std::string generateAddress(std::string publicKey);
+	static std::string generateAddressFromPublicKey(std::string publicKey);
+	static std::string generateAddressFromPrivateKey(std::string privateKey);
 private:
 	static std::string padHexTo64Bytes(std::string hexStr);
 };

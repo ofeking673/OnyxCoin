@@ -13,6 +13,8 @@
 #include "TxInput.h"
 #include "TxOutput.h"
 
+#include "json.hpp"
+
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
 #define TAX_RATE 0.5
 
@@ -20,13 +22,18 @@
 #define REGULARE_TRANSACTION_TYPE 10 
 #define REWARD_TRANSACTION_TYPE 20
 #define CHANGE_TRANSACTION_TYPE 30
+
+#define ERROR_TRANSACTION_ID -1
 class Transaction
 {
 public:
 	// Construct a transaction from given inputs and outputs
 	Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs);
 	Transaction(const Transaction& other);
+	Transaction();
 	~Transaction() = default;
+
+	bool isErrorTransaction() const;
 
 	// Return all inputs
 	std::vector<TxInput> getInputs() const;
@@ -60,12 +67,16 @@ public:
 	void signTransaction(const std::string& privateKey);
 
 	// Checks that each input's scriptSig is correct with respect to the output's scriptPubKey
-	bool verifyTransactionSignature(const std::string& scriptPubKey);
+	bool verifyTransactionSignature(/*const std::string& scriptPubKey*/);
 
 
 	std::string toString() const;
-	std::string toJson() const;
-	static Transaction fromJson(const std::string& jsonStr);
+	nlohmann::json toJson() const;
+	static Transaction fromJson(nlohmann::json jsonTx);
+
+	std::string toMessageString() const;
+	static Transaction parseMessageString(const std::string& data);
+
 	static std::string hashPublicKey(const std::string& hexPubKey);
 
 	// scriptPubKey = <type (1 byte)><public key hash (20 bytes)>
@@ -84,9 +95,16 @@ public:
 	std::string generateTransactionID();
 	// Helper for refreshing transaction ID
 	void refreshTransactionID();
+
+
+	bool operator==(const Transaction& other) const;
+
 private:
 	std::vector<TxInput>  _inputs;
 	std::vector<TxOutput> _outputs;
 	time_t                _timestamp;
 	std::string           _transactionID;
+
+	// When parsing a transaction
+	Transaction(const std::string& transactionID, const time_t& timestamp, const std::vector<TxInput>& inputs, const std::vector<TxOutput>& outputs);
 };

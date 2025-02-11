@@ -3,13 +3,11 @@
 #include "Encryptions/ECDSASigner.h"
 #include "Blockchain.h"
 
-using json = nlohmann::json;
-
 class JsonPacketDeserializer
 {
 public:
-	static json DeserializeRequest(std::string& str);
+	static nlohmann::json DeserializeRequest(std::string& str);
 
-	static bool verifySignature(json j);
+	static bool verifySignature(nlohmann::json j);
 };
 

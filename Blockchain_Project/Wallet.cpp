@@ -34,7 +34,7 @@ Wallet::Wallet()
 	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
-	_address = AddressGenerator::generateAddress(_publicKey);
+	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);
 }
 
 Wallet::Wallet(const std::string& seed, bool seedInitialize)
@@ -53,7 +53,7 @@ Wallet::Wallet(const std::string& seed, bool seedInitialize)
 	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
-	_address = AddressGenerator::generateAddress(_publicKey);
+	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);
 }
 
 Wallet::Wallet(const std::string& filename)
@@ -215,7 +215,7 @@ void Wallet::loadWalletData(const std::string& filename)
 	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
-	_address = AddressGenerator::generateAddress(_publicKey);
+	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);
 }
 
 void Wallet::saveWalletData(const std::string& filename) const
@@ -245,7 +245,7 @@ void Wallet::calculateData()
 	_publicKey = pointPublicKey->ToStringNoSeperator();
 
 	// Calculate Address
-	_address = AddressGenerator::generateAddress(_publicKey);
+	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);
 }
 
 /*

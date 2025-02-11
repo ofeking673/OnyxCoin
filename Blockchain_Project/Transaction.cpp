@@ -1,5 +1,4 @@
 #include "Transaction.h"
-#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -17,6 +16,33 @@ Transaction::Transaction(const Transaction& other)
 	this->_inputs = other._inputs;
 	this->_outputs = other._outputs;
 	this->_timestamp = other._timestamp;
+}
+
+Transaction::Transaction()
+{
+	_transactionID = std::to_string(ERROR_TRANSACTION_ID);
+	_timestamp = std::time(nullptr);
+}
+
+/// <summary>
+/// Checks if the transaction indicating error
+/// </summary>
+/// <returns>True if error transaction, false if not error</returns>
+bool Transaction::isErrorTransaction() const
+{
+	if (_transactionID == std::to_string(ERROR_TRANSACTION_ID))
+	{
+		return true;
+	}
+	return false;
+}
+
+Transaction::Transaction(const std::string& transactionID, const time_t& timestamp, const std::vector<TxInput>& inputs, const std::vector<TxOutput>& outputs)
+	: _transactionID(transactionID)
+		, _timestamp(timestamp)
+		, _inputs(std::move(inputs))
+		, _outputs(std::move(outputs))
+{
 }
 
 std::vector<TxInput> Transaction::getInputs() const
@@ -115,7 +141,7 @@ void Transaction::signTransaction(const std::string& privateKey)
 	}
 }
 
-bool Transaction::verifyTransactionSignature(const std::string& scriptPubKey)
+bool Transaction::verifyTransactionSignature(/*const std::string& scriptPubKey*/)
 {
 	// If there is no ID can't verify
 	if (_transactionID.empty()) 
@@ -212,7 +238,7 @@ std::string Transaction::toString() const
 	return oss.str();
 }
 
-std::string Transaction::toJson() const
+json Transaction::toJson() const
 {
 	json j;
 	j["transactionID"] = _transactionID;
@@ -245,10 +271,108 @@ std::string Transaction::toJson() const
 	return j.dump();
 }
 
-Transaction Transaction::fromJson(const std::string& jsonStr)
+std::string Transaction::toMessageString() const
+{
+	// Transaction = txid$timestamp$inputs$outputs
+	// inputs = i*previousPointTxID*previousPointIndex*scriptSig^...
+	// outputs = i*value*scriptPubKey^...
+	std::string inputs = "";
+	for (size_t i = 0; i < _inputs.size(); ++i)
+	{
+		const TxInput& in = _inputs[i];
+		inputs += i + "*" + in.getPreviousOutPoint().getTxID() + "*"
+			+ std::to_string(in.getPreviousOutPoint().getIndex()) + "*"
+			+ in.getScriptSig() + "^";
+	}
+	inputs.pop_back();
+
+	std::string outputs = "";
+	for (size_t i = 0; i < _outputs.size(); ++i)
+	{
+		const TxOutput& out = _outputs[i];
+
+		outputs += i + "*" + std::to_string(out.getValue()) + "*" + out.getScriptPubKey() + "^";
+	}
+	outputs.pop_back();
+
+	std::string transaction = _transactionID + "$" + std::to_string(_timestamp) + "$"
+		+ inputs + "$" + outputs;
+
+	return transaction;
+}
+
+Transaction Transaction::parseMessageString(const std::string& data)
+{
+	// The overall delimiter between the main fields is '$'.
+	// Expected format: transactionID$timestamp$inputs$outputs
+	std::vector<std::string> parts = HelperT::split(data, '$');
+	if (parts.size() != 4) 
+	{
+		// Invalid input format in transaction
+		return Transaction();
+	}
+
+	// Parse transactionID and timestamp. Use std::stoll and cast to time_t.
+	std::string transactionID = parts[0];
+	time_t timestamp = static_cast<time_t>(std::stoll(parts[1]));
+
+	std::vector<TxInput> inputs;
+	std::vector<TxOutput> outputs;
+
+	// Parse inputs (each input is separated by '^')
+	// Each input has the format: index*prevTxID*prevIndex*scriptSig
+	if (!parts[2].empty()) {
+		std::vector<std::string> inputsStr = HelperT::split(parts[2], '^');
+		for (const auto& inputToken : inputsStr) 
+		{
+			std::vector<std::string> inputParts = HelperT::split(inputToken, '*');
+			if (inputParts.size() != 4) 
+			{
+				// Invalid input format in transaction
+				return Transaction();
+			}
+
+			// The first field (the index) is redundant and can be ignored.
+			const std::string& prevTxID = inputParts[1];
+			unsigned int prevIndex = static_cast<unsigned int>(std::stoul(inputParts[2]));
+			const std::string& scriptSig = inputParts[3];
+
+			OutPoint outPoint(prevTxID, prevIndex);
+			TxInput txInput(outPoint, scriptSig);
+			inputs.push_back(txInput);
+		}
+	}
+
+	// Parse outputs (each output is separated by '^')
+	// Each output has the format: index*value*scriptPubKey
+	if (!parts[3].empty()) {
+		std::vector<std::string> outputsStr = HelperT::split(parts[3], '^');
+		for (const auto& outputToken : outputsStr) 
+		{
+			std::vector<std::string> outputParts = HelperT::split(outputToken, '*');
+			if (outputParts.size() != 3) 
+			{
+				// Invalid input format in transaction
+				return Transaction();
+			}
+
+			// The first field (the index) is redundant and can be ignored.
+			uint64_t value = std::stoull(outputParts[1]);
+			const std::string& scriptPubKey = outputParts[2];
+
+			TxOutput txOutput(value, scriptPubKey);
+			outputs.push_back(txOutput);
+		}
+	}
+
+	// Construct and return the Transaction object
+	return Transaction(transactionID, timestamp, inputs, outputs);
+}
+
+Transaction Transaction::fromJson(json jsonTx)
 {
 	// Parse the incoming string as JSON
-	json j = json::parse(jsonStr);
+	json j = jsonTx;
 
 	// Extract transactionID and timestamp
 	std::string txid = j["transactionID"].get<std::string>();
@@ -334,6 +458,14 @@ std::string Transaction::generateTransactionID()
 void Transaction::refreshTransactionID()
 {
 	_transactionID = generateTransactionID();
+}
+
+bool Transaction::operator==(const Transaction& other) const
+{
+	return _transactionID == other._transactionID
+		&& _timestamp == other._timestamp
+		&& _inputs == other._inputs
+		&& _outputs == other._outputs;
 }
 
 std::string Transaction::hashPublicKey(const std::string& hexPubKey)

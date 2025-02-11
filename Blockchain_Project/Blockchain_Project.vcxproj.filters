@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Blockchain structure">
       <UniqueIdentifier>{3e16c3c5-de58-4768-bc5a-1ad4ab84ccef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\MessageHandling">
+      <UniqueIdentifier>{497de56b-e73b-49df-8250-4c8eac1b0dc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MessageHandling">
+      <UniqueIdentifier>{4046e586-e188-47eb-bee1-98b236de17f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Encryptions\AES256CBC.h">
@@ -60,20 +66,11 @@
     <ClInclude Include="Encryptions\Test.h">
       <Filter>Header Files\Encryptions</Filter>
     </ClInclude>
-    <ClInclude Include="Networking\ClientSocket.h">
-      <Filter>Header Files\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="Networking\Socket.h">
-      <Filter>Header Files\Networking</Filter>
-    </ClInclude>
     <ClInclude Include="Networking\WSAInitializer.h">
       <Filter>Header Files\Networking</Filter>
     </ClInclude>
     <ClInclude Include="Wallet.h">
       <Filter>Header Files\Wallet</Filter>
-    </ClInclude>
-    <ClInclude Include="Server.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>Header Files</Filter>
@@ -92,15 +89,6 @@
     </ClInclude>
     <ClInclude Include="Transaction.h">
       <Filter>Header Files\Blockchain structure</Filter>
-    </ClInclude>
-    <ClInclude Include="Client.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Miner.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="JsonPacketDeserializer.h">
       <Filter>Header Files</Filter>
@@ -144,6 +132,42 @@
     <ClInclude Include="RequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FullNodeMessageHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMessageHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageDispatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageP2P.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="P2PNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscoveryServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -170,20 +194,11 @@
     <ClCompile Include="Encryptions\Test.cpp">
       <Filter>Source Files\EncryptionCPP</Filter>
     </ClCompile>
-    <ClCompile Include="Networking\ClientSocket.cpp">
-      <Filter>Source Files\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="Networking\Socket.cpp">
-      <Filter>Source Files\Networking</Filter>
-    </ClCompile>
     <ClCompile Include="Networking\WSAInitializer.cpp">
       <Filter>Source Files\Networking</Filter>
     </ClCompile>
     <ClCompile Include="Wallet.cpp">
       <Filter>Source Files\Wallet</Filter>
-    </ClCompile>
-    <ClCompile Include="Server.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HelperT.cpp">
       <Filter>Source Files\Blockchain structure</Filter>
@@ -200,18 +215,6 @@
     <ClCompile Include="Point.cpp">
       <Filter>Source Files\Blockchain structure</Filter>
     </ClCompile>
-    <ClCompile Include="Client.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Miner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="JsonPacketDeserializer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AddressGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -222,9 +225,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Encryptions\RIPEMD_160.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="JsonPacketSerializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OutPoint.cpp">
@@ -248,7 +248,40 @@
     <ClCompile Include="UTXOSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RequestHandler.cpp">
+    <ClCompile Include="FullNodeMessageHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMessageHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageDispatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageP2P.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="P2PNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscoveryServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PeerInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

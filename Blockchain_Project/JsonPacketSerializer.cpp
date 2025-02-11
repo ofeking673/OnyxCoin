@@ -1,5 +1,7 @@
 #include "JsonPacketSerializer.h"
 
+using json = nlohmann::json;
+
 std::string JsonPacketSerializer::serializeMiningRequest(std::string srcAddr, std::string hash, int nonce, time_t timestamp)
 {
     json json;

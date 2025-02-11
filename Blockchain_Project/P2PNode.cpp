@@ -1,0 +1,617 @@
+#include "P2PNode.h"
+#include "MessageParser.h"
+#include "Messagemanager.h"
+#include "FullNodeMessageHandler.h"
+
+P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) : 
+      m_isRunning(false)
+    , m_isDiscoveryServer(isDiscoveryServer)
+    , m_dispatcher(this)
+    , m_discoveryServerPort(DISCOVERY_SERVER_PORT)
+    , m_discoveryServerIp(LOCALHOST)
+{
+    if (filePath != "") 
+    {
+        Wallet wallet(filePath);
+        m_myPublicKey = wallet.getPublicKey();
+        m_myPrivateKey = wallet.getPrivateKey();
+        m_myNodeId = SHA256::digest(m_myPublicKey);
+    }
+}
+
+P2PNode::~P2PNode()
+{
+    stop();
+    WSACleanup();
+}
+
+bool P2PNode::start(const std::string& listenAddress, uint16_t port)
+{
+    m_myIP = listenAddress;
+    m_myPort = port;
+
+    // Create a listening socket
+    m_listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (m_listenSocket == INVALID_SOCKET)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return false;
+    }
+
+    // Setup the listening address
+    sockaddr_in service;
+    service.sin_family = AF_INET;
+    service.sin_port = htons(port);
+
+    // Convert the address from string to binary form
+    inet_pton(AF_INET, listenAddress.c_str(), &service.sin_addr);
+
+    // Bind
+    int iResult = bind(m_listenSocket, reinterpret_cast<SOCKADDR*>(&service), sizeof(service));
+    if (iResult == SOCKET_ERROR)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] bind() failed: " << WSAGetLastError() << std::endl;
+        closesocket(m_listenSocket);
+        WSACleanup();
+        return false;
+    }
+
+    // Listen
+    iResult = listen(m_listenSocket, SOMAXCONN);
+    if (iResult == SOCKET_ERROR)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] listen() failed: " << WSAGetLastError() << std::endl;
+        closesocket(m_listenSocket);
+        WSACleanup();
+        return false;
+    }
+
+    // Mark running and launch the accept thread
+    m_isRunning = true;
+    m_acceptThread = std::thread(&P2PNode::acceptLoop, this);
+
+    // Get peers from the discovery server, and intitate connection.
+    if (!this->m_isDiscoveryServer) { getPeers(); }
+
+    // Start ping thread
+    startPingThread();
+
+    std::cout << "{" << m_myPort << "} " << "[Info] Node is listening on " << listenAddress << ":" << port << std::endl;
+    return true;
+}
+
+
+void P2PNode::stop()
+{
+    if (!m_isRunning)
+        return;
+
+    m_isRunning = false;
+
+    // Close the listening socket if open
+    if (m_listenSocket != INVALID_SOCKET)
+    {
+        shutdown(m_listenSocket, SD_BOTH);
+        closesocket(m_listenSocket);
+        m_listenSocket = INVALID_SOCKET;
+    }
+
+    // Join the accept thread
+    if (m_acceptThread.joinable())
+    {
+        m_acceptThread.join();
+    }
+
+    // Close all peer sockets
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    for (auto& kv : m_peers)
+    {
+        SOCKET s = kv.second.socket;
+        if (s != INVALID_SOCKET)
+        {
+            shutdown(s, SD_BOTH);
+            closesocket(s);
+        }
+    }
+    m_peers.clear();
+}
+
+bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::string& remotePublicKey, const std::string& remoteNodeId)
+{
+    SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == INVALID_SOCKET)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        return false;
+    }
+
+    sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    inet_pton(AF_INET, ip.c_str(), &addr.sin_addr);
+
+    int result = ::connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+    if (result == SOCKET_ERROR)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
+        closesocket(sock);
+        return false;
+    }
+
+
+    // Send a handshake message to the node, to notify you established a connection
+    PeerInfo myPeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
+    {
+        std::lock_guard<std::mutex> lock(m_peerMutex);
+        m_peers[remotePublicKey].socket = sock;
+    }
+    MessageP2P handshakeMsg = MessageManager::createHandshakeMessage(m_myPublicKey, myPeerInfo);
+
+    sendMessageTo(handshakeMsg, remotePublicKey);
+
+
+    // Launch a receive thread for this peer
+    std::thread(&P2PNode::receiveLoop, this, sock, remotePublicKey).detach();
+
+    std::cout << "{" << m_myPort << "} " << "[Info] Connected to node: " << remotePublicKey << " at " << ip << ":" << port << std::endl;
+    return true;
+}
+
+void P2PNode::connectToPeer(PeerInfo& info)
+{
+    SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == INVALID_SOCKET) {
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        return;
+    }
+
+    sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(info.port);
+    inet_pton(AF_INET, LOCALHOST, &addr.sin_addr);
+
+    int result = ::connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+    if (result == SOCKET_ERROR)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
+        closesocket(sock);
+        return;
+    }
+
+    MessageP2P msg = MessageManager::createHandshakeMessage(m_myPublicKey, PeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId));
+    signMessage(msg);
+
+    std::string data = msg.toJson().dump();
+    result = send(sock, data.c_str(), data.length(), 0);
+    if (result == SOCKET_ERROR) {
+        std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+        return;
+    }
+
+    // Recieve the handshake message from the other peer
+    char buf[2048];
+    result = recv(sock, buf, 2048, 0);
+    if (result <= 0) {
+        std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed!\n";
+        return;
+    }
+
+
+    msg = MessageParser::parse(std::string(buf, result));
+
+    if (msg.getAuthor() != info.publicKey)
+    {
+        // Public key doesn't match the peers public key
+        removePeer(info);
+        std::cerr << "{" << m_myPort << "} " << "[Error] recieve second Handshake failed!\n";
+        return;
+    }
+
+    // Add the peer to the peers map
+    info.socket = sock;
+    addPeer(info);
+
+
+    // Launch a receive thread for this peer
+    std::thread(&P2PNode::receiveLoop, this, sock, info.publicKey).detach();
+
+    std::cout << "{" << m_myPort << "} " << "[Info] Connected to node: " << info.publicKey << " at " << info.ip << ":" << info.port << std::endl;
+}
+
+void P2PNode::getPeers()
+{
+    SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == INVALID_SOCKET)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] socket() failed: " << WSAGetLastError() << std::endl;
+        return;
+    }
+
+    sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(DISCOVERY_SERVER_PORT);
+    inet_pton(AF_INET, LOCALHOST, &addr.sin_addr);
+
+    int result = ::connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+    if (result == SOCKET_ERROR)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] connect() failed: " << WSAGetLastError() << std::endl;
+        closesocket(sock);
+        return;
+    }
+
+    sendDiscovery(sock);
+
+    char buf[2048];
+    int bytesRecieved = recv(sock, buf, 2048, 0);
+    if (bytesRecieved <= 0) {
+        std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed.\n";
+        return;
+    }
+    std::string res(buf, bytesRecieved);
+    MessageP2P msg = MessageP2P::fromJson(json::parse(res));
+    json payload = msg.getPayload();
+    m_myNodeId = payload[DISCOVERY_PAYLOAD_ASSIGNED_ID];
+    
+    auto nodes = payload[DISCOVERY_PAYLOAD_NODE_LIST];
+    for (const auto& node : nodes) {
+        /* oneNode["ip"] = n.ip;
+           oneNode["port"] = n.port;
+           oneNode["publicKey"] = n.publicKey;
+           oneNode["nodeId"] = n.nodeId;
+        */
+        PeerInfo peer(node["ip"], node["port"], node["publicKey"], node["nodeId"]);
+        //addPeer(peer);
+        // Connecting to peer, and adding it to the peers map
+        connectToPeer(peer);
+    }
+}
+
+void P2PNode::sendDiscovery(SOCKET sock)
+{
+    PeerInfo peer(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
+    MessageP2P msg = MessageManager::createDiscoveryRequestMessage(m_myPublicKey, peer);
+
+    signMessage(msg);
+    json j = msg.toJson();
+    std::string wire = j.dump();
+    int result = send(sock, wire.c_str(), wire.size(), 0);
+    if (result == SOCKET_ERROR) {
+        std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+    }
+} 
+
+bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    auto it = m_peers.find(toPublicKey);
+    if (it == m_peers.end())
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Warning] Peer not found: " << toPublicKey << std::endl;
+        return false;
+    }
+
+
+    SOCKET sock = it->second.socket;
+    if (sock == INVALID_SOCKET)
+        return false;
+
+    // Serialize message
+    signMessage(msg);
+    json j = msg.toJson();
+    std::string wire = j.dump();
+
+    int result = send(sock, wire.c_str(), wire.size(), 0);
+    if (result == SOCKET_ERROR)
+    {
+        std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+
+void P2PNode::broadcastMessage(MessageP2P& msg)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    for (auto& peer : m_peers)
+    {
+        sendMessageTo(msg, peer.second.publicKey);
+    }
+}
+
+void P2PNode::addPeer(const PeerInfo& newPeer)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    m_peers[newPeer.publicKey] = newPeer;
+}
+
+bool P2PNode::removePeer(const PeerInfo& peer)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    auto it = m_peers.find(peer.publicKey);
+    if (it != m_peers.end())
+    {
+        m_peers.erase(peer.publicKey);
+        return true;
+    }
+    return false;
+}
+
+void P2PNode::updatePeersLastContact(const std::string& peerPublicKey)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    auto it = m_peers.find(peerPublicKey);
+    if (it != m_peers.end())
+    {
+        it->second.lastContact = std::chrono::steady_clock::now();
+    }
+}
+
+void P2PNode::startPingThread()
+{
+    // Launch a background thread that periodically pings inactive peers
+    m_pingThread = std::thread(&P2PNode::pingInactivePeers, this);
+}
+
+std::string P2PNode::getMyPublicKey() const
+{
+    return m_myPublicKey;
+}
+
+uint16_t P2PNode::getMyPort() const
+{
+    return m_myPort;
+}
+
+PeerInfo P2PNode::getMyInfo() const
+{
+    return PeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
+}
+
+std::vector<PeerInfo> P2PNode::getAllClients()
+{
+    std::vector<PeerInfo> vec;
+    for (const auto& kv : this->m_peers) {
+        vec.push_back(kv.second);
+    }
+    return vec;
+}
+
+void P2PNode::acceptLoop()
+{
+    sockaddr_in clientAddr;
+    int addrLen = sizeof(clientAddr);
+        // After accepted, the other peer should send a handshake message
+
+        // Recieve the handshake message, before starting the recieve loop
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+
+    while (m_isRunning)
+    {
+        SOCKET clientSocket = accept(m_listenSocket, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
+        if (clientSocket == INVALID_SOCKET)
+        {
+            if (m_isRunning)
+            {
+                std::cerr << "{" << m_myPort << "} " << "[Error] accept() failed: " << WSAGetLastError() << std::endl;
+            }
+            continue;
+        }
+
+        int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+        if (bytesReceived > 0)
+        {
+            // Get the handshake message
+            std::string data(buffer, bytesReceived);
+
+            MessageP2P msg = MessageParser::parse(data);
+
+            if (msg.getType() == MessageType::HANDSHAKE)
+            {
+                // Handle the incoming handshake message.
+                // Handler adds the peer to the peer list
+                // Returns a vector of messages to send back (PEER_LIST).
+                std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
+
+
+                // Add the new peer
+                PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
+                // Add the socket connected to the new peer
+                newPeer.socket = clientSocket;
+
+                addPeer(newPeer);
+
+
+                std::string remotePublicKey = newPeer.publicKey;
+
+
+                // Send back the response messages
+                for (auto& respMsg : responses)
+                {
+                    sendMessageTo(respMsg, msg.getAuthor());
+                }
+
+                std::cout << "{" << m_myPort << "} " << "[Info] Accepted connection from a peer (socket=" << clientSocket << ")" << std::endl;
+
+                // Start a thread to receive messages from this new peer
+                std::thread(&P2PNode::receiveLoop, this, clientSocket, remotePublicKey).detach();
+            }
+        }
+    }
+}
+
+
+void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
+{
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+
+    while (m_isRunning)
+    {
+        int bytesReceived = recv(sock, buffer, BUFFER_SIZE, 0);
+        if (bytesReceived == 0)
+        {
+            std::cout << "{" << m_myPort << "} " << "[Info] Connection closed by peer: " << peerPublicKey << std::endl;
+            break;
+        }
+        else if (bytesReceived < 0)
+        {
+            // Error or maybe the peer shut down
+            int err = WSAGetLastError();
+            if (err == WSAECONNRESET)
+            {
+                std::cerr << "{" << m_myPort << "} " << "[Warning] Connection reset by peer: " << peerPublicKey << std::endl;
+            }
+            else
+            {
+                std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed for peer " << peerPublicKey << ": " << err << std::endl;
+            }
+            break;
+        }
+        else
+        {
+            // We have data to process
+            std::string data(buffer, bytesReceived);
+            // In real code, you might have to handle partial messages or multiple messages in one recv.
+
+            MessageP2P msg = MessageParser::parse(data);
+
+            if (msg.getType() != MessageType::ERROR_MESSAGE)
+            {
+                // Handle the incoming message. Returns a vector of messages to send back.
+                std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
+
+                // Send back the response messages
+                for (auto& respMsg : responses)
+                {
+                    sendMessageTo(respMsg, msg.getAuthor());
+                }
+            }
+        }
+    }
+
+    // Cleanup on exit
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    closesocket(sock);
+    m_peers.erase(peerPublicKey);
+}
+
+void P2PNode::signMessage(MessageP2P& msg)
+{
+    ECDSASigner ecd;
+    msg.setSignature(""); // Clear signature if there is any; signing the message without the signature
+    msg.setSignature(ecd.signMessage(cpp_int("0x" + m_myPrivateKey), msg.toJson().dump())->ToString());
+}
+
+void P2PNode::pingInactivePeers()
+{
+    const auto inactivityThreshold = std::chrono::seconds(30);
+    const auto checkInterval = std::chrono::seconds(5);
+
+    while (m_isRunning)
+    {
+        // Collect peers we need to ping.
+        std::vector<std::string> peersToPing; // Store their public keys
+        {
+            std::lock_guard<std::mutex> lock(m_peerMutex);
+            auto now = std::chrono::steady_clock::now();
+            for (auto& kv : m_peers)
+            {
+                PeerInfo& peer = kv.second;
+                auto elapsed = now - peer.lastContact;
+
+                if (elapsed > inactivityThreshold)
+                {
+                    // Record this peer's public key to ping AFTER we release the lock
+                    peersToPing.push_back(peer.publicKey);
+                }
+            }
+        } // Lock is released
+
+        // Send the ping messages OUTSIDE the lock.
+        for (const auto& pubKey : peersToPing)
+        {
+            MessageP2P pingMsg = MessageManager::createPingMessage(m_myPublicKey);
+            signMessage(pingMsg);
+            sendMessageTo(pingMsg, pubKey);
+            std::cout << "{" << m_myPort << "} " << "[Ping] Sent ping to peer: " << pubKey << std::endl;
+        }
+
+        // 3) Sleep until the next check
+        std::this_thread::sleep_for(checkInterval);
+    }
+}
+
+void P2PNode::incrementView()
+{
+    m_currentView++;
+}
+
+void P2PNode::printPeers()
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    for (auto& kv : m_peers)
+    {
+        auto peer = kv.second;
+        std::cout << peer;
+    }
+}
+
+
+json P2PNode::peersToJson()
+{
+    // If the map is modified concurrently, lock it as needed
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+
+    // We'll store all PeerInfo objects in a JSON array
+    json j = json::array();
+    for (const auto& kv : m_peers)
+    {
+        const PeerInfo& peerInfo = kv.second;
+        j.push_back(peerInfo.toJson());
+    }
+    return j;
+}
+
+std::unordered_map<std::string, PeerInfo> P2PNode::fromJsonToPeers(const json& data)
+{
+    std::unordered_map<std::string, PeerInfo> result;
+
+    if (!data.is_array())
+    {
+        // Return an empty result if it's not an array.
+        return result;
+    }
+
+    for (const auto& item : data)
+    {
+        PeerInfo p = PeerInfo::fromJson(item);
+        result[p.publicKey] = p;
+    }
+
+    return result;
+}
+
+std::unordered_map<std::string, PeerInfo> P2PNode::getNewPeers(const std::unordered_map<std::string, PeerInfo>& newPeers)
+{
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+
+    std::unordered_map<std::string, PeerInfo> result;
+    for (const auto& kv : newPeers)
+    {
+        const std::string& newPeerPublicKey = kv.first;
+        const PeerInfo& newPeerInfo = kv.second;
+
+        // If this publicKey does not exist in the owned map, it's new
+        if (m_peers.find(newPeerPublicKey) == m_peers.end())
+        {
+            result[newPeerPublicKey] = newPeerInfo;
+        }
+    }
+    return result;
+}

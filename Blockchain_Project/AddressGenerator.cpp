@@ -1,6 +1,6 @@
 #include "AddressGenerator.h"
 
-std::string AddressGenerator::generateAddress(std::string publicKey)
+std::string AddressGenerator::generateAddressFromPublicKey(std::string publicKey)
 {
 	//BIP39SeedMaker bip39;
 	//Base58 base58;
@@ -20,6 +20,16 @@ std::string AddressGenerator::generateAddress(std::string publicKey)
 	//std::string address = base58.base58(toEncode);
 	//return address;
 	return RIPEMD_160::hash(SHA256::digest(publicKey));
+}
+
+std::string AddressGenerator::generateAddressFromPrivateKey(std::string privateKey)
+{
+	KeyGenerator ecc;
+	cpp_int privateK = ECDSASigner::hexStringToCppInt(privateKey);
+	Point* publicK = ecc.ECMul(privateK, ecc.GPoint);
+	std::string publicKey = publicK->ToStringNoSeperator();
+	std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
+	return address;
 }
 
 std::string AddressGenerator::padHexTo64Bytes(std::string hexStr)
