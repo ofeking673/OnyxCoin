@@ -380,6 +380,118 @@ std::vector<PeerInfo> P2PNode::getAllClients()
     return vec;
 }
 
+uint32_t P2PNode::getCurrentView() const
+{
+    return m_currentView;
+}
+
+void P2PNode::addNewPhaseState(uint32_t view, int sequence, const Block& block)
+{
+    PhaseState phase(block);
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    m_phaseStates.emplace(viewSeq, phase);
+}
+
+bool P2PNode::isTrackingTheState(uint32_t view, int sequence) const
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+void P2PNode::addPrepareMessage(uint32_t view, int sequence, const MessageP2P& prepareMessage)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        // Add the prepare message to the phase state container
+        it->second.addPrepareMessage(prepareMessage);
+    }
+}
+
+void P2PNode::addCommitMessage(uint32_t view, int sequence, const MessageP2P& commitMessage)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        // Add the commit message to the phase state container
+        it->second.addPrepareMessage(commitMessage);
+    }
+}
+
+int P2PNode::getPrepareAmount(uint32_t view, int sequence)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        // Get the amount of recieved prepared messages for this (view, sequence)
+        return it->second.getPrepareAmount();
+    }
+    return 0;
+}
+
+int P2PNode::getCommitAmount(uint32_t view, int sequence)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        // Get the amount of recieved commit messages for this (view, sequence)
+        return it->second.getCommitAmount();
+    }
+    return 0;
+}
+
+void P2PNode::setPrepared(uint32_t view, int sequence)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        it->second.setPrepared();
+    }
+}
+
+void P2PNode::setCommitted(uint32_t view, int sequence)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        it->second.setCommitted();
+    }
+}
+
+bool P2PNode::isPrepared(uint32_t view, int sequence)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        return it->second.isPrepared();
+    }
+    return false;
+}
+
+bool P2PNode::isCommitted(uint32_t view, int sequence)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        return it->second.isCommitted();
+    }
+    return false;
+}
+
+
 void P2PNode::acceptLoop()
 {
     sockaddr_in clientAddr;

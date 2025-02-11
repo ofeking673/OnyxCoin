@@ -35,13 +35,7 @@ public:
 
     std::vector<MessageP2P> onHandshake(const MessageP2P& msg) override;
 
-    /*
-    virtual std::vector<MessageP2P> onPreprepare(const MessageP2P& msg) = 0;
-    virtual std::vector<MessageP2P> onPrepare(const MessageP2P& msg) = 0;
-    virtual std::vector<MessageP2P> onCommit(const MessageP2P& msg) = 0;
-    virtual std::vector<MessageP2P> onNewView(const MessageP2P& msg) = 0;
-    virtual std::vector<MessageP2P> onViewChange(const MessageP2P& msg) = 0;
-    */
+    // Consensus
     std::vector<MessageP2P> onPreprepare(const MessageP2P& msg) override;
     std::vector<MessageP2P> onPrepare(const MessageP2P& msg) override;
     std::vector<MessageP2P> onCommit(const MessageP2P& msg) override;

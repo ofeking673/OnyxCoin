@@ -589,23 +589,79 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& ms
 
 std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::PREPREPARE)
+    {
+        return {};
+    }
+    // Log the event
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PRE PREPARE from peer." << std::endl;
+
+
+
+
+    // TO-DO: Verify signature. Verify that the leader is the one that sent it
+
+
+    // The sequence of the message
+    int sequence = msg.getPayload()["SEQUENCE"].get<int>();
+
+    // Ensure view number matches my current view
+    uint32_t curView = msg.getPayload()["CURRENT_VIEW"].get<uint32_t>();
+    if (curView != _node->getCurrentView())
+    {
+        // Wrong view on preprepare message.
+        // TO-DO: probably should send VIEW_CHANGE message
+        return {};
+    }
+
+
     Block block = Block::fromJson(msg.getPayload()["BLOCK"]);
     if (_blockchain->isBlockValid(block)) {
+        // If the block proposed is valid:
+        
+        // Add the corresponding message to the phase state
+        _node->addNewPhaseState(curView, sequence, block);
+
+        // create a prepare message
         std::vector<MessageP2P> messages;
-        messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), _node->getMyInfo(), block, MessageType::PREPARE));
+        messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, _node->getCurrentView()));
         return messages;
     }
-    else return {};
+
+    // Block isn't valid
+    // TO-DO: probably should send VIEW_CHANGE message
+    return {};
 }
 
 std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
 {
-    _node->incrementPrepare();
-    return {};
-}
+    if (msg.getType() != MessageType::PREPARE)
+    {
+        return {};
+    }
+    // Log the event
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PREPARE from peer." << std::endl;
 
-std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
-{
+
+
+    // Get the sequence, view and block of the message
+    int sequence = msg.getPayload()["SEQUENCE"].get<int>();
+    uint32_t view = msg.getPayload()["CURRENT_VIEW"].get<uint32_t>();
+    Block block = Block::fromJson(msg.getPayload()["BLOCK"]);
+
+
+    // Verify that there is a PRE PREPARE pending for that sequence, view and digest.
+    if (!_node->isTrackingTheState(view, sequence))
+    {
+        // Got prepare message, but it hasn't been preprepared
+        return {};
+    }
+
+    // Add the prepare message to the tracker of the messages
+    _node->addPrepareMessage(view, sequence, msg);
+
+
+    // Check if reached 2f + 1 prepare messages
     int networkSize = _node->getAllClients().size();
     /*
         Total nodes: X = 3F + 1
@@ -615,11 +671,103 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
         thus, 2(X-1)/3 nodes must agree
     */
     int expectedMinimum = 2 * (networkSize - 1) / 3;
-    if (_node->getPrepareAmount() >= expectedMinimum)
+
+    if (!_node->isPrepared(view, sequence) && _node->getPrepareAmount(view, sequence) >= expectedMinimum)
     { 
-        _blockchain->addBlock(Block::fromJson(msg.getPayload()["BLOCK"]));
+        // Reached minimum of 2f + 1 prepaers.
+        // And the it hasn't already been prepared
+
+        // Set the block as prepared
+        _node->setPrepared(view, sequence);
+
+        // Broadcast commit message
+        std::vector<MessageP2P> messages;
+        MessageP2P commitMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::COMMIT, view);
+        messages.push_back(commitMsg);
+        return messages;
     }
+
+    // Wait for more prepare messages
     return {};
+}
+
+std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
+{
+    if (msg.getType() != MessageType::COMMIT)
+    {
+        return {};
+    }
+    // Log the event
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received COMMIT from peer." << std::endl;
+
+
+
+    // Get the sequence, view and block of the message
+    int sequence = msg.getPayload()["SEQUENCE"].get<int>();
+    uint32_t view = msg.getPayload()["CURRENT_VIEW"].get<uint32_t>();
+    Block block = Block::fromJson(msg.getPayload()["BLOCK"]);
+
+
+    // Verify that there is a PRE PREPARE and that the block is PREPARED pending for that sequence, view and digest.
+    if (!_node->isTrackingTheState(view, sequence) || !_node->isPrepared(view, sequence))
+    {
+        // Got commit message, but it hasn't been preprepared or prepared
+        return {};
+    }
+
+    // Add the commit message to the tracker of the messages
+    _node->addCommitMessage(view, sequence, msg);
+
+
+    // Check if reached 2f + 1 prepare messages
+    int networkSize = _node->getAllClients().size();
+    /*
+        Total nodes: X = 3F + 1
+        Maximum faulty nodes: F = (X-1)/3
+        Agreement requirement: 2F honest nodes
+        2F = 2(X-1)/3
+        thus, 2(X-1)/3 nodes must agree
+    */
+    int expectedMinimum = 2 * (networkSize - 1) / 3;
+
+    if (!_node->isCommitted(view, sequence) && _node->getCommitAmount(view, sequence) >= expectedMinimum)
+    {
+        // Reached minimum of 2f + 1 prepaers.
+        // And it hasn't already been committed
+        
+        // Add the block to the blockchain        
+        _blockchain->addBlock(Block::fromJson(msg.getPayload()["BLOCK"]));
+        
+        return {};
+    }
+
+    // Wait for more commit messages
+    return {};
+
+
+
+
+
+
+
+
+
+
+
+    //int networkSize = _node->getAllClients().size();
+    ///*
+    //    Total nodes: X = 3F + 1
+    //    Maximum faulty nodes: F = (X-1)/3
+    //    Agreement requirement: 2F honest nodes
+    //    2F = 2(X-1)/3
+    //    thus, 2(X-1)/3 nodes must agree
+    //*/
+    //int expectedMinimum = 2 * (networkSize - 1) / 3;
+    //if (_node->getPrepareAmount() >= expectedMinimum)
+    //{ 
+    //    _blockchain->addBlock(Block::fromJson(msg.getPayload()["BLOCK"]));
+    //}
+    //return {};
 }
 
 std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)

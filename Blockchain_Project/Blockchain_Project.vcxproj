@@ -161,6 +161,7 @@
     <ClInclude Include="OutPointHash.h" />
     <ClInclude Include="P2PNode.h" />
     <ClInclude Include="PeerInfo.h" />
+    <ClInclude Include="PhaseState.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="Transaction.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="OutPointHash.cpp" />
     <ClCompile Include="P2PNode.cpp" />
     <ClCompile Include="PeerInfo.cpp" />
+    <ClCompile Include="PhaseState.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Transaction.cpp" />
     <ClCompile Include="TxInput.cpp" />

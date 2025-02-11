@@ -136,9 +136,10 @@ MessageP2P MessageManager::createDiscoveryRequestMessage(const std::string& publ
     return message;
 }
 
-MessageP2P MessageManager::createLeaderMessage(const std::string& publickey, const PeerInfo& myPeerInfo, const Block& block, MessageType type)
+MessageP2P MessageManager::createLeaderMessage(const std::string& publickey, const Block& block, MessageType type, const uint32_t currentView)
 {
     json j;
+    j["CURRENT_VIEW"] = currentView;
     j["BLOCK"] = block.toJson();
     j["SEQUENCE"] = block.getBlockHeader().getIndex();
     MessageP2P message("", publickey, type, j.dump().length(), j);

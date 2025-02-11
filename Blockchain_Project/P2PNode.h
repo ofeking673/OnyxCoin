@@ -28,6 +28,7 @@
 #include "PeerInfo.h"
 #include "MessageDispatcher.h"
 #include "Wallet.h"
+#include "PhaseState.h"
 
 #include <ws2tcpip.h>
 #include <iostream>
@@ -106,7 +107,36 @@ public:
 
     //Increment prepare amount
     void incrementPrepare() { prepareAmt++; };
-    int getPrepareAmount() { return prepareAmt; };
+    int getPrepareAmount() const { return prepareAmt; };
+
+    // Get the current view number
+    uint32_t getCurrentView() const;
+
+    // Recieved a pre preapare message. Start tracking it.
+    void addNewPhaseState(uint32_t view, int sequence, const Block& block);
+
+    // Check if already got a pre prepare message for that view and seq
+    bool isTrackingTheState(uint32_t view, int sequence) const;
+
+    // Add prepare message to the tracker of messages of (view, seq)
+    void addPrepareMessage(uint32_t view, int sequence, const MessageP2P& prepareMessage);
+    // Add commit message to the tracker of messages of (view, seq)
+    void addCommitMessage(uint32_t view, int sequence, const MessageP2P& commitMessage);
+
+    // Get the amount of recieved prepared messages for this (view, sequence)
+    int getPrepareAmount(uint32_t view, int sequence);
+    // Get the amount of recieved commit messages for this (view, sequence)
+    int getCommitAmount(uint32_t view, int sequence);
+
+    // Set the phase(view, seq) as prepared
+    void setPrepared(uint32_t view, int sequence);
+    // Set the phase(view, seq) as committed
+    void setCommitted(uint32_t view, int sequence);
+
+    // Check if the phase(view, seq) is prepared
+    bool isPrepared(uint32_t view, int sequence);
+    // Check if the phase(view, seq) is committed
+    bool isCommitted(uint32_t view, int sequence);
 protected:
     // Main loop that accepts incoming connections
     virtual void acceptLoop();
@@ -126,7 +156,7 @@ protected:
     // Testing
     void printPeers();
 protected:
-    int m_currentView;
+    uint32_t m_currentView;
     std::string m_myNodeId;
     std::string m_myPublicKey;
 
@@ -157,6 +187,10 @@ protected:
 
     BlockState state;
     int prepareAmt;
+
+    // PBFT state
+    // Map of (view, sequence) -> phase state of block
+    std::map<std::pair<uint32_t, int>, PhaseState> m_phaseStates;
 };
 
 

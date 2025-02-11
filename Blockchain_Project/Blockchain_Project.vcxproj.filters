@@ -168,6 +168,9 @@
     <ClInclude Include="PeerInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PhaseState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -282,6 +285,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PeerInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PhaseState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

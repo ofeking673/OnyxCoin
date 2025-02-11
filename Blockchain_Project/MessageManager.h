@@ -68,7 +68,7 @@ public:
 
     static MessageP2P createDiscoveryRequestMessage(const std::string& publicKey, const PeerInfo& myPeerInfo);
 
-    static MessageP2P createLeaderMessage(const std::string& publickey, const PeerInfo& myPeerInfo, const Block& block, MessageType type);
+    static MessageP2P createLeaderMessage(const std::string& publickey, const Block& block, MessageType type, const uint32_t currentView);
     static MessageP2P createViewChange(const std::string& publickey, const PeerInfo& myPeerInfo, int currentView);
     static MessageP2P createNewView(const std::string& publickey, const PeerInfo& myPeerInfo);
     //static MessageP2P createHashReadyMessage(const std::string& publickey, const PeerInfo& myPeerInfo, std::string hash, std::string blockID);
@@ -77,9 +77,5 @@ private:
     MessageManager() = default;
 
     static std::string getCurrentDateTime();
-    // You might store references to other components here, e.g.:
-    // PeerManager*    _peerManager;
-    // NetworkManager* _networkManager;
-    // etc.
 };
 
