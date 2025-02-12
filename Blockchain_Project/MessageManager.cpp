@@ -146,17 +146,29 @@ MessageP2P MessageManager::createLeaderMessage(const std::string& publickey, con
     return message;
 }
 
-MessageP2P MessageManager::createViewChange(const std::string& publickey, const PeerInfo& myPeerInfo, int currentView)
+MessageP2P MessageManager::createViewChange(const std::string& publickey, const uint32_t currentView, const int lastStableSeq, const std::string& checkpointDigest)
 {
     json j;
-    j["VIEW"] = currentView++;
+    j["NEW_VIEW"] = currentView + 1;
+    j["LAST_SEQ"] = lastStableSeq;
+    j["CHECKPOINT"] = checkpointDigest;
     return MessageP2P("", publickey, MessageType::VIEW_CHANGE, j.dump().length(), j);
 }
 
-MessageP2P MessageManager::createNewView(const std::string& publickey, const PeerInfo& myPeerInfo)
+MessageP2P MessageManager::createNewView(const std::string& publickey, const uint32_t newView, const std::vector<MessageP2P>& viewChangeMessages)
 {
     json j;
-    return MessageP2P("", publickey, MessageType::NEW_VIEW, 0, j);
+
+    json arr = json::array();
+    for (auto& msg : viewChangeMessages) 
+    {
+        arr.push_back(msg.toJson());
+    }
+
+    j["NEW_VIEW"] = newView;
+    j["VC_MESSAGES"] = arr;
+
+    return MessageP2P("", publickey, MessageType::NEW_VIEW, j.dump().length(), j);
 }
 
 //MessageP2P MessageManager::createHashReadyMessage(const std::string& publickey, const PeerInfo& myPeerInfo, std::string hash, std::string blockID)

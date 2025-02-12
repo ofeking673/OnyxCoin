@@ -41,7 +41,7 @@ bool PhaseState::isRecievedPrepareMessageFromAuthorAlready(const std::string& au
 			return true;
 		}
 	}
-	return false
+	return false;
 }
 
 bool PhaseState::isRecievedCommitMessageFromAuthorAlready(const std::string& author)

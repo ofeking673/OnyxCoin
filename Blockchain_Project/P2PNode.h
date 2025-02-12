@@ -112,6 +112,11 @@ public:
     // Get the current view number
     uint32_t getCurrentView() const;
 
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------------------------------------------------------------
+    // Phase State Container 
+    // ---------------------------------------------------------------------------------------------------------
     // Recieved a pre preapare message. Start tracking it.
     void addNewPhaseState(uint32_t view, int sequence, const Block& block);
 
@@ -137,6 +142,21 @@ public:
     bool isPrepared(uint32_t view, int sequence);
     // Check if the phase(view, seq) is committed
     bool isCommitted(uint32_t view, int sequence);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------------------------------------------------------------
+    // VIEW CHANGE Container
+    // ---------------------------------------------------------------------------------------------------------
+    // Add view change message to the tracker of view change messages
+    void addViewChangeMessage(uint32_t newView, MessageP2P viewChangeMessage);
+
+    // Check if already recieved a view change message from this author (for the current view change)
+    bool isRecievedViewChangeMessageFromAuthor(uint32_t newView, const std::string& author);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 protected:
     // Main loop that accepts incoming connections
     virtual void acceptLoop();
@@ -191,6 +211,9 @@ protected:
     // PBFT state
     // Map of (view, sequence) -> phase state of block
     std::map<std::pair<uint32_t, int>, PhaseState> m_phaseStates;
+
+    // Map of(new view) -> VIEW_CHANGE messages
+    std::map<uint32_t, std::vector<MessageP2P>> m_viewChangeStates;
 };
 
 

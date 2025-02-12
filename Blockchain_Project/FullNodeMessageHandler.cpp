@@ -599,7 +599,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
 
 
 
-    // TO-DO: Verify signature. Verify that the leader is the one that sent it
+    // TO-DO: Verify signature. Verify that the leader is the one who sent it
 
 
     // The sequence of the message
@@ -735,6 +735,10 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
         // Reached minimum of 2f + 1 prepaers.
         // And it hasn't already been committed
         
+
+        // Set the block as prepared
+        _node->setCommitted(view, sequence);
+
         // Add the block to the blockchain        
         _blockchain->addBlock(Block::fromJson(msg.getPayload()["BLOCK"]));
         
@@ -777,5 +781,41 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)
 
 std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::VIEW_CHANGE)
+    {
+        return {};
+    }
+    // Log the event
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received VIEW CHANGE from peer." << std::endl;
+
+
+    // Get the paramaters of view_change message (new view, last stable sequence, and the hash of the last checkpoint block)
+    uint32_t newView = msg.getPayload()["NEW_VIEW"].get<uint32_t>();
+    int lastStableSeq = msg.getPayload()["LAST_SEQ"].get<int>();
+    std::string checkpointDigest = msg.getPayload()["CHECKPOINT"].get<std::string>();
+
+
+    // Ensure the new view is greater than current view
+    if (newView - 1 != _node->getCurrentView())
+    {
+        // Wrong new view
+        return {};
+    }
+
+    // Validate checkpoint
+    Block latestBlock = _blockchain->getLatestBlock();
+    if (latestBlock.getBlockHeader().getIndex() != lastStableSeq || latestBlock.getHash() != checkpointDigest)
+    {
+        // Wrong checkpoint provided
+    }
+
+    // Add the message to the container
+    _node->addViewChangeMessage(newView, msg);
+
+
+    // TO-DO: Check if you are the new leader. 
+    // When recieved 2f + 1 view change messages 
+    // -> send a new view message to indicate you are the new leader
+
     return {};
 }

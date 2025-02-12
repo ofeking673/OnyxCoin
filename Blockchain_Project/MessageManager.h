@@ -69,8 +69,8 @@ public:
     static MessageP2P createDiscoveryRequestMessage(const std::string& publicKey, const PeerInfo& myPeerInfo);
 
     static MessageP2P createLeaderMessage(const std::string& publickey, const Block& block, MessageType type, const uint32_t currentView);
-    static MessageP2P createViewChange(const std::string& publickey, const PeerInfo& myPeerInfo, int currentView);
-    static MessageP2P createNewView(const std::string& publickey, const PeerInfo& myPeerInfo);
+    static MessageP2P createViewChange(const std::string& publickey, const uint32_t currentView, const int lastStableSeq, const std::string& checkpointDigest);
+    static MessageP2P createNewView(const std::string& publickey, const uint32_t newView, const std::vector<MessageP2P>& viewChangeMessages);
     //static MessageP2P createHashReadyMessage(const std::string& publickey, const PeerInfo& myPeerInfo, std::string hash, std::string blockID);
 private:
     // Private constructor to prevent instantiation; all methods are static.

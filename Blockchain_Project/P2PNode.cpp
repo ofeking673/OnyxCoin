@@ -389,7 +389,7 @@ void P2PNode::addNewPhaseState(uint32_t view, int sequence, const Block& block)
 {
     PhaseState phase(block);
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
-    m_phaseStates.emplace(viewSeq, phase);
+    m_phaseStates[viewSeq] = phase;
 }
 
 bool P2PNode::isTrackingTheState(uint32_t view, int sequence) const
@@ -488,6 +488,50 @@ bool P2PNode::isCommitted(uint32_t view, int sequence)
     {
         return it->second.isCommitted();
     }
+    return false;
+}
+
+void P2PNode::addViewChangeMessage(uint32_t newView, MessageP2P viewChangeMessage)
+{
+    if (viewChangeMessage.getType() == MessageType::VIEW_CHANGE)
+    {
+        // Check if already pushed a message from that author.
+        if (!isRecievedViewChangeMessageFromAuthor(newView, viewChangeMessage.getAuthor()))
+        {
+            auto it = m_viewChangeStates.find(newView);
+            if (it == m_viewChangeStates.end())
+            {
+                // Create a new pair of newView to vector of viewChangeMessages
+                std::vector<MessageP2P> viewChanges;
+                viewChanges.push_back(viewChangeMessage);
+                m_viewChangeStates[newView] = viewChanges;
+            }
+            else
+            {
+                // Add the view change message to the tracker
+                it->second.push_back(viewChangeMessage);
+            }
+        }
+    }
+
+
+}
+
+bool P2PNode::isRecievedViewChangeMessageFromAuthor(uint32_t newView, const std::string& author)
+{
+    auto it = m_viewChangeStates.find(newView);
+    if (it != m_viewChangeStates.end())
+    {
+        // Check if already recieved a view change message from that author (about the current view change)
+        for (MessageP2P msg : it->second)
+        {
+            if (msg.getAuthor() == author)
+            {
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
