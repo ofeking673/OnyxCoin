@@ -111,7 +111,8 @@ public:
 
     // Get the current view number
     uint32_t getCurrentView() const;
-
+    // Set the current view number
+    void setCurrentView(uint32_t newView);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // ---------------------------------------------------------------------------------------------------------
@@ -154,6 +155,8 @@ public:
 
     // Check if already recieved a view change message from this author (for the current view change)
     bool isRecievedViewChangeMessageFromAuthor(uint32_t newView, const std::string& author);
+
+    bool checkRemoteViewChangeMessagesVector(std::vector<MessageP2P> viewChangeMessages);
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

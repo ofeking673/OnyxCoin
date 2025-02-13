@@ -385,6 +385,11 @@ uint32_t P2PNode::getCurrentView() const
     return m_currentView;
 }
 
+void P2PNode::setCurrentView(uint32_t newView)
+{
+    m_currentView = newView;
+}
+
 void P2PNode::addNewPhaseState(uint32_t view, int sequence, const Block& block)
 {
     PhaseState phase(block);
@@ -533,6 +538,30 @@ bool P2PNode::isRecievedViewChangeMessageFromAuthor(uint32_t newView, const std:
     }
 
     return false;
+}
+
+bool P2PNode::checkRemoteViewChangeMessagesVector(std::vector<MessageP2P> viewChangeMessages)
+{
+    uint32_t view = m_currentView + 1;
+    for (auto& vcmsg : viewChangeMessages)
+    {
+        uint32_t newView = 0;
+        int lastStableSeq = 0;
+        std::string checkpointDigest;
+        MessageParser::parseViewChangeMessage(vcmsg, newView, lastStableSeq, checkpointDigest);
+        
+        // TO-DO: Verify signature
+        // and check that the signature isn't being repeated
+
+
+        // Check view
+        if (newView != view)
+        {
+            return false;
+        }
+    }
+    // Verified the messages
+    return true;
 }
 
 

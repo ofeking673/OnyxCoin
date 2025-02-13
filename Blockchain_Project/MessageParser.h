@@ -29,6 +29,14 @@ public:
     // Returns vector of pairs of block hash and previous block hash,
     // and the stop hash
     static const void parseGetHeadersMessage(const MessageP2P& msg, std::vector<std::pair<std::string, std::string>>& blockHashes, std::string& stopHash);
+
+    // Parses VIEW_CHANGE message
+    // Returns new view, last stable sequence, and the hash of the last checkpoint block
+    static const void parseViewChangeMessage(const MessageP2P& msg, uint32_t& newView, int& lastStableSeq, std::string& checkpointDigest);
+
+    // Parses NEW_VIEW message
+    // Returns the new view, and the vector of proof view change messages
+    static const void parseNewViewMessage(const MessageP2P& msg, uint32_t& newView, std::vector<MessageP2P>& viewChangeMessages);
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageParser() = default;

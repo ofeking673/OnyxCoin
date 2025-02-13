@@ -67,3 +67,27 @@ const void MessageParser::parseGetHeadersMessage(const MessageP2P& msg, std::vec
         blockHashes.emplace_back(blockHash, prevBlockHash);
     }
 }
+
+const void MessageParser::parseViewChangeMessage(const MessageP2P& msg, uint32_t& newView, int& lastStableSeq, std::string& checkpointDigest)
+{
+    // Get the paramaters of view_change message (new view, last stable sequence, and the hash of the last checkpoint block)
+    newView = msg.getPayload()["NEW_VIEW"].get<uint32_t>();
+    lastStableSeq = msg.getPayload()["LAST_SEQ"].get<int>();
+    checkpointDigest = msg.getPayload()["CHECKPOINT"].get<std::string>();
+}
+
+const void MessageParser::parseNewViewMessage(const MessageP2P& msg, uint32_t& newView, std::vector<MessageP2P>& viewChangeMessages)
+{
+    newView = msg.getPayload()["NEW_VIEW"].get<uint32_t>();
+
+    // Check if the view change messages vector exists and is an array
+    if (msg.getPayload().contains("VC_MESSAGES") && msg.getPayload()["VC_MESSAGES"].is_array()) {
+        // Iterate through each element in the array
+        for (auto& element : msg.getPayload()["VC_MESSAGES"]) {
+            // Convert the JSON element to MyClass using fromJson
+            MessageP2P vcmsg = MessageP2P::fromJson(element);
+            // Append to the vector
+            viewChangeMessages.push_back(vcmsg);
+        }
+    }
+}

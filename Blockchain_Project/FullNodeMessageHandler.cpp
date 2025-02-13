@@ -776,6 +776,37 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
 
 std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)
 {
+    if (msg.getType() != MessageType::NEW_VIEW)
+    {
+        return {};
+    }
+    // Log the event
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received NEW VIEW from peer." << std::endl;
+
+    //Parse the NEW_VIEW message
+    uint32_t newView = 0;
+    std::vector<MessageP2P> viewChangeMessages;
+    MessageParser::parseNewViewMessage(msg, newView, viewChangeMessages);
+
+
+    // TO-DO: Check that the senders public key is the public key of the new leader should become.
+
+    
+    // Ensure the new view is greater than current view
+    if (newView - 1 != _node->getCurrentView())
+    {
+        // Wrong new view
+        return {};
+    }
+
+
+    // Verify the view change messages provided
+    _node->checkRemoteViewChangeMessagesVector(viewChangeMessages);
+
+
+    // Update new view
+    _node->setCurrentView(newView);
+
     return {};
 }
 
@@ -788,12 +819,12 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
     // Log the event
     std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received VIEW CHANGE from peer." << std::endl;
 
-
+    // Parse VIEW_CHANGE message
     // Get the paramaters of view_change message (new view, last stable sequence, and the hash of the last checkpoint block)
-    uint32_t newView = msg.getPayload()["NEW_VIEW"].get<uint32_t>();
-    int lastStableSeq = msg.getPayload()["LAST_SEQ"].get<int>();
-    std::string checkpointDigest = msg.getPayload()["CHECKPOINT"].get<std::string>();
-
+    uint32_t newView = 0;
+    int lastStableSeq = 0;
+    std::string checkpointDigest;
+    MessageParser::parseViewChangeMessage(msg, newView, lastStableSeq, checkpointDigest);
 
     // Ensure the new view is greater than current view
     if (newView - 1 != _node->getCurrentView())
@@ -807,6 +838,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
     if (latestBlock.getBlockHeader().getIndex() != lastStableSeq || latestBlock.getHash() != checkpointDigest)
     {
         // Wrong checkpoint provided
+        return {};
     }
 
     // Add the message to the container
