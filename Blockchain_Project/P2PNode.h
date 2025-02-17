@@ -43,13 +43,6 @@
 // Link with Ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
 
-enum BlockState {
-    UNREADY,
-    PREPREPARED,
-    PREPARED,
-    DONE
-};
-
 
 class P2PNode
 {
@@ -104,10 +97,6 @@ public:
 
     // Given two peer maps, return a map of the new peers not found in the owned map.
     std::unordered_map<std::string, PeerInfo> getNewPeers(const std::unordered_map<std::string, PeerInfo>& newPeers);
-
-    //Increment prepare amount
-    void incrementPrepare() { prepareAmt++; };
-    int getPrepareAmount() const { return prepareAmt; };
 
     // Get the current view number
     uint32_t getCurrentView() const;
@@ -207,9 +196,6 @@ protected:
     uint16_t m_myPort;
 
     std::thread m_pingThread;  // Thread that will run ping logic
-
-    BlockState state;
-    int prepareAmt;
 
     // PBFT state
     // Map of (view, sequence) -> phase state of block

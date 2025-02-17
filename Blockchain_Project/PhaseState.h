@@ -6,6 +6,7 @@
 class PhaseState
 {
 public:
+	PhaseState();
 	PhaseState(const Block& block);
 
 	void addPrepareMessage(const MessageP2P& prepareMessage);

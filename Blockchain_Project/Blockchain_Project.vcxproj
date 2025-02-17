@@ -144,6 +144,7 @@
     <ClInclude Include="Encryptions\RIPEMD_160.h" />
     <ClInclude Include="Encryptions\SHA256.h" />
     <ClInclude Include="Encryptions\Test.h" />
+    <ClInclude Include="FullNode.h" />
     <ClInclude Include="FullNodeMessageHandler.h" />
     <ClInclude Include="HelperT.h" />
     <ClInclude Include="IMessageHandler.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="Encryptions\RIPEMD_160.cpp" />
     <ClCompile Include="Encryptions\SHA256.cpp" />
     <ClCompile Include="Encryptions\Test.cpp" />
+    <ClCompile Include="FullNode.cpp" />
     <ClCompile Include="FullNodeMessageHandler.cpp" />
     <ClCompile Include="HelperT.cpp" />
     <ClCompile Include="IMessageHandler.cpp" />

@@ -1,5 +1,12 @@
 #include "PhaseState.h"
 
+PhaseState::PhaseState()
+	:_prePrepared(false)
+	, _prepared(false)
+	, _committed(false)
+{
+}
+
 PhaseState::PhaseState(const Block& block)
 	: _block(block)
 	, _prePrepared(true)
@@ -53,7 +60,7 @@ bool PhaseState::isRecievedCommitMessageFromAuthorAlready(const std::string& aut
 			return true;
 		}
 	}
-	return false
+	return false;
 }
 
 int PhaseState::getPrepareAmount() const
