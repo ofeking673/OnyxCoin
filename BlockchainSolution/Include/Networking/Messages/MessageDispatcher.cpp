@@ -1,11 +1,6 @@
+#include "pch.h"
 #include "MessageDispatcher.h"
-#include "MessageP2P.h"
-#include <unordered_map>
-#include <functional>
-#include <iostream>
-#include "IMessageHandler.h"
 #include "FullNodeMessageHandler.h"
-#include "P2PNode.h"
 
 std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> MessageDispatcher::_dispatchTable;
 

@@ -4,9 +4,9 @@
 #include <memory>
 #include "MessageP2P.h"
 #include "Encryptions/ECDSASigner.h"
-#include "Blockchain.h"
+#include "Structure/Blockchain.h"
 #include "InventoryData.h"
-#include "PeerInfo.h"
+#include "Networking/PeerInfo.h"
 
 // The MessageManager is responsible for creating new P2P messages
 // and handling incoming messages at a high level.

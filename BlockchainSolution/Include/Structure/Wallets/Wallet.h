@@ -4,7 +4,7 @@
 #include "OutPoint.h"
 #include "UTXOData.h"
 #include "Transaction.h"
-#include "AddressGenerator.h"
+#include "Encryptions/AddressGenerator.h"
 #include "Encryptions/AES256CBC.h"
 #include "Encryptions/Argon2.h"
 #include "Encryptions/BIP39SeedMaker.h"

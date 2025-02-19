@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "Wallet.h"
-#include <algorithm>
 
 Wallet::Wallet()
 {

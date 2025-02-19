@@ -1,8 +1,8 @@
 #pragma once
 
 #include "IMessageHandler.h"
-#include "Blockchain.h"
-#include "UTXOSet.h"
+#include "Structure/Blockchain.h"
+#include "Structure/Wallets/UTXOSet.h"
 
 // A concrete class that implements IMessageHandler,
 // suitable for a full node in the blockchain network.

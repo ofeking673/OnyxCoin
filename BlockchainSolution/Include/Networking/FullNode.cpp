@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "FullNode.h"
 
 FullNode::FullNode(const std::string& walletFilePath, const std::string& listenAddress, uint16_t port)

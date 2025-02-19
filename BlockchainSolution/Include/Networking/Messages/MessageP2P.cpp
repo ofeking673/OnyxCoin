@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "MessageP2P.h"
-
-using json = nlohmann::json;
 
 // Constructor
 

@@ -109,11 +109,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)Include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -155,6 +156,31 @@
     <ClInclude Include="..\Include\Encryptions\RIPEMD_160.h" />
     <ClInclude Include="..\Include\Encryptions\SHA256.h" />
     <ClInclude Include="..\Include\Encryptions\Test.h" />
+    <ClInclude Include="..\Include\Networking\DiscoveryServer.h" />
+    <ClInclude Include="..\Include\Networking\FullNode.h" />
+    <ClInclude Include="..\Include\Networking\Messages\FullNodeMessageHandler.h" />
+    <ClInclude Include="..\Include\Networking\Messages\IMessageHandler.h" />
+    <ClInclude Include="..\Include\Networking\Messages\InventoryData.h" />
+    <ClInclude Include="..\Include\Networking\Messages\MessageDispatcher.h" />
+    <ClInclude Include="..\Include\Networking\Messages\MessageManager.h" />
+    <ClInclude Include="..\Include\Networking\Messages\MessageP2P.h" />
+    <ClInclude Include="..\Include\Networking\Messages\MessageParser.h" />
+    <ClInclude Include="..\Include\Networking\Messages\MessageTypes.h" />
+    <ClInclude Include="..\Include\Networking\Messages\PhaseState.h" />
+    <ClInclude Include="..\Include\Networking\P2PNode.h" />
+    <ClInclude Include="..\Include\Networking\PeerInfo.h" />
+    <ClInclude Include="..\Include\Networking\WSAInitializer.h" />
+    <ClInclude Include="..\Include\Structure\Block.h" />
+    <ClInclude Include="..\Include\Structure\Blockchain.h" />
+    <ClInclude Include="..\Include\Structure\BlockHeader.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\OutPoint.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\OutPointHash.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\Transaction.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\TxInput.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\TxOutput.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\UTXOData.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\UTXOSet.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\Wallet.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +197,31 @@
     <ClCompile Include="..\Include\Encryptions\RIPEMD_160.cpp" />
     <ClCompile Include="..\Include\Encryptions\SHA256.cpp" />
     <ClCompile Include="..\Include\Encryptions\Test.cpp" />
+    <ClCompile Include="..\Include\Networking\DiscoveryServer.cpp" />
+    <ClCompile Include="..\Include\Networking\FullNode.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\FullNodeMessageHandler.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\IMessageHandler.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\InventoryData.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\MessageDispatcher.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\MessageManager.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\MessageP2P.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\MessageParser.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\MessageTypes.cpp" />
+    <ClCompile Include="..\Include\Networking\Messages\PhaseState.cpp" />
+    <ClCompile Include="..\Include\Networking\P2PNode.cpp" />
+    <ClCompile Include="..\Include\Networking\PeerInfo.cpp" />
+    <ClCompile Include="..\Include\Networking\WSAInitializer.cpp" />
+    <ClCompile Include="..\Include\Structure\Block.cpp" />
+    <ClCompile Include="..\Include\Structure\Blockchain.cpp" />
+    <ClCompile Include="..\Include\Structure\BlockHeader.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\OutPoint.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\OutPointHash.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\Transaction.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\TxInput.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\TxOutput.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\UTXOData.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\UTXOSet.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\Wallet.cpp" />
     <ClCompile Include="BlockchainCore.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

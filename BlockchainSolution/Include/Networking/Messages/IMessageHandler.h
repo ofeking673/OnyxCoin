@@ -1,10 +1,10 @@
 #pragma once
 
 #include "MessageP2P.h"
-#include "string"
+#include <string>
 
 //#include "PeerManager.h"
-#include "P2PNode.h"
+#include "Networking/P2PNode.h"
 #include "MessageManager.h"
 
 #define FULL_NODE_MESSAGE_HANDLER 1

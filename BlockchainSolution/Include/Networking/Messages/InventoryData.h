@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "json.hpp"
+#include "Networking/json.hpp"
 
 class InventoryData
 {

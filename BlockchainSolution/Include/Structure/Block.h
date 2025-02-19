@@ -1,9 +1,8 @@
 #pragma once
-#include "Transaction.h"
+#include "Wallets/Transaction.h"
 #include "BlockHeader.h"
 #include <vector>
 #include <sstream>
-#include "json.hpp"
 
 
 

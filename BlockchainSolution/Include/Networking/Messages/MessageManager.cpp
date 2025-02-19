@@ -1,13 +1,6 @@
+#include "pch.h"
 #include "MessageManager.h"
-#include "AddressGenerator.h"
-#include <iostream>
-#include <chrono>
-#include <ctime>
-#include <sstream>
-#include <iomanip>
-#include "json.hpp"
 
-using json = nlohmann::json;
 
 MessageP2P MessageManager::createPingMessage(const std::string& publicKey)
 {

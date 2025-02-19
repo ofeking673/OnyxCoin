@@ -90,6 +90,81 @@
     <ClInclude Include="..\Include\Encryptions\Test.h">
       <Filter>Header Files\Encryptions</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\OutPoint.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\OutPointHash.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\TxInput.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\TxOutput.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\Transaction.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\UTXOData.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\UTXOSet.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\Wallet.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Block.h">
+      <Filter>Header Files\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\BlockHeader.h">
+      <Filter>Header Files\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Structure\Blockchain.h">
+      <Filter>Header Files\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\MessageP2P.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\MessageTypes.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\PhaseState.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\MessageManager.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\MessageParser.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\InventoryData.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\IMessageHandler.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\FullNodeMessageHandler.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\Messages\MessageDispatcher.h">
+      <Filter>Header Files\Networking\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\DiscoveryServer.h">
+      <Filter>Header Files\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\P2PNode.h">
+      <Filter>Header Files\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\FullNode.h">
+      <Filter>Header Files\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\PeerInfo.h">
+      <Filter>Header Files\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Networking\WSAInitializer.h">
+      <Filter>Header Files\Networking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BlockchainCore.cpp">
@@ -136,6 +211,81 @@
     </ClCompile>
     <ClCompile Include="..\Include\Encryptions\Test.cpp">
       <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\OutPoint.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\OutPointHash.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\TxInput.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\TxOutput.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\Transaction.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\UTXOData.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\UTXOSet.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\Wallet.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Block.cpp">
+      <Filter>Source Files\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\BlockHeader.cpp">
+      <Filter>Source Files\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Blockchain.cpp">
+      <Filter>Source Files\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\MessageP2P.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\MessageTypes.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\PhaseState.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\MessageManager.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\MessageParser.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\InventoryData.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\IMessageHandler.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\FullNodeMessageHandler.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\Messages\MessageDispatcher.cpp">
+      <Filter>Source Files\Networking\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\DiscoveryServer.cpp">
+      <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\P2PNode.cpp">
+      <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\FullNode.cpp">
+      <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\PeerInfo.cpp">
+      <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Networking\WSAInitializer.cpp">
+      <Filter>Source Files\Networking</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

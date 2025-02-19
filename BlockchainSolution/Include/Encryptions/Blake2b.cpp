@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "Blake2b.h"
 
+#undef min
+#undef max
+
 Blake2b::Blake2b(size_t outlen, const std::vector<uint8_t>&key) 
     : outlen_(outlen)
 {

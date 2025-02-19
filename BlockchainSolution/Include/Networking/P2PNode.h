@@ -26,9 +26,9 @@
 
 
 #include "PeerInfo.h"
-#include "MessageDispatcher.h"
-#include "Wallet.h"
-#include "PhaseState.h"
+#include "Messages/MessageDispatcher.h"
+#include "Structure/Wallets/Wallet.h"
+#include "Messages/PhaseState.h"
 
 #include <ws2tcpip.h>
 #include <iostream>

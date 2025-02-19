@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "WSAInitializer.h"
-#include <exception>
-
 
 WSAInitializer::WSAInitializer()
 {

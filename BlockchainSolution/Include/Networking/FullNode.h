@@ -1,10 +1,8 @@
 #pragma once
 #include "P2PNode.h"
-#include "Wallet.h"
-#include "Transaction.h"
-#include "MessageManager.h" // Assume you add TX message type here
-#include <iostream>
-#include <sstream>
+#include "Structure/Wallets/Wallet.h"
+#include "Structure/Wallets/Transaction.h"
+#include "Messages/MessageManager.h"
 
 class FullNode 
 {

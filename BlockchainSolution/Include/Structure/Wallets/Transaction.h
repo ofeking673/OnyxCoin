@@ -3,7 +3,7 @@
 #include <string>
 #include <ctime>
 #include <iostream>
-#include "HelperT.h"
+#include "Encryptions/HelperT.h"
 #include "Encryptions/Blake2b.h"
 #include "Encryptions/ECDSASigner.h"
 #include "Encryptions/RIPEMD_160.h"
@@ -13,7 +13,7 @@
 #include "TxInput.h"
 #include "TxOutput.h"
 
-#include "json.hpp"
+#include "Networking/json.hpp"
 
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
 #define TAX_RATE 0.5

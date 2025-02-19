@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "AES256CBC.h"
 
+#undef min
+#undef max
+
 AES256CBC::AES256CBC(cpp_int masterKey)
 {
 	keyMatrix = expand_key(masterKey);

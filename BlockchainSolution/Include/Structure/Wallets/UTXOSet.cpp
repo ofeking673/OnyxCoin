@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "UTXOSet.h"
-#include <iostream>
 
 UTXOSet* UTXOSet::_instance = nullptr;
 

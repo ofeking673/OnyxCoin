@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "Transaction.h"
-
-using json = nlohmann::json;
 
 Transaction::Transaction(std::vector<TxInput> inputs, std::vector<TxOutput> outputs)
 	: _inputs(std::move(inputs))

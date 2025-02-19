@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "FullNodeMessageHandler.h"
-#include "iostream"
-#include "MessageParser.h"
 
 
 FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node) :

@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "Argon2.h"
 
+#undef min
+#undef max
+
 Argon2::Argon2(Type type, uint32_t timeCost, uint32_t memoryCost, uint32_t parallelism, uint32_t hashLength)
     : type_(type), timeCost_(timeCost), parallelism_(parallelism), hashLength_(hashLength) {
 

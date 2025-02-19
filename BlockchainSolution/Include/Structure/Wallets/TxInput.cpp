@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "TxInput.h"
 
 bool TxInput::operator==(const TxInput& other) const

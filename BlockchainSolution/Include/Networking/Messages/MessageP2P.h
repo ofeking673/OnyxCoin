@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "MessageTypes.h"
-#include "json.hpp"
+#include "Networking/json.hpp"
 
 using json = nlohmann::json;
 

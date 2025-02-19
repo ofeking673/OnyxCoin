@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "Block.h"
-
-using json = nlohmann::json;
 
 Block::Block(int index, const std::string& previousHash) :
 	_blockHeader(index, std::time(nullptr), previousHash)

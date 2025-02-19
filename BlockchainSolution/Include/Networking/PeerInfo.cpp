@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "PeerInfo.h"
 
 PeerInfo::PeerInfo(const std::string& ip, const uint16_t& port, const std::string& publicKey, const std::string& nodeId)

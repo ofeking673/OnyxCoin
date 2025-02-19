@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MessageP2P.h"
-#include "Block.h"
+#include "Structure/Block.h"
 
 class PhaseState
 {

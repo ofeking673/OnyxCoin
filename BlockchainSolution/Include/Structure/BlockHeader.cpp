@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "BlockHeader.h"
-
-using json = nlohmann::json;
 
 BlockHeader::BlockHeader(int index, time_t timestamp, const std::string& previousHash)
 {

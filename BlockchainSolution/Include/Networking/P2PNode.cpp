@@ -1,7 +1,8 @@
+#include "pch.h"
 #include "P2PNode.h"
-#include "MessageParser.h"
-#include "Messagemanager.h"
-#include "FullNodeMessageHandler.h"
+#include "Messages/MessageParser.h"
+#include "Messages/MessageManager.h"
+#include "Messages/FullNodeMessageHandler.h"
 
 P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) : 
       m_isRunning(false)

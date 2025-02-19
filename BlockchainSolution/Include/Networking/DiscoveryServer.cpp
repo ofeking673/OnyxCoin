@@ -54,7 +54,7 @@
 //}
 
 
-
+#include "pch.h"
 #include "DiscoveryServer.h"
 
 

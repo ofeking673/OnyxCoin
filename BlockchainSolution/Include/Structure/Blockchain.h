@@ -1,6 +1,6 @@
 #pragma once
 #include "Block.h"
-#include "UTXOSet.h"
+#include "Wallets/UTXOSet.h"
 
 class Blockchain
 {
