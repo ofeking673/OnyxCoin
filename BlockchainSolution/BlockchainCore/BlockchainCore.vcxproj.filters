@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Encryptions">
+      <UniqueIdentifier>{bf2b33a0-2ebb-4051-988e-e2813fe73dca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Structure">
+      <UniqueIdentifier>{8645a123-bc03-45cd-b3c9-258b52fe262e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Networking">
+      <UniqueIdentifier>{f70553cf-97ff-4421-9471-14e1c00ee221}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Networking\Messages">
+      <UniqueIdentifier>{2fe144e2-3820-4dc3-ac72-9403d2ca3d6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Structure\Wallets">
+      <UniqueIdentifier>{b5c369d7-561a-4987-abed-51288a6b0079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Encryptions">
+      <UniqueIdentifier>{6040df9b-3eb3-47cd-9972-628088346303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Networking">
+      <UniqueIdentifier>{b304c402-ae4b-40fe-9747-13e2cd7697bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Networking\Messages">
+      <UniqueIdentifier>{e73013f3-3cd6-4c13-9f4e-ff4d6b8c7144}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Structure">
+      <UniqueIdentifier>{1e34c2d4-735c-4d7c-b1a8-eefe73e8d7b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Structure\Wallets">
+      <UniqueIdentifier>{54622e52-99b4-4895-b68c-01ec4f665765}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\SHA256.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\Point.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\HelperT.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\KeyGenerator.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\Base58.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\ECDSASigner.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\AddressGenerator.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\RIPEMD_160.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\AES256CBC.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\Argon2.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\BIP39SeedMaker.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\Blake2b.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Encryptions\Test.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BlockchainCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\SHA256.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\Point.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\HelperT.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\KeyGenerator.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\Base58.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\ECDSASigner.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\AddressGenerator.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\RIPEMD_160.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\AES256CBC.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\Argon2.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\BIP39SeedMaker.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\Blake2b.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Encryptions\Test.cpp">
+      <Filter>Source Files\Encryptions</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
