@@ -303,5 +303,8 @@ std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
 Block Blockchain::createGenesisBlock()
 {
 	Block genesis(0, "0");
+	testTransaction("54f2dac6701f04afc0976cfff22479efa00112a3d96b116b7570db6e9c6fa35963ea177b4bd7d4b07c622279ded254c4bf929f6a67f6c62297f49a1175fb65a7", 100);
+	genesis.addTransaction(_pendingTransactions.front());
+	_pendingTransactions.clear();
 	return genesis;
 }

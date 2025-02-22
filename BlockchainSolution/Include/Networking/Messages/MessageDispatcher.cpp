@@ -90,6 +90,11 @@ std::vector<MessageP2P> MessageDispatcher::dispatch(const MessageP2P& msg)
     }
 }
 
+Blockchain* MessageDispatcher::getChain()
+{
+    return _handler->_blockchain;
+}
+
 //std::string MessageDispatcher::sendClient(const std::string& pubkey, const MessageP2P& msg)
 //{
 //    if (isKnownUser(pubkey)) {

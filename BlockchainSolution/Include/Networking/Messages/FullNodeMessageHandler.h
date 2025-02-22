@@ -41,9 +41,10 @@ public:
     std::vector<MessageP2P> onCommit(const MessageP2P& msg) override;
     std::vector<MessageP2P> onNewView(const MessageP2P& msg) override;
     std::vector<MessageP2P> onViewChange(const MessageP2P& msg) override;
-private:
 
     Blockchain* _blockchain;
+private:
+
     UTXOSet* _utxoSet;
     // Inherits from IMessageHandler:
     //     P2PNode _node;

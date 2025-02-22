@@ -5,6 +5,7 @@
 #include "MessageP2P.h"
 
 class IMessageHandler;
+class FullNodeMessageHandler;
 class P2PNode;
 
 ///
@@ -24,8 +25,9 @@ public:
 
     //bool isKnownUser(const std::string& pubkey);
     //void addPeer(const std::string& pubkey, SOCKET sock);
+    Blockchain* getChain();
 private:
-    IMessageHandler* _handler;
+    FullNodeMessageHandler* _handler;
     static std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> _dispatchTable;
 
 };

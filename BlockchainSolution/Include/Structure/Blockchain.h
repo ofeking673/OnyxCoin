@@ -8,10 +8,6 @@ public:
 	Blockchain();
 	~Blockchain();
 
-	///////////////////////////////////////////////////////////
-	//FOR TESTING ONLY!! REMOVE LATER!
-	void testTransaction(std::string address, uint64_t amt);
-	///////////////////////////////////////////////////////////
 	// Get the latest Block in the chain
 	Block getLatestBlock() const;
 
@@ -42,6 +38,8 @@ public:
 	std::vector<BlockHeader> getAppendedHeaders() const;
 
 private:
+	void testTransaction(std::string address, uint64_t amt);
+
 	std::vector<Block> _chain;
 	std::vector<Transaction> _pendingTransactions;
 	UTXOSet* utxo;

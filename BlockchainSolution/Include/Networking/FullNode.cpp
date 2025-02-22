@@ -32,6 +32,7 @@ void FullNode::showBalance() const
 void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicKey, uint64_t amount)
 {
     Transaction tx = _wallet.createTransaction(recipientPublicKey, amount);
+    std::cout << "[Info] Transaction created" << std::endl;
     if (tx.getInputs().empty() && tx.getOutputs().empty()) 
     {
         std::cerr << "[Error] Transaction creation failed (insufficient funds?)" << std::endl;
@@ -39,6 +40,7 @@ void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicK
     }
     // Create a P2P message wrapping the transaction
     MessageP2P newTxMessage = MessageManager::createNewTransactionMessage(_wallet.getPublicKey(), tx);
+    std::cout << __FUNCTION__": [Info] Broadcasting message!\n";
     _p2pNode.broadcastMessage(newTxMessage);
     std::cout << "[Info] Transaction broadcasted." << std::endl;
 }
@@ -96,6 +98,9 @@ void FullNode::runCLI()
         else if (command == "exit") 
         {
             _running = false;
+        }
+        else if (command == "utxo") {
+            _wallet.updateUTXOsFromNewBlock(_p2pNode.getLastBlock()._transactions);
         }
         else 
         {

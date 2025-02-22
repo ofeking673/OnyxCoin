@@ -176,6 +176,7 @@ void Wallet::updateUTXOsWithTransaction(Transaction tx)
 
 void Wallet::updateUTXOsFromNewBlock(const std::vector<Transaction>& blockTransactions)
 {
+	
 	for (auto tx : blockTransactions)
 	{
 		updateUTXOsWithTransaction(tx);

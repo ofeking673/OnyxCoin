@@ -568,7 +568,6 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& ms
     
 
     PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
-
     // Get my peer list (before adding the new peer)
     json serializedPeerList = _node->peersToJson();
 
@@ -577,7 +576,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHandshake(const MessageP2P& ms
     //
     // Add the new peer to the node's peer list
     //_node->addPeer(newPeer);
-
+    _node->addPeer(newPeer);
     std::vector<MessageP2P> messages;
     // Send my peer list back to the new peer started communication
     MessageP2P peerListMsg = MessageManager::createPeerListMessage(_node->getMyPublicKey(), serializedPeerList);

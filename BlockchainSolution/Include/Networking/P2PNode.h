@@ -87,6 +87,8 @@ public:
     uint16_t getMyPort() const;
     PeerInfo getMyInfo() const;
 
+    Block getLastBlock();
+
     // Get list of all connected peers (for broadcast, etc)
     std::vector<PeerInfo> getAllClients();
 
