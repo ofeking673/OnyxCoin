@@ -2,7 +2,6 @@
 // Main header for the Blockchain Project
 // This file centralizes the includes for standard libraries,
 // third-party dependencies, and internal modules.
-// Modify and expand this file as your project evolves.
 
 #ifndef FRAMEWORK_H
 #define FRAMEWORK_H

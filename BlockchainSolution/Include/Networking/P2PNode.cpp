@@ -289,7 +289,6 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
         std::cerr << "[Critical] *this* is NULL!" << std::endl;
         return false;
     }
-    std::cout << "[Info] Sending message to " << toPublicKey << std::endl;
     std::lock_guard<std::mutex> lock(m_peerMutex);
     auto it = m_peers.find(toPublicKey);
     if (it == m_peers.end())
@@ -298,14 +297,12 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
         return false;
     }
 
-    std::cout << "[Info] found user socket!\n";
 
     SOCKET sock = it->second.socket;
     if (sock == INVALID_SOCKET)
         return false;
 
     // Serialize message
-    std::cout << "[Info] Preparing message for sending" << std::endl;
     signMessage(msg);
     json j = msg.toJson();
     std::string wire = j.dump();
@@ -324,7 +321,6 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
 void P2PNode::broadcastMessage(MessageP2P& msg)
 {
     std::cout << "[Info] Starting broadcast\n";
-    std::lock_guard<std::mutex> lock(m_peerMutex);
     for (auto& peer : m_peers)
     {
         sendMessageTo(msg, peer.second.publicKey);
@@ -677,8 +673,9 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
             // We have data to process
             std::string data(buffer, bytesReceived);
             // In real code, you might have to handle partial messages or multiple messages in one recv.
-
+            std::cout << "[Info] Recieved new message! " << data << std::endl;
             MessageP2P msg = MessageParser::parse(data);
+
             if (msg.getType() == MessageType::HANDSHAKE) {
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
                 

@@ -293,14 +293,15 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
         // or the node doesn't have the transaction searched for
         // TO-DO: Send something about it to the network.
     }
-    if (!tx.verifyTransactionSignature())
+    else if (!tx.verifyTransactionSignature())
     {
         // Send something that says that the transaction is invalid
     }
-
+    else {
+        _blockchain->addTransaction(tx);
+    }
     // Add to pending transaction, if not already in it
-    _blockchain->addTransaction(tx);
-
+    
 
     // TO-DO: Broadcast new transaction or inventory.
     // Need to think about the implementation
