@@ -292,12 +292,15 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
         // Might be because asked for worng trnasaction ID,
         // or the node doesn't have the transaction searched for
         // TO-DO: Send something about it to the network.
+        return {};
     }
     else if (!tx.verifyTransactionSignature())
     {
         // Send something that says that the transaction is invalid
+        return {};
     }
-    else {
+    else 
+    {
         _blockchain->addTransaction(tx);
     }
     // Add to pending transaction, if not already in it
@@ -305,9 +308,27 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
 
     // TO-DO: Broadcast new transaction or inventory.
     // Need to think about the implementation
+    
+    
+    if (_node->amILeader())
+    { // We are the leader
+        if (_blockchain->isAvailableToCommitBlock())
+        {
+            // Create block if available (enough pending transactions)
+            Block newBlock = _blockchain->commitBlock(_node->getMyPublicKey());
 
+            if (!newBlock.isErrorBlock())
+            { // Created a new block
+                // Broadcast a preprepare message
+                std::vector<MessageP2P> messages;
+                MessageP2P prePrepareMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), newBlock, MessageType::PREPREPARE, _node->getCurrentView());
+                messages.push_back(prePrepareMsg);
+                return messages;
+            }
+        }
+    }
 
-    return {}; // REMOVE THIS
+    return {};
 }
 
 std::vector<MessageP2P> FullNodeMessageHandler::onGetTransaction(const MessageP2P& msg)

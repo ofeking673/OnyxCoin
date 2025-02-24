@@ -17,8 +17,9 @@ public:
 
 	void addTransaction(const Transaction& tx);
 
+	bool isAvailableToCommitBlock();
 	void displayBlockchain() const;
-	void commitBlock();
+	Block commitBlock(std::string leadersPublicKey);
 	void addBlockToUtxo(Block block); //Iterate over all transactions and add the outputs to the UTXO set
 	// Method to validate the chain
 	bool isChainValid() const;
@@ -37,8 +38,10 @@ public:
 	std::vector<BlockHeader> getHeadersFrom(int startIndex, int maxCount, const std::string& stopHash = "") const;
 	std::vector<BlockHeader> getAppendedHeaders() const;
 
+
 private:
 	void testTransaction(std::string address, uint64_t amt);
+	void addRewardTransaction(const std::string& address, Block& newBlock);
 
 	std::vector<Block> _chain;
 	std::vector<Transaction> _pendingTransactions;

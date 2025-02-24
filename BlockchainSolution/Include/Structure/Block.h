@@ -34,6 +34,10 @@ public:
 
 	const Transaction findTransaction(const std::string& txID) const;
 
+	// Calculate the reward for the leader, for proposing the block.
+	// Call before adding the reward transaction.
+	uint64_t calculateBlockReward();
+
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 private:
 	//int _index;

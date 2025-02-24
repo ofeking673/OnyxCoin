@@ -58,7 +58,7 @@ public:
     // Connect to a new remote node
     bool connectToNode(const std::string& ip, uint16_t port,
         const std::string& remotePublicKey,
-        const std::string& remoteNodeId);
+        const uint64_t& remoteNodeId);
     void connectToPeer(PeerInfo& info);
     // Get peers from discovery server
     void getPeers();
@@ -150,7 +150,8 @@ public:
     bool checkRemoteViewChangeMessagesVector(std::vector<MessageP2P> viewChangeMessages);
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+    uint32_t getLeaderIndex();
+    bool amILeader(); // TO-DO:
 protected:
     // Main loop that accepts incoming connections
     virtual void acceptLoop();
@@ -171,7 +172,7 @@ protected:
     void printPeers();
 protected:
     uint32_t m_currentView;
-    std::string m_myNodeId;
+    uint64_t m_myNodeId;
     std::string m_myPublicKey;
 
     SOCKET      m_listenSocket = INVALID_SOCKET;

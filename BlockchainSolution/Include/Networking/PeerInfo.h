@@ -11,7 +11,7 @@ class PeerInfo
 {
 
 public:
-    PeerInfo(const std::string& ip, const uint16_t& port, const std::string& publicKey, const std::string& nodeId);
+    PeerInfo(const std::string& ip, const uint16_t& port, const std::string& publicKey, const uint64_t& nodeId);
     PeerInfo() = default;
 
     json toJson() const;
@@ -20,7 +20,7 @@ public:
     std::string ip;         // IP of peer
     uint16_t port;          // Port to establish communication with peer
     std::string publicKey;  // Public key of the peer
-    std::string nodeId;     // Global node ID (e.g. can be a unique string or hashed public key)
+    uint64_t nodeId;     // Global node ID (e.g. can be a unique string or hashed public key)
     SOCKET      socket;     // The socket to communicate with this peer
     std::chrono::steady_clock::time_point lastContact; // When we last heard from this peer
 

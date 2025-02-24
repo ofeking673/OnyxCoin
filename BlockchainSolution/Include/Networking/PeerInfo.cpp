@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PeerInfo.h"
 
-PeerInfo::PeerInfo(const std::string& ip, const uint16_t& port, const std::string& publicKey, const std::string& nodeId)
+PeerInfo::PeerInfo(const std::string& ip, const uint16_t& port, const std::string& publicKey, const uint64_t& nodeId)
     : ip(ip)
     , port(port)
     , publicKey(publicKey)
@@ -30,7 +30,7 @@ PeerInfo PeerInfo::fromJson(const json& data)
     p.ip = data.value("ip", "");
     p.port = data.value("port", 0);
     p.publicKey = data.value("publicKey", "");
-    p.nodeId = data.value("nodeId", "");
+    p.nodeId = data.value("nodeId", 0);
 
     return p;
 }
@@ -38,7 +38,7 @@ PeerInfo PeerInfo::fromJson(const json& data)
 std::ostream& operator<<(std::ostream& os, const PeerInfo& peer)
 {
     // Convert lastContact to seconds since the steady clock's epoch for readability.
-    auto secs = std::chrono::duration_cast<std::chrono::seconds>(
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(
         peer.lastContact.time_since_epoch()).count();
 
     os << "PeerInfo {"
@@ -47,7 +47,7 @@ std::ostream& operator<<(std::ostream& os, const PeerInfo& peer)
         << "\n  Public Key: " << peer.publicKey
         << "\n  Node ID: " << peer.nodeId
         << "\n  Socket: " << peer.socket
-        << "\n  Last Contact: " << secs << " seconds since steady_clock epoch"
+        << "\n  Last Contact: " << seconds << " seconds since steady_clock epoch"
         << "\n}";
     return os;
 }

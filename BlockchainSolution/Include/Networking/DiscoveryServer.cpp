@@ -165,7 +165,7 @@ MessageP2P DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
 
         // Assign a new node ID
         uint64_t assignedId = m_nextNodeId.fetch_add(1);
-        std::string assignedIdStr = std::to_string(assignedId);
+        //std::string assignedIdStr = std::to_string(assignedId);
 
         // Respond with DISCOVERY_RESPONSE
         MessageP2P response;
@@ -173,7 +173,7 @@ MessageP2P DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
         response.setAuthor(this->m_myPublicKey); // server's pubkey
 
         json respPayload;
-        respPayload[DISCOVERY_PAYLOAD_ASSIGNED_ID] = assignedIdStr;
+        respPayload[DISCOVERY_PAYLOAD_ASSIGNED_ID] = assignedId;
 
         // Build a list of known nodes to send back
         json nodeListJson = json::array();
@@ -200,7 +200,7 @@ MessageP2P DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
             info.ip = ip;
             info.port = port;
             info.publicKey = msg.getAuthor();  // The public key of the request
-            info.nodeId = assignedIdStr;
+            info.nodeId = assignedId;
             m_knownNodes.push_back(info);
         }
 

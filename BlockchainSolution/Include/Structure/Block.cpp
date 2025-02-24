@@ -218,6 +218,16 @@ const Transaction Block::findTransaction(const std::string& txID) const
 	}
 }
 
+uint64_t Block::calculateBlockReward()
+{
+	uint64_t reward = 0;
+	for (auto& tx : _transactions)
+	{
+		reward += tx.calculateTax();
+	}
+	return reward;
+}
+
 std::string Block::getPreviousHash() const
 {
 	return _blockHeader.getPreviousHash();

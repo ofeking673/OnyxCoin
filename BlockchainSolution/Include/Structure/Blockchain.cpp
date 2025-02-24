@@ -20,8 +20,17 @@ void Blockchain::testTransaction(std::string address, uint64_t amt)
 {
 	Transaction trans(
 		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase")},
-		{ TxOutput(amt, std::to_string(REGULARE_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(address))) });
+		{ TxOutput(amt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(address))) });
 	addTransaction(trans);
+}
+
+void Blockchain::addRewardTransaction(const std::string& address, Block& newBlock)
+{
+	uint64_t amt = newBlock.calculateBlockReward();
+	Transaction trans(
+		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase") },
+		{ TxOutput(amt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(address))) });
+	newBlock.addTransaction(trans);
 }
 
 Block Blockchain::getLatestBlock() const
@@ -56,6 +65,15 @@ void Blockchain::addTransaction(const Transaction& tx)
 }
 
 
+bool Blockchain::isAvailableToCommitBlock()
+{
+	if (_pendingTransactions.size() >= 5)
+	{ // At least 5 Transactions to create a block.
+		return true;
+	}
+	return false;
+}
+
 void Blockchain::displayBlockchain() const
 {
 	for (const auto& block : _chain)
@@ -65,17 +83,28 @@ void Blockchain::displayBlockchain() const
 	}
 }
 
-void Blockchain::commitBlock()
+Block Blockchain::commitBlock(std::string leadersPublicKey)
 {
+	if (!isAvailableToCommitBlock())
+	{
+		return Block();
+	}
+
+
 	Block newBlock(_chain.size(), getLatestBlock().getHash());
+
 	for (const auto& tx : _pendingTransactions)
 	{
 		newBlock.addTransaction(tx);
 	}
 
+	//Create the reward transaction because we are the leader proposing the block
+	addRewardTransaction(leadersPublicKey, newBlock);
+
 	_chain.push_back(newBlock);
 	addBlockToUtxo(newBlock);
 	_pendingTransactions.clear();
+	return newBlock;
 }
 
 void Blockchain::addBlockToUtxo(Block block)

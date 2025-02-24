@@ -16,7 +16,7 @@ P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) :
         Wallet wallet(filePath);
         m_myPublicKey = wallet.getPublicKey();
         m_myPrivateKey = wallet.getPrivateKey();
-        m_myNodeId = SHA256::digest(m_myPublicKey);
+        //m_myNodeId = SHA256::digest(m_myPublicKey);
     }
 }
 
@@ -118,7 +118,7 @@ void P2PNode::stop()
     m_peers.clear();
 }
 
-bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::string& remotePublicKey, const std::string& remoteNodeId)
+bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::string& remotePublicKey, const uint64_t& remoteNodeId)
 {
     SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET)
@@ -253,8 +253,9 @@ void P2PNode::getPeers()
     std::string res(buf, bytesRecieved);
     MessageP2P msg = MessageP2P::fromJson(json::parse(res));
     json payload = msg.getPayload();
-    m_myNodeId = payload[DISCOVERY_PAYLOAD_ASSIGNED_ID];
-    
+    std::string nodeId = payload[DISCOVERY_PAYLOAD_ASSIGNED_ID];
+    m_myNodeId = std::stoull(nodeId);
+
     auto nodes = payload[DISCOVERY_PAYLOAD_NODE_LIST];
     for (const auto& node : nodes) {
         /* oneNode["ip"] = n.ip;
@@ -572,6 +573,17 @@ bool P2PNode::checkRemoteViewChangeMessagesVector(std::vector<MessageP2P> viewCh
     }
     // Verified the messages
     return true;
+}
+
+uint32_t P2PNode::getLeaderIndex()
+{
+    uint32_t leaderIndex = m_currentView % m_peers.size();
+    return leaderIndex;
+}
+
+bool P2PNode::amILeader()
+{
+    return (getLeaderIndex() == m_myNodeId);
 }
 
 
