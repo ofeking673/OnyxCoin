@@ -69,7 +69,7 @@ public:
 
     // Broadcast a message to all connected peers
     void broadcastMessage(MessageP2P& msg);
-
+    std::vector<MessageP2P> recvAll();
     // Add new peer to the peers map. When establishing a new connection, or when a new node coneects to us.
     void addPeer(const PeerInfo& newPeer);
 

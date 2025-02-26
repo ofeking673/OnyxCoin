@@ -45,6 +45,12 @@ void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicK
     std::cout << "[Info] Transaction broadcasted." << std::endl;
 }
 
+int FullNode::calculateView()
+{
+    MessageP2P getViewMessage = MessageManager::createGetView(_wallet.getPublicKey());
+    _p2pNode.broadcastMessage(getViewMessage);
+}
+
 void FullNode::processIncomingTransaction(const Transaction& tx)
 {
     _wallet.updateUTXOsWithTransaction(tx);
@@ -61,6 +67,8 @@ void FullNode::runCLI()
     std::cout << "Commands:" << std::endl;
     std::cout << "  balance                   - Show wallet balance" << std::endl;
     std::cout << "  tx <recipient> <amount>   - Create and broadcast a transaction" << std::endl;
+    std::cout << "  utxo                      - Update all transaction UTXO's" << std::endl;
+    std::cout << "  view                      - Get current view" << std::endl;
     std::cout << "  exit                      - Quit" << std::endl;
 
     std::string line;
@@ -101,6 +109,9 @@ void FullNode::runCLI()
         }
         else if (command == "utxo") {
             _wallet.updateUTXOsFromNewBlock(_p2pNode.getLastBlock()._transactions);
+        }
+        else if (command == "view") {
+
         }
         else 
         {

@@ -164,6 +164,11 @@ MessageP2P MessageManager::createNewView(const std::string& publickey, const uin
     return MessageP2P("", publickey, MessageType::NEW_VIEW, j.dump().length(), j);
 }
 
+MessageP2P MessageManager::createGetView(const std::string& publickey)
+{
+    return MessageP2P("", publickey, MessageType::GET_VIEW, 0, json());
+}
+
 //MessageP2P MessageManager::createHashReadyMessage(const std::string& publickey, const PeerInfo& myPeerInfo, std::string hash, std::string blockID)
 //{
 //    json j;

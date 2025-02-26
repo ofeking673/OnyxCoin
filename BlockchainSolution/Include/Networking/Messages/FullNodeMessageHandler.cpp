@@ -871,3 +871,12 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
 
     return {};
 }
+
+std::vector<MessageP2P> FullNodeMessageHandler::onGetView(const MessageP2P& msg)
+{
+    if (_node->getCurrentView() != msg.getPayload()["VIEW"]) {
+        _node->setCurrentView(msg.getPayload()["VIEW"]);
+    }
+
+    return {};
+}
