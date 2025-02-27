@@ -43,6 +43,7 @@ public:
     std::vector<MessageP2P> onViewChange(const MessageP2P& msg) override;
 
     std::vector<MessageP2P> onGetView(const MessageP2P& msg) override;
+    std::vector<MessageP2P> onHashReady(const MessageP2P& msg) override;
 
     Blockchain* _blockchain;
 private:

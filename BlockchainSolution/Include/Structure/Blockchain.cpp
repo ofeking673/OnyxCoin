@@ -1,12 +1,22 @@
 #include "pch.h"
 #include "Blockchain.h"
 
+#undef min
+#undef max
+
 Blockchain::Blockchain()
+	: gen(std::random_device{}()),
+	dis(0, std::numeric_limits<uint64_t>::max())
 {
 	// Create the genesis block
 	Block genesisBlock = createGenesisBlock();
 	_chain.push_back(genesisBlock);
 	utxo = UTXOSet::getInstance();
+
+	std::random_device rd;
+	std::mt19937_64 gen(rd());
+	std::uniform_int_distribution<uint64_t> dis(0, std::numeric_limits<uint64_t>::max());
+
 }
 
 Blockchain::~Blockchain()
@@ -14,6 +24,25 @@ Blockchain::~Blockchain()
 	utxo = UTXOSet::getInstance();
 	_chain.clear();
 	_pendingTransactions.clear();
+}
+
+
+void Blockchain::mineNewProposedBlock(Block& proposedBlock, const std::string& minerPublicKey)
+{
+	// Add the reward transaction to the miner (me)
+	addRewardTransaction(minerPublicKey, proposedBlock);
+
+	// Start with random nonce and check it till reaches a good hash starts with 0s
+	uint64_t myNonce = getRandom();
+	while (proposedBlock.checkHash(myNonce))
+	{
+		myNonce++;
+	}
+}
+
+uint64_t Blockchain::getRandom()
+{
+	return dis(gen);
 }
 
 void Blockchain::testTransaction(std::string address, uint64_t amt)

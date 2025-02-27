@@ -17,7 +17,9 @@ public:
 	time_t getTimeStamp() const;
 	std::string getHash() const;
 	std::string getPreviousHash() const;
+	uint64_t getNonce() const;
 
+	void setNonce(const uint64_t& nonce);
 	void setHash(const std::string& hash);
 
 	nlohmann::json toJson() const;
@@ -25,10 +27,13 @@ public:
 	static nlohmann::json vectorToJson(const std::vector<BlockHeader>& blockHeaders);
 	static std::vector<BlockHeader> jsonToVector(nlohmann::json data);
 
+	// Compare this header with other block header. (Check if same block but the other can be mined)
+	bool operator==(const BlockHeader& other) const;
 private:
 	int _index;
 	time_t _timestamp;
 	std::string _previousHash;
 	std::string _hash;
+	uint64_t _nonce;
 };
 

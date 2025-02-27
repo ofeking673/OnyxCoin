@@ -39,6 +39,13 @@ public:
 	std::vector<BlockHeader> getAppendedHeaders() const;
 
 
+
+	// Mining
+	// Mine a new block. Find a correct nonce to produce hash starts with 0s
+	void mineNewProposedBlock(Block& proposedBlock, const std::string& minerPublicKey);
+
+	// Function to generate and return a random uint64_t.
+	uint64_t getRandom();
 private:
 	void testTransaction(std::string address, uint64_t amt);
 	void addRewardTransaction(const std::string& address, Block& newBlock);
@@ -48,5 +55,8 @@ private:
 	UTXOSet* utxo;
 	Block createGenesisBlock();
 
+	// Random
+	std::mt19937_64 gen;                             // 64-bit Mersenne Twister engine.
+	std::uniform_int_distribution<uint64_t> dis;     // Uniform distribution for uint64_t.
 };
 

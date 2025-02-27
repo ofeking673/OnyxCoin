@@ -169,15 +169,6 @@ MessageP2P MessageManager::createGetView(const std::string& publickey)
     return MessageP2P("", publickey, MessageType::GET_VIEW, 0, json());
 }
 
-//MessageP2P MessageManager::createHashReadyMessage(const std::string& publickey, const PeerInfo& myPeerInfo, std::string hash, std::string blockID)
-//{
-//    json j;
-//    j["HASH"] = hash;
-//    j["BLOCK_ID"] = blockID;
-//    return MessageP2P("", publickey, MessageType::HASH_READY, j.dump().length(), j);
-//}
-
-
 std::string MessageManager::getCurrentDateTime()
 {
     // Get the current time using the system clock.

@@ -6,6 +6,7 @@ BlockHeader::BlockHeader(int index, time_t timestamp, const std::string& previou
 	_index = index;
 	_timestamp = timestamp;
 	_previousHash = previousHash;
+	_nonce = 0;
 }
 
 BlockHeader::BlockHeader()
@@ -14,6 +15,7 @@ BlockHeader::BlockHeader()
 	_timestamp = std::time(nullptr);
 	_hash = std::to_string(ERROR_BLOCK_HEADER);
 	_previousHash = std::to_string(ERROR_BLOCK_HEADER);
+	_nonce = 0;
 }
 
 int BlockHeader::getIndex() const
@@ -36,6 +38,16 @@ std::string BlockHeader::getPreviousHash() const
 	return _previousHash;
 }
 
+uint64_t BlockHeader::getNonce() const
+{
+	return _nonce;
+}
+
+void BlockHeader::setNonce(const uint64_t& nonce)
+{
+	_nonce = nonce;
+}
+
 void BlockHeader::setHash(const std::string& hash)
 {
 	_hash = hash;
@@ -49,6 +61,7 @@ json BlockHeader::toJson() const
 	j["timestamp"] = static_cast<uint64_t>(_timestamp);
 	j["previousHash"] = _previousHash;
 	j["hash"] = _hash;
+	j["nonce"] = _nonce;
 	return j;
 }
 
@@ -63,9 +76,11 @@ BlockHeader BlockHeader::fromJson(json data)
 	time_t timestamp = static_cast<time_t>(j["timestamp"].get<uint64_t>());
 	std::string previousHash = j["previousHash"].get<std::string>();
 	std::string hash = j["hash"].get<std::string>();
+	uint64_t nonce = j["nonce"].get<uint64_t>();
 
 	BlockHeader header = BlockHeader(index, timestamp, previousHash);
 	header.setHash(hash);
+	header.setNonce(nonce);
 
 	return header;
 }
@@ -105,4 +120,12 @@ std::vector<BlockHeader> BlockHeader::jsonToVector(json data)
 	}
 
 	return blockHeaders;
+}
+
+bool BlockHeader::operator==(const BlockHeader& other) const
+{
+	// Check without nonce and hash. Check if the other block is the mined block of the current block
+	return
+		_index == other._index &&
+		_previousHash == other._previousHash;
 }

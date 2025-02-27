@@ -73,7 +73,6 @@ public:
     static MessageP2P createNewView(const std::string& publickey, const uint32_t newView, const std::vector<MessageP2P>& viewChangeMessages);
     
     static MessageP2P createGetView(const std::string& publickey);
-    //static MessageP2P createHashReadyMessage(const std::string& publickey, const PeerInfo& myPeerInfo, std::string hash, std::string blockID);
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageManager() = default;
