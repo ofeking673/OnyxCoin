@@ -18,15 +18,12 @@ int main()
 
 		iss >> filename >> port;
 
-		FullNode node1(filename, "127.0.0.1", port);
+		FullNode node1(filename, "127.0.0.1", port); 
 
 		while (node1.isRunning())
 		{
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
-
-		system("pause");
-
 	}
 	catch (const std::exception& e) {
 		std::cerr << "[Exception] " << e.what() << std::endl;

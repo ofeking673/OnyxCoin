@@ -253,8 +253,8 @@ void P2PNode::getPeers()
     std::string res(buf, bytesRecieved);
     MessageP2P msg = MessageP2P::fromJson(json::parse(res));
     json payload = msg.getPayload();
-    std::string nodeId = payload[DISCOVERY_PAYLOAD_ASSIGNED_ID];
-    m_myNodeId = std::stoull(nodeId);
+    uint64_t nodeId = payload[DISCOVERY_PAYLOAD_ASSIGNED_ID];
+    m_myNodeId = nodeId;
 
     auto nodes = payload[DISCOVERY_PAYLOAD_NODE_LIST];
     for (const auto& node : nodes) {
@@ -328,6 +328,42 @@ void P2PNode::broadcastMessage(MessageP2P& msg)
     }
 }
 
+void P2PNode::leaderUptime()
+{
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(45));
+        if (!m_leaderActive) {
+            //TODO: Call new change
+            BlockHeader lastStableBlock = m_dispatcher.getChain()->getLatestBlock().getBlockHeader();
+            MessageManager::createViewChange(m_myPublicKey,
+                m_currentView,
+                lastStableBlock.getIndex(),
+                lastStableBlock.getHash());
+        }
+        m_leaderActive = false;
+    }
+}
+
+void P2PNode::refreshLeaderUptime()
+{
+    m_leaderActive = true;
+}
+
+PeerInfo P2PNode::getPeerInfoByID(const uint32_t& ID)
+{
+    if (ID == m_myNodeId) return PeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
+    std::lock_guard<std::mutex> lock(m_peerMutex);
+    std::cout << "Iterating over peers!\n";
+    for (const auto& [key, v] : m_peers)
+    {
+        if (v.nodeId == ID) {
+            std::cout << "Peer found!\n";
+            return v;
+        }
+    }
+    throw std::runtime_error("[Error] No peer found with that ID!\n");
+}
+
 void P2PNode::addPeer(const PeerInfo& newPeer)
 {
     std::lock_guard<std::mutex> lock(m_peerMutex);
@@ -344,6 +380,11 @@ bool P2PNode::removePeer(const PeerInfo& peer)
         return true;
     }
     return false;
+}
+
+uint32_t P2PNode::getPeerAmount()
+{
+    return m_peers.size();
 }
 
 void P2PNode::updatePeersLastContact(const std::string& peerPublicKey)
@@ -553,7 +594,7 @@ bool P2PNode::isRecievedViewChangeMessageFromAuthor(uint32_t newView, const std:
 
 bool P2PNode::checkRemoteViewChangeMessagesVector(std::vector<MessageP2P> viewChangeMessages)
 {
-    uint32_t view = m_currentView + 1;
+    uint32_t view = m_currentView - 1;
     for (auto& vcmsg : viewChangeMessages)
     {
         uint32_t newView = 0;
@@ -575,8 +616,14 @@ bool P2PNode::checkRemoteViewChangeMessagesVector(std::vector<MessageP2P> viewCh
     return true;
 }
 
+uint32_t P2PNode::getRemoteViewChangeMessageSize(uint32_t view)
+{
+    return m_viewChangeStates[view].size();
+}
+
 uint32_t P2PNode::getLeaderIndex()
 {
+    if (m_peers.size() == 0) return 0;
     uint32_t leaderIndex = m_currentView % m_peers.size();
     return leaderIndex;
 }
@@ -700,6 +747,11 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
             }
             else if (msg.getType() != MessageType::ERROR_MESSAGE)
             {
+                {
+                    std::lock_guard<std::mutex> lock(m_peerMutex);
+                    PeerInfo peer = m_peers[msg.getAuthor()];
+                    if (peer.nodeId == getLeaderIndex()) refreshLeaderUptime();
+                }
                 // Handle the incoming message. Returns a vector of messages to send back.
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
 

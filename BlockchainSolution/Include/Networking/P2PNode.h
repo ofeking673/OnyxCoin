@@ -69,12 +69,19 @@ public:
 
     // Broadcast a message to all connected peers
     void broadcastMessage(MessageP2P& msg);
-    std::vector<MessageP2P> recvAll();
+        
+    void leaderUptime();
+    void refreshLeaderUptime();
+
+    PeerInfo getPeerInfoByID(const uint32_t& ID);
     // Add new peer to the peers map. When establishing a new connection, or when a new node coneects to us.
     void addPeer(const PeerInfo& newPeer);
 
     // Removes a peer from the peers map
     bool removePeer(const PeerInfo& peer);
+
+    // Return amount of peers connected (size of network)
+    uint32_t getPeerAmount();
 
     // Update last contact with the peer
     void updatePeersLastContact(const std::string& peerPublicKey);
@@ -148,10 +155,14 @@ public:
     bool isRecievedViewChangeMessageFromAuthor(uint32_t newView, const std::string& author);
 
     bool checkRemoteViewChangeMessagesVector(std::vector<MessageP2P> viewChangeMessages);
+
+    uint32_t getRemoteViewChangeMessageSize(uint32_t view);
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     uint32_t getLeaderIndex();
-    bool amILeader(); // TO-DO:
+    bool amILeader(); 
+    void incrementView();
+
 protected:
     // Main loop that accepts incoming connections
     virtual void acceptLoop();
@@ -166,11 +177,12 @@ protected:
     void pingInactivePeers();
 
     // Increment view number
-    void incrementView();
 
     // Testing
     void printPeers();
 protected:
+    bool m_leaderActive;
+
     uint32_t m_currentView;
     uint64_t m_myNodeId;
     std::string m_myPublicKey;

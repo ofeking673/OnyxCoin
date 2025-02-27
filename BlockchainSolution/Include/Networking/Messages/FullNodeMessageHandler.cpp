@@ -268,46 +268,12 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
 
-    // Stub: implement logic for receiving broadcast of a new transaction
-
-    /*
-    Typical Logic
-    Log that a new transaction was announced.
-    Deserialize and validate the transaction.
-    Store the transaction in your mempool if it’s valid.
-    Optionally broadcast it to other peers so they are also aware.
-    Possible Steps
-
-    Print/Log the event.
-    Deserialize the transaction from the payload.
-    Validate the transaction (signatures, inputs, outputs, fees, etc.).
-    If valid, store it in your mempool.
-    Broadcast a “NewTransaction” or “Inventory” message to alert other peers.
-    */
-
     Transaction tx = Transaction::fromJson(msg.getPayload());
-    if (tx.isErrorTransaction())
-    {
-        // Recieved error transaction
-        // Might be because asked for worng trnasaction ID,
-        // or the node doesn't have the transaction searched for
-        // TO-DO: Send something about it to the network.
-        return {};
-    }
-    else if (!tx.verifyTransactionSignature())
-    {
-        // Send something that says that the transaction is invalid
-        return {};
-    }
-    else 
+    if(!tx.isErrorTransaction() && tx.verifyTransactionSignature())
     {
         _blockchain->addTransaction(tx);
     }
     // Add to pending transaction, if not already in it
-    
-
-    // TO-DO: Broadcast new transaction or inventory.
-    // Need to think about the implementation
     
     
     if (_node->amILeader())
@@ -812,8 +778,8 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)
     // TO-DO: Check that the senders public key is the public key of the new leader should become.
 
     
-    // Ensure the new view is greater than current view
-    if (newView - 1 != _node->getCurrentView())
+    // Check that NewView = currentView++
+    if (newView-1 != _node->getCurrentView())
     {
         // Wrong new view
         return {};
@@ -852,7 +818,6 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
         // Wrong new view
         return {};
     }
-
     // Validate checkpoint
     Block latestBlock = _blockchain->getLatestBlock();
     if (latestBlock.getBlockHeader().getIndex() != lastStableSeq || latestBlock.getHash() != checkpointDigest)
@@ -864,7 +829,11 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
     // Add the message to the container
     _node->addViewChangeMessage(newView, msg);
 
+    if (newView % _node->getPeerAmount() == _node->getMyInfo().nodeId) {
+        do {
 
+        } while (_node->getRemoteViewChangeMessageSize(newView) < _node->getPeerAmount() * (2 / 3));
+    }
     // TO-DO: Check if you are the new leader. 
     // When recieved 2f + 1 view change messages 
     // -> send a new view message to indicate you are the new leader

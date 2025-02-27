@@ -17,8 +17,6 @@ public:
     // CLI command to create and broadcast a transaction
     void createAndBroadcastTransaction(const std::string& recipientPublicKey, uint64_t amount);
 
-    //CLI command to get all views, and find the average to get the most correct answer
-    int calculateView();
     // Update wallet UTXO set when new block or tx received (to be hooked in dispatcher)
     void processIncomingTransaction(const Transaction& tx);
 

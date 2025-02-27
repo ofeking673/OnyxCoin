@@ -45,11 +45,6 @@ void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicK
     std::cout << "[Info] Transaction broadcasted." << std::endl;
 }
 
-int FullNode::calculateView()
-{
-    MessageP2P getViewMessage = MessageManager::createGetView(_wallet.getPublicKey());
-    _p2pNode.broadcastMessage(getViewMessage);
-}
 
 void FullNode::processIncomingTransaction(const Transaction& tx)
 {
@@ -69,6 +64,7 @@ void FullNode::runCLI()
     std::cout << "  tx <recipient> <amount>   - Create and broadcast a transaction" << std::endl;
     std::cout << "  utxo                      - Update all transaction UTXO's" << std::endl;
     std::cout << "  view                      - Get current view" << std::endl;
+    std::cout << "  leader                     - Get current leader's public key" << std::endl;
     std::cout << "  exit                      - Quit" << std::endl;
 
     std::string line;
@@ -102,6 +98,11 @@ void FullNode::runCLI()
                 // Create the transaction and broadcast it
                 createAndBroadcastTransaction(recipient, amount);
             }
+        }
+        else if (command == "leader")
+        {
+            PeerInfo leaderInfo = _p2pNode.getPeerInfoByID(_p2pNode.getLeaderIndex());
+            std::cout << "[Info] Leader's public key is: " << leaderInfo.publicKey << std::endl;
         }
         else if (command == "exit") 
         {
