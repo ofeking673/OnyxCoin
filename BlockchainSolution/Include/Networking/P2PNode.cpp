@@ -465,6 +465,16 @@ int P2PNode::getCommitAmount(uint32_t view, int sequence)
     return 0;
 }
 
+void P2PNode::setHashReady(uint32_t view, int sequence, const Block& block)
+{
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        it->second.setHashReady(block);
+    }
+}
+
 void P2PNode::setPrepared(uint32_t view, int sequence)
 {
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);

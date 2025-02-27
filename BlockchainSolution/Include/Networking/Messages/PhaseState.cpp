@@ -2,7 +2,8 @@
 #include "PhaseState.h"
 
 PhaseState::PhaseState()
-	:_prePrepared(false)
+	: _prePrepared(false)
+	, _hashReady(false)
 	, _prepared(false)
 	, _committed(false)
 {
@@ -11,6 +12,7 @@ PhaseState::PhaseState()
 PhaseState::PhaseState(const Block& block)
 	: _block(block)
 	, _prePrepared(true)
+	, _hashReady(false)
 	, _prepared(false)
 	, _committed(false)
 {
@@ -74,6 +76,20 @@ int PhaseState::getCommitAmount() const
 	return _commitMessages.size();
 }
 
+void PhaseState::setHashReady(const Block& block)
+{
+	// Set the block as the proposed hash
+	if (!_hashReady)
+	{
+		// Check if similar blocks
+		if (_block.checkIfBlockMined(block))
+		{
+			_block = block;
+			_hashReady = true;
+		}
+	}
+}
+
 void PhaseState::setPrepared()
 {
 	_prepared = true;
@@ -82,6 +98,11 @@ void PhaseState::setPrepared()
 void PhaseState::setCommitted()
 {
 	_committed = true;
+}
+
+bool PhaseState::isHashReady()
+{
+	return _hashReady;
 }
 
 bool PhaseState::isPrepared()

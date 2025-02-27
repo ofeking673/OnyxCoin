@@ -18,13 +18,16 @@ public:
 	int getPrepareAmount() const;
 	int getCommitAmount() const;
 
+	void setHashReady(const Block& block);
 	void setPrepared();
 	void setCommitted();
 
+	bool isHashReady();
 	bool isPrepared();
 	bool isCommitted();
 private:
 	bool _prePrepared;
+	bool _hashReady;
 	bool _prepared;
 	bool _committed;
 	

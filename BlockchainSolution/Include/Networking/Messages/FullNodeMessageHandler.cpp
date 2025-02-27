@@ -636,16 +636,24 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
 
 
     Block block = Block::fromJson(msg.getPayload()["BLOCK"]);
-    if (_blockchain->isBlockValid(block)) {
+    if (_blockchain->isBlockValid(block)) 
+    {
         // If the block proposed is valid:
         
         // Add the corresponding message to the phase state
         _node->addNewPhaseState(curView, sequence, block);
 
-        // create a prepare message
+        // Mine the proposed block. Try to find the nonce for a good hash
+        // TO-DO: Detach a thread to mine, and when recieved a new message of someone
+        //        That already mined the block, stop mining it.
+        _blockchain->mineNewProposedBlock(block, _node->getMyPublicKey());
+
+        // create a hash ready message with the mined block if succeeded
         std::vector<MessageP2P> messages;
-        messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, _node->getCurrentView()));
+        messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::HASH_READY, _node->getCurrentView()));
         return messages;
+
+        // TO-DO: Send only to the leader to indicate you have mined the block.
     }
 
     // Block isn't valid
@@ -879,4 +887,42 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetView(const MessageP2P& msg)
     }
 
     return {};
+}
+
+std::vector<MessageP2P> FullNodeMessageHandler::onHashReady(const MessageP2P& msg)
+{
+    if (msg.getType() != MessageType::HASH_READY)
+    {
+        return {};
+    }
+    // Log the event
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received HASH READY from peer." << std::endl;
+
+    // Get the sequence, view and block of the message
+    int sequence = msg.getPayload()["SEQUENCE"].get<int>();
+    uint32_t view = msg.getPayload()["CURRENT_VIEW"].get<uint32_t>();
+    Block block = Block::fromJson(msg.getPayload()["BLOCK"]);
+
+
+    // Verify that there is a PRE PREPARE pending for that sequence and view.
+    if (!_node->isTrackingTheState(view, sequence))
+    {
+        // Got hash ready message, but it hasn't been preprepared
+        return {};
+    }
+
+    // Check if the proposed block is valid
+    if (!block.checkHash(block.getBlockHeader().getNonce()))
+    { 
+        // Invalid block recieved
+        return {};
+    }
+    
+    // Set the block as hash ready
+    _node->setHashReady(view, sequence, block);
+
+    // Send a prepare message
+    std::vector<MessageP2P> messages;
+    messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, _node->getCurrentView()));
+    return messages;
 }

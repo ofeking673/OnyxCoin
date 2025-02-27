@@ -126,6 +126,8 @@ public:
     int getCommitAmount(uint32_t view, int sequence);
 
     // Set the phase(view, seq) as prepared
+    void setHashReady(uint32_t view, int sequence, const Block& block);
+    // Set the phase(view, seq) as prepared
     void setPrepared(uint32_t view, int sequence);
     // Set the phase(view, seq) as committed
     void setCommitted(uint32_t view, int sequence);

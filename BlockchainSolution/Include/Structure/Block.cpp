@@ -64,6 +64,8 @@ std::string Block::getCurrentBlockInfo() const
 	{
 		ss << tx.getTransactionID();
 	}
+	ss << _blockHeader.getNonce();
+
 	return ss.str();
 }
 
@@ -189,6 +191,11 @@ void Block::setHash(const std::string& hash)
 	_blockHeader.getHash() = hash;
 }
 
+void Block::setNonce(const uint64_t& nonce)
+{
+	_blockHeader.setNonce(nonce);
+}
+
 const BlockHeader Block::getBlockHeader() const
 {
 	return _blockHeader;
@@ -226,6 +233,48 @@ uint64_t Block::calculateBlockReward()
 		reward += tx.calculateTax();
 	}
 	return reward;
+}
+
+bool Block::checkHash(const uint64_t& nonce)
+{
+	setNonce(nonce);
+	std::string calcHash = calculateHash();
+	if (calcHash.size() >= 2 && calcHash.compare(0, 2, "00") == 0)
+	{ // Check if starts with "00"
+		return true;
+	}
+	return false;
+}
+
+bool Block::checkIfBlockMined(const Block& minedBlock) const
+{
+	if (getBlockHeader() == minedBlock.getBlockHeader())
+	{
+		size_t numberOfUnfoundTx = 0;
+		// Check transactions
+		for (auto& tx : minedBlock._transactions)
+		{
+			// Check if the transaction in the transactions of block
+			auto it = std::find(_transactions.begin(), _transactions.end(), tx);
+
+			if (it == _transactions.end())
+			{
+				// Not found transaction in transactions of block
+				numberOfUnfoundTx++;
+				if (numberOfUnfoundTx > 1)
+				{ // More than one unfound transaction
+					// Should be only one - the mined transaction
+
+					// Not the proper mined block
+					return false;
+				}
+				
+			}
+			
+		}
+		return true;
+	}
+	return false;
 }
 
 std::string Block::getPreviousHash() const

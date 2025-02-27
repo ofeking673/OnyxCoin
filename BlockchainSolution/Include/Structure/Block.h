@@ -30,6 +30,8 @@ public:
 	std::string getPreviousHash() const;
 	void setHash(const std::string& hash);
 
+	void setNonce(const uint64_t& nonce);
+
 	const BlockHeader getBlockHeader() const;
 
 	const Transaction findTransaction(const std::string& txID) const;
@@ -37,6 +39,12 @@ public:
 	// Calculate the reward for the leader, for proposing the block.
 	// Call before adding the reward transaction.
 	uint64_t calculateBlockReward();
+
+
+	// Check if the calculated hash is ok and starts with zeros
+	bool checkHash(const uint64_t& nonce);
+	// Check if the other block is the mined version of the block
+	bool checkIfBlockMined(const Block& minedBlock) const;
 
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 private:
