@@ -795,11 +795,10 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)
 
 
     // Verify the view change messages provided
-    _node->checkRemoteViewChangeMessagesVector(viewChangeMessages);
-
-
+    
+    if(_node->checkRemoteViewChangeMessagesVector(viewChangeMessages))
     // Update new view
-    _node->setCurrentView(newView);
+        _node->setCurrentView(newView);
 
     return {};
 }
@@ -839,14 +838,16 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
 
     if (newView % _node->getPeerAmount() == _node->getMyInfo().nodeId) {
         do {
-
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         } while (_node->getRemoteViewChangeMessageSize(newView) < _node->getPeerAmount() * (2 / 3));
     }
     // TO-DO: Check if you are the new leader. 
     // When recieved 2f + 1 view change messages 
     // -> send a new view message to indicate you are the new leader
 
-    return {};
+    std::vector<MessageP2P> messages;
+    messages.push_back(MessageP2P("", _node->getMyPublicKey(), MessageType::NEW_VIEW, 0, json()));
+    return messages;
 }
 
 std::vector<MessageP2P> FullNodeMessageHandler::onGetView(const MessageP2P& msg)
