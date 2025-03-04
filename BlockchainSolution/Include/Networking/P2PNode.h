@@ -23,8 +23,6 @@
 //	MessageManager _messageCreator;
 //};
 
-
-
 #include "PeerInfo.h"
 #include "Messages/MessageDispatcher.h"
 #include "Structure/Wallets/Wallet.h"
@@ -43,6 +41,7 @@
 // Link with Ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
 
+class FullNode;
 
 class P2PNode
 {
@@ -165,6 +164,20 @@ public:
     bool amILeader(); 
     void incrementView();
 
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------------------------------------------------------------
+    // Wallet
+    // ---------------------------------------------------------------------------------------------------------
+    // Update the wallet based on new block recieved
+    void walletProcessNewBlock(const Block& newBlock);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // Make full node friend of P2P node, so full node can access all p2p node variables.
+    friend class FullNode;
+
 protected:
     // Main loop that accepts incoming connections
     virtual void acceptLoop();
@@ -211,6 +224,8 @@ protected:
     std::string m_myPrivateKey;
     std::string m_myIP;
     uint16_t m_myPort;
+
+    Wallet m_myWallet;
 
     std::thread m_pingThread;  // Thread that will run ping logic
 

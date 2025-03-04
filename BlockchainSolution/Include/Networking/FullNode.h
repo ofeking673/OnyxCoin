@@ -28,7 +28,7 @@ public:
     void runCLI();
 
 private:
-    Wallet _wallet;
+    //Wallet _wallet;
     P2PNode _p2pNode;
     std::atomic<bool> _running;
     std::thread _cliThread;

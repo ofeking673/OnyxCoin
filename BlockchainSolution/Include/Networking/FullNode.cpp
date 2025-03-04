@@ -2,7 +2,7 @@
 #include "FullNode.h"
 
 FullNode::FullNode(const std::string& walletFilePath, const std::string& listenAddress, uint16_t port)
-    : _wallet(walletFilePath),
+    : /*_wallet(walletFilePath),*/
     _p2pNode(false, walletFilePath),
     _running(true)
 {
@@ -26,12 +26,12 @@ FullNode::~FullNode()
 
 void FullNode::showBalance() const
 {
-    std::cout << "Balance: " << _wallet.getBalance() << std::endl;
+    std::cout << "Balance: " << _p2pNode.m_myWallet.getBalance() << std::endl;
 }
 
 void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicKey, uint64_t amount)
 {
-    Transaction tx = _wallet.createTransaction(recipientPublicKey, amount);
+    Transaction tx = _p2pNode.m_myWallet.createTransaction(recipientPublicKey, amount);
     std::cout << "[Info] Transaction created" << std::endl;
     if (tx.getInputs().empty() && tx.getOutputs().empty()) 
     {
@@ -39,7 +39,7 @@ void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicK
         return;
     }
     // Create a P2P message wrapping the transaction
-    MessageP2P newTxMessage = MessageManager::createNewTransactionMessage(_wallet.getPublicKey(), tx);
+    MessageP2P newTxMessage = MessageManager::createNewTransactionMessage(_p2pNode.m_myWallet.getPublicKey(), tx);
     std::cout << __FUNCTION__": [Info] Broadcasting message!\n";
     _p2pNode.broadcastMessage(newTxMessage);
     std::cout << "[Info] Transaction broadcasted." << std::endl;
@@ -48,7 +48,7 @@ void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicK
 
 void FullNode::processIncomingTransaction(const Transaction& tx)
 {
-    _wallet.updateUTXOsWithTransaction(tx);
+    _p2pNode.m_myWallet.updateUTXOsWithTransaction(tx);
 }
 
 bool FullNode::isRunning() const
@@ -62,9 +62,9 @@ void FullNode::runCLI()
     std::cout << "Commands:" << std::endl;
     std::cout << "  balance                   - Show wallet balance" << std::endl;
     std::cout << "  tx <recipient> <amount>   - Create and broadcast a transaction" << std::endl;
-    std::cout << "  utxo                      - Update all transaction UTXO's" << std::endl;
+    //std::cout << "  utxo                      - Update all transaction UTXO's" << std::endl;
     std::cout << "  view                      - Get current view" << std::endl;
-    std::cout << "  leader                     - Get current leader's public key" << std::endl;
+    std::cout << "  leader                    - Get current leader's public key" << std::endl;
     std::cout << "  exit                      - Quit" << std::endl;
 
     std::string line;
@@ -108,9 +108,9 @@ void FullNode::runCLI()
         {
             _running = false;
         }
-        else if (command == "utxo") {
-            _wallet.updateUTXOsFromNewBlock(_p2pNode.getLastBlock()._transactions);
-        }
+        //else if (command == "utxo") {
+        //    _p2pNode.m_myWallet.updateUTXOsFromNewBlock(_p2pNode.getLastBlock()._transactions);
+        //}
         else if (command == "view") {
 
         }

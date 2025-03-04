@@ -10,14 +10,10 @@ P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) :
     , m_dispatcher(this)
     , m_discoveryServerPort(DISCOVERY_SERVER_PORT)
     , m_discoveryServerIp(LOCALHOST)
+    , m_myWallet(filePath)
 {
-    if (filePath != "") 
-    {
-        Wallet wallet(filePath);
-        m_myPublicKey = wallet.getPublicKey();
-        m_myPrivateKey = wallet.getPrivateKey();
-        //m_myNodeId = SHA256::digest(m_myPublicKey);
-    }
+    m_myPublicKey = m_myWallet.getPublicKey();
+    m_myPrivateKey = m_myWallet.getPrivateKey();
 }
 
 P2PNode::~P2PNode()
@@ -253,8 +249,7 @@ void P2PNode::getPeers()
     std::string res(buf, bytesRecieved);
     MessageP2P msg = MessageP2P::fromJson(json::parse(res));
     json payload = msg.getPayload();
-    uint64_t nodeId = payload[DISCOVERY_PAYLOAD_ASSIGNED_ID];
-    m_myNodeId = nodeId;
+    m_myNodeId = payload[DISCOVERY_PAYLOAD_ASSIGNED_ID].get<uint64_t>();
 
     auto nodes = payload[DISCOVERY_PAYLOAD_NODE_LIST];
     for (const auto& node : nodes) {
@@ -829,6 +824,11 @@ void P2PNode::pingInactivePeers()
 void P2PNode::incrementView()
 {
     m_currentView++;
+}
+
+void P2PNode::walletProcessNewBlock(const Block& newBlock)
+{
+    m_myWallet.updateUTXOsFromNewBlock(newBlock._transactions);
 }
 
 void P2PNode::printPeers()

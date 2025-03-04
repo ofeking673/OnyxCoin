@@ -164,7 +164,7 @@ MessageP2P DiscoveryServer::onDiscoveryMessage(const MessageP2P& msg)
         }
 
         // Assign a new node ID
-        uint64_t assignedId = m_nextNodeId.fetch_add(1);
+        uint64_t assignedId = static_cast<uint64_t>(m_nextNodeId.fetch_add(1));
         //std::string assignedIdStr = std::to_string(assignedId);
 
         // Respond with DISCOVERY_RESPONSE

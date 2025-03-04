@@ -49,9 +49,9 @@ public:
 
 
     // Utility for keeping the "alive" state updated for each node
-    virtual std::string getPublicKey();
+    //virtual std::string getPublicKey();
 
-    void addPeer(PeerInfo info);
+    //void addPeer(PeerInfo info);
 
 protected:
     P2PNode* _node;
