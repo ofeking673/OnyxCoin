@@ -266,8 +266,8 @@ json Transaction::toJson() const
 	//outputs = actions with those references
 	j["outputs"] = outputsJson;
 
-	// Return JSON string
-	return j.dump();
+	// Return JSON
+	return j;
 }
 
 std::string Transaction::toMessageString() const

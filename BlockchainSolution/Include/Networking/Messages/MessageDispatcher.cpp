@@ -5,8 +5,8 @@
 std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> MessageDispatcher::_dispatchTable;
 
 // Constructor: store the handler pointer and initialize a dispatch table.
-MessageDispatcher::MessageDispatcher(P2PNode* node)
-    : _handler(new FullNodeMessageHandler(node))
+MessageDispatcher::MessageDispatcher(P2PNode* node, bool isGenesis)
+    : _handler(new FullNodeMessageHandler(node, isGenesis))
 {
     // Build a static dispatch table once, so we don't reconstruct it on every dispatch.
     _dispatchTable =
@@ -90,7 +90,7 @@ std::vector<MessageP2P> MessageDispatcher::dispatch(const MessageP2P& msg)
     }
 }
 
-Blockchain* MessageDispatcher::getChain()
+Blockchain* MessageDispatcher::getChain() const
 {
     return _handler->_blockchain;
 }

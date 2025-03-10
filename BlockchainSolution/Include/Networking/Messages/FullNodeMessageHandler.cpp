@@ -2,10 +2,19 @@
 #include "FullNodeMessageHandler.h"
 
 
-FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node) :
-    IMessageHandler(node)
+FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node, bool isGenesis) 
+    : IMessageHandler(node)
 {
-	_blockchain = new Blockchain();
+    if (isGenesis)
+    {
+        // Create chain with genesis block
+        _blockchain = new Blockchain();
+    }
+    else
+    {
+        // Empty chain
+        _blockchain = new Blockchain(0);
+    }
 	_utxoSet = UTXOSet::getInstance();
 }
 
@@ -235,6 +244,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onBlock(const MessageP2P& msg)
         // Might be because asked for worng block hash and previous hash,
         // or the node doesn't have the block searched for
         // TO-DO: Send something about it to the network.
+        return {};
     }
 
     // TO-DO: Verify the recieved block
@@ -245,14 +255,15 @@ std::vector<MessageP2P> FullNodeMessageHandler::onBlock(const MessageP2P& msg)
     // TO-DO: Add the block to the chain, if not already in it
     // When implementing consensus mechanism
     
-
+    
     // TO-DO: Broadcast block or inventory.
     // Need to think about the implementation
 
 
+    // Check if the block is valid, then add to the chain
+    _blockchain->addBlock(block);
 
-
-    return {}; // REMOVE THIS
+    return {};
 }
 
 std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2P& msg)

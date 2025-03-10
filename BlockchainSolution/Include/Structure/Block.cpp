@@ -25,6 +25,12 @@ Block::Block(const int& index, const time_t& timestamp, const std::string& previ
 	_blockHeader.setHash(hash);
 }
 
+Block::Block(const BlockHeader& header, const std::vector<Transaction>& transactions)
+	: _blockHeader(header)
+	, _transactions(transactions)
+{
+}
+
 Block::~Block()
 {
 	_transactions.clear();
@@ -78,6 +84,7 @@ void Block::displayBlock() const
 		"Timestamp: " << time << std::endl <<
 		"Previous Hash: " << _blockHeader.getPreviousHash() << std::endl <<
 		"Hash: " << _blockHeader.getHash() << std::endl <<
+		"Nonce: " << _blockHeader.getNonce() << std::endl <<
 		"Transactions: " << std::endl;
 
 	for (const auto& tx : _transactions)
@@ -139,10 +146,12 @@ json Block::toJson() const
 {
 	// Create a JSON object for the block
 	json j;
-	j["index"] = _blockHeader.getIndex();
-	j["timestamp"] = static_cast<uint64_t>(_blockHeader.getTimeStamp());
-	j["previousHash"] = _blockHeader.getPreviousHash();
-	j["hash"] = _blockHeader.getHash();
+	//j["index"] = _blockHeader.getIndex();
+	//j["timestamp"] = static_cast<uint64_t>(_blockHeader.getTimeStamp());
+	//j["previousHash"] = _blockHeader.getPreviousHash();
+	//j["hash"] = _blockHeader.getHash();
+
+	j["header"] = _blockHeader.toJson();
 
 	// Serialize all transactions using their toJson() functions
 	json transactionsJson = json::array();
@@ -154,7 +163,7 @@ json Block::toJson() const
 	j["transactions"] = transactionsJson;
 
 	// Return the complete JSON string for the block
-	return j.dump();
+	return j;
 }
 
 Block Block::fromJson(json data)
@@ -163,10 +172,12 @@ Block Block::fromJson(json data)
 	json j = data;
 
 	// Extract the block properties
-	int index = j["index"].get<int>();
-	time_t timestamp = static_cast<time_t>(j["timestamp"].get<uint64_t>());
-	std::string previousHash = j["previousHash"].get<std::string>();
-	std::string hash = j["hash"].get<std::string>();
+	//int index = j["index"].get<int>();
+	//time_t timestamp = static_cast<time_t>(j["timestamp"].get<uint64_t>());
+	//std::string previousHash = j["previousHash"].get<std::string>();
+	//std::string hash = j["hash"].get<std::string>();
+	
+	BlockHeader header = BlockHeader::fromJson(j["header"]);
 
 	// Reconstruct the list of transactions from the array in JSON.
 	std::vector<Transaction> transactions;
@@ -178,7 +189,8 @@ Block Block::fromJson(json data)
 	}
 
 	// Use the private constructor to re-create the full block, including its timestamp and hash
-	return Block(index, timestamp, previousHash, hash, transactions);
+	//return Block(index, timestamp, previousHash, hash, transactions);
+	return Block(header, transactions);
 }
 
 std::string Block::getHash() const

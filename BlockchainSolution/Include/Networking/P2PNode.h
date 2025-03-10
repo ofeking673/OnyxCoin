@@ -62,6 +62,7 @@ public:
     // Get peers from discovery server
     void getPeers();
     void sendDiscovery(SOCKET sock);
+    void recieveBlockchain();
 
     // Send a message to a specific peer
     bool sendMessageTo(MessageP2P& msg, const std::string toPublicKey);
@@ -93,7 +94,8 @@ public:
     uint16_t getMyPort() const;
     PeerInfo getMyInfo() const;
 
-    Block getLastBlock();
+    Block getLastBlock() const;
+    const Blockchain* getBlockchain() const;
 
     // Get list of all connected peers (for broadcast, etc)
     std::vector<PeerInfo> getAllClients();

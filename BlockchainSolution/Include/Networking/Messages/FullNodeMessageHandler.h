@@ -10,7 +10,7 @@ class FullNodeMessageHandler : public IMessageHandler
 {
 public:
     // Constructor and Destructor
-    FullNodeMessageHandler(P2PNode* node);
+    FullNodeMessageHandler(P2PNode* node, bool isGenesis);
     virtual ~FullNodeMessageHandler();
 
     // Implement IMessageHandler Interface

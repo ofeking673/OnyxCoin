@@ -7,7 +7,7 @@
 P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) : 
       m_isRunning(false)
     , m_isDiscoveryServer(isDiscoveryServer)
-    , m_dispatcher(this)
+    , m_dispatcher(this, false)
     , m_discoveryServerPort(DISCOVERY_SERVER_PORT)
     , m_discoveryServerIp(LOCALHOST)
     , m_myWallet(filePath)
@@ -75,6 +75,10 @@ bool P2PNode::start(const std::string& listenAddress, uint16_t port)
     startPingThread();
 
     std::cout << "{" << m_myPort << "} " << "[Info] Node is listening on " << listenAddress << ":" << port << std::endl;
+
+    // Ask and recieve the blockchain instance
+    recieveBlockchain();
+
     return true;
 }
 
@@ -277,7 +281,24 @@ void P2PNode::sendDiscovery(SOCKET sock)
     if (result == SOCKET_ERROR) {
         std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
     }
-} 
+}
+void P2PNode::recieveBlockchain()
+{
+    if (amILeader())
+    {
+        std::lock_guard<std::mutex> lock(m_peerMutex);
+        // Create instance of blockchain
+        m_dispatcher = MessageDispatcher(this, true);
+        return;
+    }
+    std::vector<std::pair<std::string, std::string>> blockHashes;
+    MessageP2P getHeadersMsg = MessageManager::createGetHeadersMessage(getMyPublicKey(), blockHashes, "");
+    
+    // Send get headers message to leader
+    std::string leaderPublicKey = getPeerInfoByID(getLeaderIndex()).publicKey;
+    sendMessageTo(getHeadersMsg, leaderPublicKey);
+}
+
 
 bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
 {
@@ -413,9 +434,14 @@ PeerInfo P2PNode::getMyInfo() const
     return PeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
 }
 
-Block P2PNode::getLastBlock()
+Block P2PNode::getLastBlock() const
 {
     return m_dispatcher.getChain()->getLatestBlock();
+}
+
+const Blockchain* P2PNode::getBlockchain() const
+{
+    return m_dispatcher.getChain();
 }
 
 std::vector<PeerInfo> P2PNode::getAllClients()

@@ -65,6 +65,7 @@ void FullNode::runCLI()
     //std::cout << "  utxo                      - Update all transaction UTXO's" << std::endl;
     std::cout << "  view                      - Get current view" << std::endl;
     std::cout << "  leader                    - Get current leader's public key" << std::endl;
+    std::cout << "  blockchain                - Print the blockchain to screen" << std::endl;
     std::cout << "  exit                      - Quit" << std::endl;
 
     std::string line;
@@ -113,6 +114,10 @@ void FullNode::runCLI()
         //}
         else if (command == "view") {
 
+        }
+        else if (command == "blockchain") 
+        {
+            _p2pNode.getBlockchain()->displayBlockchain();
         }
         else 
         {

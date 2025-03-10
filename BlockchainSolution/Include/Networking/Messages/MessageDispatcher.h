@@ -15,17 +15,12 @@ class MessageDispatcher
 {
 public:
     /// Constructor takes an IMessageHandler interface implementation.
-    MessageDispatcher(P2PNode* node);
+    MessageDispatcher(P2PNode* node, bool isGenesis);
 
     /// Dispatch the message by calling the correct handler method.
     std::vector<MessageP2P> dispatch(const MessageP2P& msg);
 
-    ///// Send a message to the specified user, return the answer if there is one, else, return ""
-    //std::string sendClient(const std::string& pubkey, const MessageP2P& msg);
-
-    //bool isKnownUser(const std::string& pubkey);
-    //void addPeer(const std::string& pubkey, SOCKET sock);
-    Blockchain* getChain();
+    Blockchain* getChain() const;
 private:
     FullNodeMessageHandler* _handler;
     static std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> _dispatchTable;

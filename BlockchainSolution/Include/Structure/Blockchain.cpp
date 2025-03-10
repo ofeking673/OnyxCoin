@@ -19,6 +19,19 @@ Blockchain::Blockchain()
 
 }
 
+Blockchain::Blockchain(int)
+	: gen(std::random_device{}()),
+	dis(0, std::numeric_limits<uint64_t>::max())
+{
+	_chain.clear();
+	std::cout << std::endl << std::endl << "Chain size: " << _chain.size() << std::endl << std::endl;
+	utxo = UTXOSet::getInstance();
+
+	std::random_device rd;
+	std::mt19937_64 gen(rd());
+	std::uniform_int_distribution<uint64_t> dis(0, std::numeric_limits<uint64_t>::max());
+}
+
 Blockchain::~Blockchain()
 {
 	utxo = UTXOSet::getInstance();
@@ -78,7 +91,12 @@ bool Blockchain::isBlockValid(const Block& block) const
 
 void Blockchain::addBlock(const Block& block)
 {
-	if (isBlockValid(block)) {
+	if (_chain.empty())
+	{
+		_chain.push_back(block);
+	}
+	else if (isBlockValid(block))
+	{
 		_chain.push_back(block);
 	}
 }

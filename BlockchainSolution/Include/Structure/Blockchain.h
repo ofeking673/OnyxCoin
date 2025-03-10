@@ -5,7 +5,10 @@
 class Blockchain
 {
 public:
+	// Create with genesis block
 	Blockchain();
+	// Create without genesis block
+	Blockchain(int);
 	~Blockchain();
 
 	// Get the latest Block in the chain

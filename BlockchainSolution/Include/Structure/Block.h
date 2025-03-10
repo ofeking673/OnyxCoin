@@ -56,5 +56,6 @@ private:
 
 	// When parsing a block
 	Block(const int& index, const time_t& timestamp, const std::string& previousHash, const std::string& hash, const std::vector<Transaction>& transactions);
+	Block(const BlockHeader& header, const std::vector<Transaction>& transactions);
 };
 
