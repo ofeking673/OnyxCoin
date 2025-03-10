@@ -47,6 +47,8 @@ public:
 	bool checkIfBlockMined(const Block& minedBlock) const;
 
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
+	// After get_headers, there are awaited headers in the blockchain.
+	bool _isAwaitedHeaders = false;
 private:
 	//int _index;
 	//time_t _timestamp;

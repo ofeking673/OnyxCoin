@@ -260,9 +260,13 @@ std::vector<MessageP2P> FullNodeMessageHandler::onBlock(const MessageP2P& msg)
     // Need to think about the implementation
 
 
-    // Check if the block is valid, then add to the chain
-    _blockchain->addBlock(block);
-
+    // Check if there are awaited headers for this block
+    if (!_blockchain->addFullBlockToFirstAwaitedHeader(block))
+    {
+        // If there are no awaited headers for this block,
+        // check if the block is valid, then add to the chain
+        _blockchain->addBlock(block);
+    }
     return {};
 }
 

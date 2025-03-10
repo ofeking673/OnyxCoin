@@ -101,6 +101,36 @@ void Blockchain::addBlock(const Block& block)
 	}
 }
 
+bool Blockchain::addFullBlockToFirstAwaitedHeader(const Block& block)
+{
+	// Find the index of the first awaited header
+	int awaitedHeaderIndex = -1;
+	for (size_t i = 0; i < _chain.size(); i++)
+	{
+		if (_chain[i]._isAwaitedHeaders)
+		{
+			awaitedHeaderIndex = i;
+			break;
+		}
+	}
+	if (awaitedHeaderIndex == -1)
+	{
+		// No awaited headers...
+		return false;
+	}
+
+	// Complete the awaited headers to full block info. Check its correctness
+	if (block.calculateHash() == _chain[awaitedHeaderIndex].getHash() &&
+		block.getPreviousHash() == _chain[awaitedHeaderIndex].getPreviousHash())
+	{
+		_chain[awaitedHeaderIndex] = block;
+		return true;
+	}
+
+	// Block doesn't match the awaited header
+	return false;
+}
+
 void Blockchain::addTransaction(const Transaction& tx)
 {
 	// Check if new transaction is already in pending transactions.
@@ -147,6 +177,9 @@ Block Blockchain::commitBlock(std::string leadersPublicKey)
 
 	//Create the reward transaction because we are the leader proposing the block
 	addRewardTransaction(leadersPublicKey, newBlock);
+
+	// Indicate the block is not an awaited header
+	newBlock._isAwaitedHeaders = false;
 
 	_chain.push_back(newBlock);
 	addBlockToUtxo(newBlock);
@@ -329,6 +362,9 @@ void Blockchain::appendHeaders(const std::vector<BlockHeader>& newHeaders)
 			}
 		}
 		Block block(header);
+
+		// Indicate the block is an awaited header
+		block._isAwaitedHeaders = true;
 		_chain.push_back(block);
 	}
 }
@@ -368,7 +404,7 @@ std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
 {
 	for (size_t i = 0; i < _chain.size(); i++)
 	{
-		if (_chain[i]._transactions.empty())
+		if (_chain[i]._isAwaitedHeaders)
 		{
 			return getHeadersFrom(i, MAX_HEADERS, "");
 		}
@@ -382,5 +418,6 @@ Block Blockchain::createGenesisBlock()
 	testTransaction("54f2dac6701f04afc0976cfff22479efa00112a3d96b116b7570db6e9c6fa35963ea177b4bd7d4b07c622279ded254c4bf929f6a67f6c62297f49a1175fb65a7", 100);
 	genesis.addTransaction(_pendingTransactions.front());
 	_pendingTransactions.clear();
+	genesis.setHash(genesis.calculateHash());
 	return genesis;
 }

@@ -17,6 +17,8 @@ public:
 	bool isBlockValid(const Block& block) const;
 
 	void addBlock(const Block& block);
+	// There are awaited headers. Recieved a block, than add it if available to the first wawaited header.
+	bool addFullBlockToFirstAwaitedHeader(const Block& block);
 
 	void addTransaction(const Transaction& tx);
 
@@ -40,7 +42,7 @@ public:
 	int getHeightByHash(const std::string& hash) const;
 	std::vector<BlockHeader> getHeadersFrom(int startIndex, int maxCount, const std::string& stopHash = "") const;
 	std::vector<BlockHeader> getAppendedHeaders() const;
-
+	
 
 
 	// Mining

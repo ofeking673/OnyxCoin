@@ -65,7 +65,7 @@ std::string Block::getCurrentBlockInfo() const
 {
 	std::stringstream ss;
 
-	ss << _blockHeader.getIndex() << _blockHeader.getPreviousHash();
+	ss << _blockHeader.getIndex() << _blockHeader.getPreviousHash() << _blockHeader.getTimeStamp();
 	for (const auto& tx : _transactions)
 	{
 		ss << tx.getTransactionID();
