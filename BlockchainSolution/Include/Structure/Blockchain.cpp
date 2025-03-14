@@ -13,6 +13,9 @@ Blockchain::Blockchain()
 	_chain.push_back(genesisBlock);
 	utxo = UTXOSet::getInstance();
 
+	// Add the genesis block to the UTXOs
+	addBlockToUtxo(genesisBlock);
+
 	std::random_device rd;
 	std::mt19937_64 gen(rd());
 	std::uniform_int_distribution<uint64_t> dis(0, std::numeric_limits<uint64_t>::max());
@@ -89,16 +92,19 @@ bool Blockchain::isBlockValid(const Block& block) const
 		&& thisBlock.getPreviousHash() == lastBlock.getHash());
 }
 
-void Blockchain::addBlock(const Block& block)
+bool Blockchain::addBlock(const Block& block)
 {
 	if (_chain.empty())
 	{
 		_chain.push_back(block);
+		return true;
 	}
 	else if (isBlockValid(block))
 	{
 		_chain.push_back(block);
+		return true;
 	}
+	return false;
 }
 
 bool Blockchain::addFullBlockToFirstAwaitedHeader(const Block& block)
@@ -187,7 +193,7 @@ Block Blockchain::commitBlock(std::string leadersPublicKey)
 	return newBlock;
 }
 
-void Blockchain::addBlockToUtxo(Block block)
+void Blockchain::addBlockToUtxo(Block& block)
 {
 	//for (Transaction& tx : block._transactions) {
 	//	//Need to compute outpoint and UTXOData
@@ -415,7 +421,7 @@ std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
 Block Blockchain::createGenesisBlock()
 {
 	Block genesis(0, "0");
-	testTransaction("54f2dac6701f04afc0976cfff22479efa00112a3d96b116b7570db6e9c6fa35963ea177b4bd7d4b07c622279ded254c4bf929f6a67f6c62297f49a1175fb65a7", 100);
+	testTransaction("8e7f5ce460b577d2fba1ea673e27b7084d79ee9c75babbb594d075fb7cfc0424d4d81384dcb18a52bee6e1cb919c979841e48830b660f8a05b4fdc9230d30fe0", 100);
 	genesis.addTransaction(_pendingTransactions.front());
 	_pendingTransactions.clear();
 	genesis.setHash(genesis.calculateHash());

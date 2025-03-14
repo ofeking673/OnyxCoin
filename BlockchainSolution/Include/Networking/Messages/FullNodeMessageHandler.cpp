@@ -9,6 +9,8 @@ FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node, bool isGenesis)
     {
         // Create chain with genesis block
         _blockchain = new Blockchain();
+        // Update the wallet utxos with the genesis block
+        _node->walletProcessNewBlock(_blockchain->getLatestBlock());
     }
     else
     {
@@ -260,12 +262,26 @@ std::vector<MessageP2P> FullNodeMessageHandler::onBlock(const MessageP2P& msg)
     // Need to think about the implementation
 
 
+    bool isAddedBlock = false;
+
     // Check if there are awaited headers for this block
-    if (!_blockchain->addFullBlockToFirstAwaitedHeader(block))
+    isAddedBlock = _blockchain->addFullBlockToFirstAwaitedHeader(block);
+    
+    if (!isAddedBlock)
     {
         // If there are no awaited headers for this block,
         // check if the block is valid, then add to the chain
-        _blockchain->addBlock(block);
+        isAddedBlock = _blockchain->addBlock(block);
+    }
+
+    if (isAddedBlock)
+    {
+        // If we added a new block, update the UTXO:
+
+        // User wallet utxos
+        _node->walletProcessNewBlock(block);
+        // Whole blockchain utxos
+        _blockchain->addBlockToUtxo(block);
     }
     return {};
 }

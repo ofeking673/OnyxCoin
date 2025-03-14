@@ -14,6 +14,9 @@ public:
     // CLI command to print wallet balance
     void showBalance() const;
 
+    // CLI command to shou user info
+    void showUserInfo() const;
+
     // CLI command to create and broadcast a transaction
     void createAndBroadcastTransaction(const std::string& recipientPublicKey, uint64_t amount);
 

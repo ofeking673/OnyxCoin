@@ -16,7 +16,7 @@ public:
 
 	bool isBlockValid(const Block& block) const;
 
-	void addBlock(const Block& block);
+	bool addBlock(const Block& block);
 	// There are awaited headers. Recieved a block, than add it if available to the first wawaited header.
 	bool addFullBlockToFirstAwaitedHeader(const Block& block);
 
@@ -25,7 +25,7 @@ public:
 	bool isAvailableToCommitBlock();
 	void displayBlockchain() const;
 	Block commitBlock(std::string leadersPublicKey);
-	void addBlockToUtxo(Block block); //Iterate over all transactions and add the outputs to the UTXO set
+	void addBlockToUtxo(Block& block); //Iterate over all transactions and add the outputs to the UTXO set
 	// Method to validate the chain
 	bool isChainValid() const;
 	const std::vector<Block> getChain() { return _chain; }; //this is not a pointer nor a reference to avoid changing the chain, Thus this is a read only chain.

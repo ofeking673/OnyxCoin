@@ -29,6 +29,16 @@ void FullNode::showBalance() const
     std::cout << "Balance: " << _p2pNode.m_myWallet.getBalance() << std::endl;
 }
 
+void FullNode::showUserInfo() const
+{
+    PeerInfo myInfo = _p2pNode.getMyInfo();
+    std::cout << "[Info] User info: "
+        << "\n  IP: " << myInfo.ip
+        << "\n  Port: " << myInfo.port
+        << "\n  Public Key: " << myInfo.publicKey
+        << "\n  Node ID: " << myInfo.nodeId << std::endl << std::endl;
+}
+
 void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicKey, uint64_t amount)
 {
     Transaction tx = _p2pNode.m_myWallet.createTransaction(recipientPublicKey, amount);
@@ -66,6 +76,7 @@ void FullNode::runCLI()
     std::cout << "  view                      - Get current view" << std::endl;
     std::cout << "  leader                    - Get current leader's public key" << std::endl;
     std::cout << "  blockchain                - Print the blockchain to screen" << std::endl;
+    std::cout << "  info                      - Show the user info" << std::endl;
     std::cout << "  exit                      - Quit" << std::endl;
 
     std::string line;
@@ -104,6 +115,10 @@ void FullNode::runCLI()
         {
             PeerInfo leaderInfo = _p2pNode.getPeerInfoByID(_p2pNode.getLeaderIndex());
             std::cout << "[Info] Leader's public key is: " << leaderInfo.publicKey << std::endl;
+        }
+        else if (command == "info")
+        {
+            showUserInfo();
         }
         else if (command == "exit") 
         {

@@ -200,7 +200,7 @@ std::string Block::getHash() const
 
 void Block::setHash(const std::string& hash)
 {
-	_blockHeader.getHash() = hash;
+	_blockHeader.setHash(hash);
 }
 
 void Block::setNonce(const uint64_t& nonce)
