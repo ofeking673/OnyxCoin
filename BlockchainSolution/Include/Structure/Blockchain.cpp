@@ -251,6 +251,11 @@ bool Blockchain::isChainValid() const
 	return true;
 }
 
+std::vector<Transaction> Blockchain::getPendingTransactions() const
+{
+	return _pendingTransactions;
+}
+
 /// <summary>
 /// Find transaction in pending transaction, searching for transaction ID
 /// </summary>

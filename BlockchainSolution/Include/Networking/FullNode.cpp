@@ -39,6 +39,18 @@ void FullNode::showUserInfo() const
         << "\n  Node ID: " << myInfo.nodeId << std::endl << std::endl;
 }
 
+void FullNode::showPendingTransactions() const
+{
+    std::vector<Transaction> pendingTransactions = _p2pNode.getBlockchain()->getPendingTransactions();
+    std::cout << "[Info] Pending transactions: " << std::endl;
+    for (const auto& tx : pendingTransactions)
+    {
+        tx.displayTransaction();
+        std::cout << "-------------------------" << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicKey, uint64_t amount)
 {
     Transaction tx = _p2pNode.m_myWallet.createTransaction(recipientPublicKey, amount);
@@ -76,6 +88,7 @@ void FullNode::runCLI()
     std::cout << "  view                      - Get current view" << std::endl;
     std::cout << "  leader                    - Get current leader's public key" << std::endl;
     std::cout << "  blockchain                - Print the blockchain to screen" << std::endl;
+    std::cout << "  mempool                   - Show pending transactions" << std::endl;
     std::cout << "  info                      - Show the user info" << std::endl;
     std::cout << "  exit                      - Quit" << std::endl;
 
@@ -133,6 +146,10 @@ void FullNode::runCLI()
         else if (command == "blockchain") 
         {
             _p2pNode.getBlockchain()->displayBlockchain();
+        }
+        else if (command == "mempool")
+        {
+            showPendingTransactions();
         }
         else 
         {
