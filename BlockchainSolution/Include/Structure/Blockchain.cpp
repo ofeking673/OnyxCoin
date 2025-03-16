@@ -39,7 +39,7 @@ Blockchain::~Blockchain()
 {
 	utxo = UTXOSet::getInstance();
 	_chain.clear();
-	_pendingTransactions.clear();
+	//_pendingTransactions.clear();
 }
 
 
@@ -61,12 +61,14 @@ uint64_t Blockchain::getRandom()
 	return dis(gen);
 }
 
-void Blockchain::testTransaction(std::string address, uint64_t amt)
+Transaction Blockchain::testTransaction(std::string address, uint64_t amt)
 {
 	Transaction trans(
 		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase")},
 		{ TxOutput(amt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(address))) });
-	addTransaction(trans);
+	/*addTransaction(trans);*/
+
+	return trans;
 }
 
 void Blockchain::addRewardTransaction(const std::string& address, Block& newBlock)
@@ -87,9 +89,13 @@ bool Blockchain::isBlockValid(const Block& block) const
 {
 	BlockHeader lastBlock = getLatestBlock().getBlockHeader();
 	BlockHeader thisBlock = block.getBlockHeader();
-	return (lastBlock.getIndex() == thisBlock.getIndex() - 1
+	bool isHeaderValid = (lastBlock.getIndex() == thisBlock.getIndex() - 1
 		&& thisBlock.getTimeStamp() > lastBlock.getTimeStamp()
 		&& thisBlock.getPreviousHash() == lastBlock.getHash());
+
+	bool areTransactionsValid = block.verifyBlockTransactions();
+
+	return isHeaderValid && areTransactionsValid;
 }
 
 bool Blockchain::addBlock(const Block& block)
@@ -129,28 +135,39 @@ bool Blockchain::addFullBlockToFirstAwaitedHeader(const Block& block)
 	if (block.calculateHash() == _chain[awaitedHeaderIndex].getHash() &&
 		block.getPreviousHash() == _chain[awaitedHeaderIndex].getPreviousHash())
 	{
-		_chain[awaitedHeaderIndex] = block;
-		return true;
+		if (block.verifyBlockTransactions())
+		{
+			_chain[awaitedHeaderIndex] = block;
+			return true;
+		}
 	}
 
-	// Block doesn't match the awaited header
+	// Block doesn't match the awaited header; Or the transactions aren't verified
 	return false;
 }
 
 void Blockchain::addTransaction(const Transaction& tx)
 {
 	// Check if new transaction is already in pending transactions.
-	if (std::find(_pendingTransactions.begin(), _pendingTransactions.end(), tx) == _pendingTransactions.end())
+	Transaction trans = mempool.getTransaction(tx.getTransactionID());
+	if (trans.isErrorTransaction())
 	{
 		// Not found, so insert the new transaction.
-		_pendingTransactions.push_back(tx);
+		mempool.addTransaction(tx);
 	}
+
+
+	//if (std::find(_pendingTransactions.begin(), _pendingTransactions.end(), tx) == _pendingTransactions.end())
+	//{
+	//	// Not found, so insert the new transaction.
+	//	_pendingTransactions.push_back(tx);
+	//}
 }
 
 
 bool Blockchain::isAvailableToCommitBlock()
 {
-	if (_pendingTransactions.size() >= 5)
+	if (mempool.getPendingTransactionsAmount() >= 5)
 	{ // At least 5 Transactions to create a block.
 		return true;
 	}
@@ -176,9 +193,14 @@ Block Blockchain::commitBlock(std::string leadersPublicKey)
 
 	Block newBlock(_chain.size(), getLatestBlock().getHash());
 
-	for (const auto& tx : _pendingTransactions)
+	std::unordered_map<std::string, Transaction> pendingTransactions = mempool.getPendingTransactions();
+	for (const auto& tx : pendingTransactions)
 	{
-		newBlock.addTransaction(tx);
+		// Add transaction to new block
+		newBlock.addTransaction(tx.second);
+
+		// Remove transaction from mempool
+		mempool.removeTransaction(tx.second.getTransactionID());
 	}
 
 	//Create the reward transaction because we are the leader proposing the block
@@ -189,7 +211,6 @@ Block Blockchain::commitBlock(std::string leadersPublicKey)
 
 	_chain.push_back(newBlock);
 	addBlockToUtxo(newBlock);
-	_pendingTransactions.clear();
 	return newBlock;
 }
 
@@ -253,7 +274,13 @@ bool Blockchain::isChainValid() const
 
 std::vector<Transaction> Blockchain::getPendingTransactions() const
 {
-	return _pendingTransactions;
+	std::vector<Transaction> pendingTransactions;
+	std::unordered_map<std::string, Transaction> memTx = mempool.getPendingTransactions();
+	for (auto& tx : memTx)
+	{
+		pendingTransactions.push_back(tx.second);
+	}
+	return pendingTransactions;
 }
 
 /// <summary>
@@ -263,21 +290,25 @@ std::vector<Transaction> Blockchain::getPendingTransactions() const
 /// <returns>Transaction if found. Else returns error transaction</returns>
 const Transaction Blockchain::findTransactionInPending(const std::string& txID) const
 {
-	auto it = std::find_if(_pendingTransactions.begin(), _pendingTransactions.end(), [txID](const Transaction& tx)
-		{
-		return tx.getTransactionID() == txID;
-		});
+	return mempool.getTransaction(txID);
 
-	if (it != _pendingTransactions.end())
-	{
-		// Found the transaction
-		return *it;
-	}
-	else 
-	{
-		// Transaction ID not found
-		return Transaction();
-	}
+
+
+	//auto it = std::find_if(_pendingTransactions.begin(), _pendingTransactions.end(), [txID](const Transaction& tx)
+	//	{
+	//	return tx.getTransactionID() == txID;
+	//	});
+
+	//if (it != _pendingTransactions.end())
+	//{
+	//	// Found the transaction
+	//	return *it;
+	//}
+	//else 
+	//{
+	//	// Transaction ID not found
+	//	return Transaction();
+	//}
 }
 
 /// <summary>
@@ -423,12 +454,16 @@ std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
 	return std::vector<BlockHeader>();
 }
 
+bool Blockchain::isUTXOLocked(const OutPoint& op) const
+{
+	return mempool.isUTXOReserved(op);
+}
+
 Block Blockchain::createGenesisBlock()
 {
 	Block genesis(0, "0");
-	testTransaction("8e7f5ce460b577d2fba1ea673e27b7084d79ee9c75babbb594d075fb7cfc0424d4d81384dcb18a52bee6e1cb919c979841e48830b660f8a05b4fdc9230d30fe0", 100);
-	genesis.addTransaction(_pendingTransactions.front());
-	_pendingTransactions.clear();
+	Transaction tx = testTransaction("8e7f5ce460b577d2fba1ea673e27b7084d79ee9c75babbb594d075fb7cfc0424d4d81384dcb18a52bee6e1cb919c979841e48830b660f8a05b4fdc9230d30fe0", 100);
+	genesis.addTransaction(tx);
 	genesis.setHash(genesis.calculateHash());
 	return genesis;
 }

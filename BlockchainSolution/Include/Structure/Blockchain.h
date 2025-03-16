@@ -1,6 +1,7 @@
 #pragma once
 #include "Block.h"
 #include "Wallets/UTXOSet.h"
+#include "Wallets/Mempool.h"
 
 class Blockchain
 {
@@ -46,6 +47,7 @@ public:
 	std::vector<BlockHeader> getAppendedHeaders() const;
 	
 
+	bool isUTXOLocked(const OutPoint& op) const;
 
 	// Mining
 	// Mine a new block. Find a correct nonce to produce hash starts with 0s
@@ -54,11 +56,14 @@ public:
 	// Function to generate and return a random uint64_t.
 	uint64_t getRandom();
 private:
-	void testTransaction(std::string address, uint64_t amt);
+	Transaction testTransaction(std::string address, uint64_t amt);
 	void addRewardTransaction(const std::string& address, Block& newBlock);
 
 	std::vector<Block> _chain;
-	std::vector<Transaction> _pendingTransactions;
+	
+	//std::vector<Transaction> _pendingTransactions;
+	Mempool mempool;
+
 	UTXOSet* utxo;
 	Block createGenesisBlock();
 

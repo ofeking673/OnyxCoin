@@ -47,7 +47,6 @@ public:
 
     Blockchain* _blockchain;
 private:
-    UTXOSet* _utxoSet;
     // Inherits from IMessageHandler:
     //     P2PNode _node;
 };

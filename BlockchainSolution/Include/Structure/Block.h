@@ -46,6 +46,9 @@ public:
 	// Check if the other block is the mined version of the block
 	bool checkIfBlockMined(const Block& minedBlock) const;
 
+	// Veerify the transactions in the block
+	bool verifyBlockTransactions() const;
+	
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 	// After get_headers, there are awaited headers in the blockchain.
 	bool _isAwaitedHeaders = false;

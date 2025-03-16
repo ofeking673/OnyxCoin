@@ -115,11 +115,18 @@ Transaction Wallet::createTransaction(const std::string& toAddress, uint64_t amo
 		inputs.push_back(input);
 	}
 
+
+
+
+
 	// Set outputs for transaction
 	std::vector<TxOutput> outputs;
+
+
+
 	//		Main output
 	//			scriptPubKey => type(1 byte)|pubKeyHash(20 bytes)
-	std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + toAddress;
+	std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + toAddress; // **Check - Address here is the publci key
 	TxOutput output(amount, scriptPubKey);
 	outputs.push_back(output);
 

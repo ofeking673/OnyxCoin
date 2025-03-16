@@ -273,7 +273,7 @@ bool Block::checkIfBlockMined(const Block& minedBlock) const
 			{
 				// Not found transaction in transactions of block
 				numberOfUnfoundTx++;
-				if (numberOfUnfoundTx > 1)
+				if (numberOfUnfoundTx > 1) // TO-DO: Might change to 2 because of the reward for the leader as well
 				{ // More than one unfound transaction
 					// Should be only one - the mined transaction
 
@@ -287,6 +287,20 @@ bool Block::checkIfBlockMined(const Block& minedBlock) const
 		return true;
 	}
 	return false;
+}
+
+bool Block::verifyBlockTransactions() const
+{
+	bool areTransactionsValid = true;
+	for (auto& tx : _transactions)
+	{
+		if (!tx.verifyTransactionSignature(*UTXOSet::getInstance()))
+		{
+			areTransactionsValid = false;
+			break;
+		}
+	}
+	return areTransactionsValid;
 }
 
 std::string Block::getPreviousHash() const

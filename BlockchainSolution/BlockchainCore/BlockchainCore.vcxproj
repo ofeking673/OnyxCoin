@@ -173,6 +173,7 @@
     <ClInclude Include="..\Include\Structure\Block.h" />
     <ClInclude Include="..\Include\Structure\Blockchain.h" />
     <ClInclude Include="..\Include\Structure\BlockHeader.h" />
+    <ClInclude Include="..\Include\Structure\Wallets\Mempool.h" />
     <ClInclude Include="..\Include\Structure\Wallets\OutPoint.h" />
     <ClInclude Include="..\Include\Structure\Wallets\OutPointHash.h" />
     <ClInclude Include="..\Include\Structure\Wallets\Transaction.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="..\Include\Structure\Block.cpp" />
     <ClCompile Include="..\Include\Structure\Blockchain.cpp" />
     <ClCompile Include="..\Include\Structure\BlockHeader.cpp" />
+    <ClCompile Include="..\Include\Structure\Wallets\Mempool.cpp" />
     <ClCompile Include="..\Include\Structure\Wallets\OutPoint.cpp" />
     <ClCompile Include="..\Include\Structure\Wallets\OutPointHash.cpp" />
     <ClCompile Include="..\Include\Structure\Wallets\Transaction.cpp" />

@@ -17,7 +17,6 @@ FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node, bool isGenesis)
         // Empty chain
         _blockchain = new Blockchain(0);
     }
-	_utxoSet = UTXOSet::getInstance();
 }
 
 FullNodeMessageHandler::~FullNodeMessageHandler()
@@ -299,12 +298,29 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
 
+   
+    // Validate the transaction against the global UTXO pool.
     Transaction tx = Transaction::fromJson(msg.getPayload());
-    if(!tx.isErrorTransaction() && tx.verifyTransactionSignature())
+    if (tx.isErrorTransaction() || !tx.verifyTransactionSignature(*UTXOSet::getInstance()))
     {
-        _blockchain->addTransaction(tx);
+        std::cout << "Transaction verification failed" << std::endl;
+        return {};
     }
-    // Add to pending transaction, if not already in it
+        
+    // Check if any of the UTXOs are already reserved in the mempool.
+    for (const auto& input : tx.getInputs()) 
+    {
+        if (_blockchain->isUTXOLocked(input.getPreviousOutPoint())) 
+{
+            std::cerr << "UTXO is already reserved by another pending transaction." << std::endl;
+            return {};
+        }
+    }
+
+    // Reserve the UTXOs in the mempool.
+    // Add the transaction to the mempool
+    _blockchain->addTransaction(tx);
+     
     
     
     if (_node->amILeader())

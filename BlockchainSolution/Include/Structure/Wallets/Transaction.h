@@ -12,7 +12,7 @@
 #include "OutPointHash.h"
 #include "TxInput.h"
 #include "TxOutput.h"
-
+#include "UTXOSet.h"
 #include "Networking/json.hpp"
 
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
@@ -67,7 +67,7 @@ public:
 	void signTransaction(const std::string& privateKey);
 
 	// Checks that each input's scriptSig is correct with respect to the output's scriptPubKey
-	bool verifyTransactionSignature(/*const std::string& scriptPubKey*/);
+	bool verifyTransactionSignature(const UTXOSet& utxoset/*const std::string& scriptPubKey*/) const;
 
 
 	std::string toString() const;
@@ -86,10 +86,10 @@ public:
 
 	// Function to use after creating new transaction
 	// Checks if the Transaction creation failed
-	bool isTransactionCreationSucceeded();
+	bool isTransactionCreationSucceeded() const;
 
 	// Returns the transaction info, with empty scriptSig in inputs. hashed with sha256. To sign with ECDSA.
-	std::string transactionMessageToSign();
+	std::string transactionMessageToSign() const;
 
 	// Helper for generating transaction ID
 	std::string generateTransactionID();

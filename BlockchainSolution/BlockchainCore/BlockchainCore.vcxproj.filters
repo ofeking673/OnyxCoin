@@ -165,6 +165,9 @@
     <ClInclude Include="..\Include\Networking\WSAInitializer.h">
       <Filter>Header Files\Networking</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Structure\Wallets\Mempool.h">
+      <Filter>Header Files\Structure\Wallets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BlockchainCore.cpp">
@@ -286,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="..\Include\Networking\WSAInitializer.cpp">
       <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\Structure\Wallets\Mempool.cpp">
+      <Filter>Source Files\Structure\Wallets</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

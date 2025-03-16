@@ -140,49 +140,81 @@ void Transaction::signTransaction(const std::string& privateKey)
 	}
 }
 
-bool Transaction::verifyTransactionSignature(/*const std::string& scriptPubKey*/)
+bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::string& scriptPubKey*/) const
 {
-	// If there is no ID can't verify
-	if (_transactionID.empty()) 
+	///////////////////////////////////////////////////////////////
+		// 1. Check if the transaction was constructed properly. If there is no ID can't verify
+	if (!isTransactionCreationSucceeded() || _transactionID.empty()) 
 	{
 		return false;
 	}
 
-	// For each input, parse the signature + pubKey, retrieve the *previous* output’s scriptPubKey,
-	// 
-	// check that the hashed pubKey matches that scriptPubKey’s <pubKeyHash>, 
-	// 
-	// then run ECDSA verification on the transaction ID (or partial-hash).
-	for (size_t i = 0; i < _inputs.size(); i++)
-	{
-		const TxInput& input = _inputs[i];
+	uint64_t totalInputValue = 0;
+	uint64_t totalOutputValue = 0;
 
-		// Parse scriptSig => <signatureHex> + <publicKeyHex>
+	// Prepare the transaction message for signature verification.
+	std::string txMessage = transactionMessageToSign();
+
+
+	bool isCoinbase = false;
+
+	// 2. Verify each input.
+	for (const auto& input : _inputs) 
+	{
+		// Parse scriptSig (assume it's "signature publicKey")
 		std::istringstream iss(input.getScriptSig());
-		std::string signatureHex;
-		std::string pubKeyHex;
-		if (!(iss >> signatureHex >> pubKeyHex)) 
+		std::string signatureHex, publicKeyHex;
+		if (!(iss >> signatureHex >> publicKeyHex))
 		{
-			std::cerr << "Invalid scriptSig format in input " << i << "\n";
+			std::cerr << "Invalid scriptSig format." << std::endl;
 			return false;
 		}
 
-		if (pubKeyHex == "54f2dac6701f04afc0976cfff22479efa00112a3d96b116b7570db6e9c6fa35963ea177b4bd7d4b07c622279ded254c4bf929f6a67f6c62297f49a1175fb65a7") {
-			continue; //If this transaction is initialized by Coinbase - no point in verifying it.
+		if (publicKeyHex == "Coinbase")
+		{
+			//If this transaction is initialized by Coinbase - no point in verifying it.
+			isCoinbase = true;
+			continue; 
+		}
+
+
+		OutPoint op = input.getPreviousOutPoint();
+
+		// Check UTXO existence.
+		if (!utxoset.hasUTXO(op))
+		{
+			std::cerr << "UTXO not found for " << op << std::endl;
+			return false;
+		}
+		
+		// Add the value of the input to the total value
+		UTXOData referencedOutput = utxoset.getUTXOData(op);
+		totalInputValue += referencedOutput.getValue();
+
+
+
+		// Verify the public key hash.
+		std::string computedPubKeyHash = Transaction::hashPublicKey(publicKeyHex);
+		std::string expectedPubKeyHash = Transaction::extractPublicKeyHash(referencedOutput.getScriptPubKey());
+		if (computedPubKeyHash != expectedPubKeyHash) 
+		{
+			std::cerr << "Public key hash mismatch." << std::endl;
+			return false;
 		}
 
 		// ECDSA verify:
 		//    Rebuild signature Point from signatureHex
 		Point* rs = Point::parseHexString(signatureHex);
 		if (!rs) {
-			std::cerr << "Invalid signature format in input " << i << "\n";
+			std::cerr << "Invalid signature format in input " << "\n";
 			return false;
 		}
 
 		//    Rebuild publicKey Point from pubKeyHex
-		Point* pubKeyPoint = Point::parseHexString(pubKeyHex);
-		if (!pubKeyPoint) {
-			std::cerr << "Invalid public key format in input " << i << "\n";
+		Point* pubKeyPoint = Point::parseHexString(publicKeyHex);
+		if (!pubKeyPoint) 
+		{
+			std::cerr << "Invalid public key format in input " << "\n";
 			delete rs;
 			return false;
 		}
@@ -195,15 +227,104 @@ bool Transaction::verifyTransactionSignature(/*const std::string& scriptPubKey*/
 		delete rs;
 		delete pubKeyPoint;
 
-		if (!verified) 
+		if (!verified)
 		{
-			std::cerr << "Signature verification failed in input " << i << "\n";
+			std::cerr << "Signature verification failed in input " << "\n";
 			return false;
 		}
+
 	}
 
-	// All inputs validated
+	// 3. Check output values.
+	for (const auto& output : _outputs)
+	{
+		totalOutputValue += output.getValue();
+	}
+
+	// Optionally, include fee or tax check.
+	if (!isCoinbase && totalInputValue < totalOutputValue/* + tx.calculateTax()*/) 
+	{
+		std::cerr << "Input value less than output value." << std::endl;
+		return false;
+	}
+
+	// 4. (Outside this function) Make sure that the UTXOs are updated to prevent double spending.
+
 	return true;
+	
+	
+	///////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+	//// If there is no ID can't verify
+	//if (_transactionID.empty()) 
+	//{
+	//	return false;
+	//}
+
+	//// For each input, parse the signature + pubKey, retrieve the *previous* output’s scriptPubKey,
+	//// 
+	//// check that the hashed pubKey matches that scriptPubKey’s <pubKeyHash>, 
+	//// 
+	//// then run ECDSA verification on the transaction ID (or partial-hash).
+	//for (size_t i = 0; i < _inputs.size(); i++)
+	//{
+	//	const TxInput& input = _inputs[i];
+
+	//	// Parse scriptSig => <signatureHex> + <publicKeyHex>
+	//	std::istringstream iss(input.getScriptSig());
+	//	std::string signatureHex;
+	//	std::string pubKeyHex;
+	//	if (!(iss >> signatureHex >> pubKeyHex)) 
+	//	{
+	//		std::cerr << "Invalid scriptSig format in input " << i << "\n";
+	//		return false;
+	//	}
+
+	//	if (pubKeyHex == "Coinbase") {
+	//		continue; //If this transaction is initialized by Coinbase - no point in verifying it.
+	//	}
+
+	//	// ECDSA verify:
+	//	//    Rebuild signature Point from signatureHex
+	//	Point* rs = Point::parseHexString(signatureHex);
+	//	if (!rs) {
+	//		std::cerr << "Invalid signature format in input " << i << "\n";
+	//		return false;
+	//	}
+
+	//	//    Rebuild publicKey Point from pubKeyHex
+	//	Point* pubKeyPoint = Point::parseHexString(pubKeyHex);
+	//	if (!pubKeyPoint) {
+	//		std::cerr << "Invalid public key format in input " << i << "\n";
+	//		delete rs;
+	//		return false;
+	//	}
+
+	//	//    Verify ECDSA
+	//	ECDSASigner signer;
+	//	bool verified = signer.verifySignature(rs, transactionMessageToSign(), pubKeyPoint);
+
+	//	// Cleanup
+	//	delete rs;
+	//	delete pubKeyPoint;
+
+	//	if (!verified) 
+	//	{
+	//		std::cerr << "Signature verification failed in input " << i << "\n";
+	//		return false;
+	//	}
+	//}
+
+	//// All inputs validated
+	//return true;
 }
 
 
@@ -214,11 +335,13 @@ void Transaction::displayTransaction() const
 
 std::string Transaction::toString() const
 {
+	std::string time = HelperT::timeToStr(_timestamp);
+
 	// A plain text representation
 	std::ostringstream oss;
 	oss << "Transaction:\n";
 	oss << "  ID: " << _transactionID << "\n";
-	oss << "  Timestamp: " << _timestamp << "\n";
+	oss << "  Timestamp: " << time << "\n";
 	oss << "  Inputs:\n";
 	for (size_t i = 0; i < _inputs.size(); ++i)
 	{
@@ -484,7 +607,7 @@ std::string Transaction::extractTransactionType(const std::string& scriptPubKey)
 	return scriptPubKey.substr(0, 2);
 }
 
-bool Transaction::isTransactionCreationSucceeded()
+bool Transaction::isTransactionCreationSucceeded() const
 {
 	if (_inputs.empty() && _outputs.empty())
 	{
@@ -493,7 +616,7 @@ bool Transaction::isTransactionCreationSucceeded()
 	return true;
 }
 
-std::string Transaction::transactionMessageToSign()
+std::string Transaction::transactionMessageToSign() const
 {
 	Transaction copyTx(*this);
 	// Set script signature of all transaction inputs to empty

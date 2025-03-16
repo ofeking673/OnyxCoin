@@ -74,6 +74,7 @@ using json = nlohmann::json;
 #include "Structure/BlockHeader.h"
 
 // --- Wallet Management ---
+#include "Structure/Wallets/Mempool.h"
 #include "Structure/Wallets/OutPoint.h"
 #include "Structure/Wallets/OutPointHash.h"
 #include "Structure/Wallets/TxInput.h"
