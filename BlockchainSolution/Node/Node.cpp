@@ -7,7 +7,7 @@ int main()
 
 	try {
 		WebListener listener;
-		listener.start();
+		listener.start(8080);
 	}
 	catch (const std::exception& e) {
 		std::cerr << "[Exception] " << e.what() << std::endl;

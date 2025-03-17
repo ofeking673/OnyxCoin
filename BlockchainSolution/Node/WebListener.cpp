@@ -44,5 +44,5 @@ WebListener::WebListener() {
 
 void WebListener::start(int port)
 {
-	app.port(8080).multithreaded().run();
+	app.port(port).multithreaded().run();
 }
