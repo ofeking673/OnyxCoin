@@ -8,7 +8,7 @@ class FullNode
 {
 public:
     FullNode(const std::string& walletFilePath, const std::string& listenAddress, uint16_t port);
-
+    FullNode(const std::string& seed);
     ~FullNode();
 
     // CLI command to print wallet balance

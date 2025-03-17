@@ -1,3 +1,4 @@
+#include "FullNode.h"
 #include "pch.h"
 #include "FullNode.h"
 
@@ -7,6 +8,17 @@ FullNode::FullNode(const std::string& walletFilePath, const std::string& listenA
     _running(true)
 {
     if (!_p2pNode.start(listenAddress, port)) 
+    {
+        throw std::runtime_error("Failed to start P2P node");
+    }
+    // Start the CLI in its own thread.
+    _cliThread = std::thread(&FullNode::runCLI, this);
+}
+
+FullNode::FullNode(const std::string& seed) :
+    _p2pNode(seed)
+{
+    if (!_p2pNode.start("127.0.0.1", 1234))
     {
         throw std::runtime_error("Failed to start P2P node");
     }
