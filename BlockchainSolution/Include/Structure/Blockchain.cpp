@@ -462,7 +462,7 @@ bool Blockchain::isUTXOLocked(const OutPoint& op) const
 Block Blockchain::createGenesisBlock()
 {
 	Block genesis(0, "0");
-	Transaction tx = testTransaction("8e7f5ce460b577d2fba1ea673e27b7084d79ee9c75babbb594d075fb7cfc0424d4d81384dcb18a52bee6e1cb919c979841e48830b660f8a05b4fdc9230d30fe0", 100);
+	Transaction tx = testTransaction("a5003765b6dced81b6b83ca4e5dcbb786a8c0a7d2235614a813b81139554d100:b5a7813b14c1dabba5914991c3553cbbae8b36a941c0f8a05b4fdc9230d30fe0", 100);
 	genesis.addTransaction(tx);
 	genesis.setHash(genesis.calculateHash());
 	return genesis;

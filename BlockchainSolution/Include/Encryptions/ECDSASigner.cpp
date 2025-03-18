@@ -90,7 +90,7 @@ Point* parsePublicKeyPoint(const std::string& pubKeyHex)
 
 
 
-std::string ECDSASigner::cppIntToHexString(cpp_int v)
+std::string ECDSASigner::cppIntToHexString(const cpp_int& v)
 {
     std::stringstream ss;
     ss << std::hex << v;
@@ -99,5 +99,9 @@ std::string ECDSASigner::cppIntToHexString(cpp_int v)
 
 cpp_int ECDSASigner::hexStringToCppInt(const std::string& hex)
 {
-    return cpp_int("0x" + hex);
+    //return cpp_int("0x" + hex);
+    cpp_int num;
+    std::stringstream ss(hex);
+    ss >> std::hex >> num;
+    return num;
 }

@@ -220,7 +220,27 @@ void Wallet::loadWalletData(const std::string& filename)
 	cpp_int privateKeyCppInt = ECDSASigner::hexStringToCppInt(_privateKey);
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToStringNoSeperator();
+	//_publicKey = pointPublicKey->ToStringNoSeperator();
+	_publicKey = Point::usePointToHex(pointPublicKey);
+	std::cout << "[Check] Regular Public key: " << pointPublicKey->ToStringNoSeperator() << std::endl;
+	std::cout << "[Check] New Public key: " << Point::usePointToHex(pointPublicKey) << std::endl;
+
+	// ***************************
+	// Check
+	Point* checkPublicKey = Point::useHexToPoint(Point::usePointToHex(pointPublicKey));
+	if (checkPublicKey->_x == pointPublicKey->_x && checkPublicKey->_y == pointPublicKey->_y)
+	{
+		std::cout << "[Check] 2 Works" << std::endl;
+	}
+	else
+	{
+		std::cout << "[Check] 2 DOESN'T Work" << std::endl;
+	}
+
+	std::cout << "[Check] Check Public Key: " << checkPublicKey->_x << ":" << checkPublicKey->_y << std::endl;
+	std::cout << "[Check] Point Public Key: " << pointPublicKey->_x << ":" << pointPublicKey->_y << std::endl;
+	// ***************************
+
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);

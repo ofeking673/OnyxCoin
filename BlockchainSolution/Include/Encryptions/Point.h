@@ -25,6 +25,9 @@ public:
 		return ss.str();
 	}
 
+
+	static Point* reverseToStringNoSeperator(const std::string& s);
+
 	std::string ToString() 
 	{ 
 		std::stringstream ss;
@@ -42,5 +45,27 @@ public:
 		int len = str.find_first_of('|');
 		return new Point(cpp_int("0x" + HelperT::padString(str.substr(0, len), 64)), cpp_int("0x" + HelperT::padString(str.substr(len+1), 64)));
 	}
+
+	static Point* parseHexStringNoSeperator(std::string str)
+	{
+		int len = str.size() / 2;
+		return new Point(cpp_int("0x" + HelperT::padString(str.substr(0, len), 64)), cpp_int("0x" + HelperT::padString(str.substr(len), 64)));
+	}
+	static Point* parseHexStringPoint(const std::string& hexString);
+
+
+
+
+
+
+
+
+
+	/////////////////
+    // Convert a Point into a hex string (format: "xHex:yHex")
+	static std::string usePointToHex(const Point* p);
+
+    // Convert a hex string back to a Point (expects format: "xHex:yHex")
+	static Point* useHexToPoint(const std::string& hexStr);
 };
 

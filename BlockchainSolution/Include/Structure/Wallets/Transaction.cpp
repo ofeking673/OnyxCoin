@@ -120,17 +120,23 @@ void Transaction::signTransaction(const std::string& privateKey)
 		input.setScriptSig("");
 	}
 
+
 	// Derive public key from private key
 	Point* pointPublicKey = keyGenerator.ECMul(ECDSASigner::hexStringToCppInt(privateKey), keyGenerator.GPoint);
-	std::string publicKey = pointPublicKey->ToStringNoSeperator();
+	std::cout << "[Sign] Public key: " << pointPublicKey->_x << "|" << pointPublicKey->_y << std::endl;
+	//std::string publicKey = pointPublicKey->ToStringNoSeperator();
+	std::string publicKey = Point::usePointToHex(pointPublicKey); // --Try
 
 	// Sign transaction
 	Point* pointSignature = signer.signMessage(ECDSASigner::hexStringToCppInt(privateKey), transactionMessageToSign());
-	std::string signature = pointSignature->ToStringNoSeperator();
+	std::cout << "[Sign] Signature: " << pointSignature->_x << "|" << pointSignature->_y << std::endl;
+	//std::string signature = pointSignature->ToStringNoSeperator();
+	std::string signature = Point::usePointToHex(pointSignature); // --Try
 
 	// Script signature = <signature + public key>
 	std::string scriptSig = signature + " " + publicKey;
 
+	std::cout << "[Sign] Script sig: " << scriptSig << std::endl;
 	// Set script signature of all transaction inputs 
 	for (auto& input : _inputs)
 	{
@@ -138,6 +144,9 @@ void Transaction::signTransaction(const std::string& privateKey)
 			input.setScriptSig(scriptSig);
 		}
 	}
+
+	delete pointPublicKey;
+	delete pointSignature;
 }
 
 bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::string& scriptPubKey*/) const
@@ -170,6 +179,9 @@ bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::
 			return false;
 		}
 
+		std::cout << "[Verify] Public key str: " << publicKeyHex << std::endl;
+		std::cout << "[Verify] Signature str: " << signatureHex << std::endl;
+
 		if (publicKeyHex == "Coinbase")
 		{
 			//If this transaction is initialized by Coinbase - no point in verifying it.
@@ -177,7 +189,7 @@ bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::
 			continue; 
 		}
 
-
+		
 		OutPoint op = input.getPreviousOutPoint();
 
 		// Check UTXO existence.
@@ -204,14 +216,19 @@ bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::
 
 		// ECDSA verify:
 		//    Rebuild signature Point from signatureHex
-		Point* rs = Point::parseHexString(signatureHex);
+		//Point* rs = Point::parseHexStringNoSeperator(signatureHex);
+		//Point* rs = Point::reverseToStringNoSeperator(signatureHex);
+		Point* rs = Point::useHexToPoint(signatureHex); // --Try
 		if (!rs) {
 			std::cerr << "Invalid signature format in input " << "\n";
 			return false;
 		}
 
 		//    Rebuild publicKey Point from pubKeyHex
-		Point* pubKeyPoint = Point::parseHexString(publicKeyHex);
+		//Point* pubKeyPoint = Point::parseHexStringNoSeperator(publicKeyHex);
+		//Point* pubKeyPoint = Point::reverseToStringNoSeperator(publicKeyHex);
+		Point* pubKeyPoint = Point::useHexToPoint(publicKeyHex); // --Try
+		//Point* pubKeyPoint = Point::parseHexStringPoint(publicKeyHex);
 		if (!pubKeyPoint) 
 		{
 			std::cerr << "Invalid public key format in input " << "\n";
@@ -219,9 +236,12 @@ bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::
 			return false;
 		}
 
+		std::cout << "[Verify] Public key: " << pubKeyPoint->_x << ":" << pubKeyPoint->_y << std::endl;
+		std::cout << "[Verify] Signature: " << rs->_x << ":" << rs->_y << std::endl;
+
 		//    Verify ECDSA
 		ECDSASigner signer;
-		bool verified = signer.verifySignature(rs, transactionMessageToSign(), pubKeyPoint);
+		bool verified = signer.verifySignature(rs, SHA256::digest(transactionMessageToSign()), pubKeyPoint);
 
 		// Cleanup
 		delete rs;
