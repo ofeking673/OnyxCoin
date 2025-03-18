@@ -27,6 +27,7 @@ public:
     void processIncomingTransaction(const Transaction& tx);
 
 
+
     // Accessor for external checks (if needed).
     bool isRunning() const;
 

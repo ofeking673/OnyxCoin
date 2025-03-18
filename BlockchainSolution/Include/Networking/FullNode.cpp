@@ -60,11 +60,19 @@ void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicK
         std::cerr << "[Error] Transaction creation failed (insufficient funds?)" << std::endl;
         return;
     }
+
+
+
     // Create a P2P message wrapping the transaction
     MessageP2P newTxMessage = MessageManager::createNewTransactionMessage(_p2pNode.m_myWallet.getPublicKey(), tx);
     std::cout << __FUNCTION__": [Info] Broadcasting message!\n";
     _p2pNode.broadcastMessage(newTxMessage);
     std::cout << "[Info] Transaction broadcasted." << std::endl;
+    
+    // When creating a transaction - 
+    // Check transaction correctness and UTXO availability, update mempool
+    // Handle the new transaction as if it was sent to you using the handler
+    _p2pNode.m_dispatcher.dispatch(newTxMessage);
 }
 
 

@@ -4,14 +4,16 @@
 #undef min
 #undef max
 
-Blockchain::Blockchain()
+Blockchain::Blockchain(const std::string& publicKey)
 	: gen(std::random_device{}()),
 	dis(0, std::numeric_limits<uint64_t>::max())
 {
 	// Create the genesis block
-	Block genesisBlock = createGenesisBlock();
+	Block genesisBlock = createGenesisBlock(publicKey);
 	_chain.push_back(genesisBlock);
+
 	utxo = UTXOSet::getInstance();
+	mempool = Mempool::getInstance();
 
 	// Add the genesis block to the UTXOs
 	addBlockToUtxo(genesisBlock);
@@ -149,11 +151,11 @@ bool Blockchain::addFullBlockToFirstAwaitedHeader(const Block& block)
 void Blockchain::addTransaction(const Transaction& tx)
 {
 	// Check if new transaction is already in pending transactions.
-	Transaction trans = mempool.getTransaction(tx.getTransactionID());
+	Transaction trans = mempool->getTransaction(tx.getTransactionID());
 	if (trans.isErrorTransaction())
 	{
 		// Not found, so insert the new transaction.
-		mempool.addTransaction(tx);
+		mempool->addTransaction(tx);
 	}
 
 
@@ -167,7 +169,7 @@ void Blockchain::addTransaction(const Transaction& tx)
 
 bool Blockchain::isAvailableToCommitBlock()
 {
-	if (mempool.getPendingTransactionsAmount() >= 5)
+	if (mempool->getPendingTransactionsAmount() >= 5)
 	{ // At least 5 Transactions to create a block.
 		return true;
 	}
@@ -193,14 +195,14 @@ Block Blockchain::commitBlock(std::string leadersPublicKey)
 
 	Block newBlock(_chain.size(), getLatestBlock().getHash());
 
-	std::unordered_map<std::string, Transaction> pendingTransactions = mempool.getPendingTransactions();
+	std::unordered_map<std::string, Transaction> pendingTransactions = mempool->getPendingTransactions();
 	for (const auto& tx : pendingTransactions)
 	{
 		// Add transaction to new block
 		newBlock.addTransaction(tx.second);
 
 		// Remove transaction from mempool
-		mempool.removeTransaction(tx.second.getTransactionID());
+		mempool->removeTransaction(tx.second.getTransactionID());
 	}
 
 	//Create the reward transaction because we are the leader proposing the block
@@ -275,7 +277,7 @@ bool Blockchain::isChainValid() const
 std::vector<Transaction> Blockchain::getPendingTransactions() const
 {
 	std::vector<Transaction> pendingTransactions;
-	std::unordered_map<std::string, Transaction> memTx = mempool.getPendingTransactions();
+	std::unordered_map<std::string, Transaction> memTx = mempool->getPendingTransactions();
 	for (auto& tx : memTx)
 	{
 		pendingTransactions.push_back(tx.second);
@@ -290,7 +292,7 @@ std::vector<Transaction> Blockchain::getPendingTransactions() const
 /// <returns>Transaction if found. Else returns error transaction</returns>
 const Transaction Blockchain::findTransactionInPending(const std::string& txID) const
 {
-	return mempool.getTransaction(txID);
+	return mempool->getTransaction(txID);
 
 
 
@@ -456,14 +458,23 @@ std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
 
 bool Blockchain::isUTXOLocked(const OutPoint& op) const
 {
-	return mempool.isUTXOReserved(op);
+	return mempool->isUTXOReserved(op);
 }
 
-Block Blockchain::createGenesisBlock()
+Block Blockchain::createGenesisBlock(const std::string& publicKey)
 {
 	Block genesis(0, "0");
-	Transaction tx = testTransaction("a5003765b6dced81b6b83ca4e5dcbb786a8c0a7d2235614a813b81139554d100:b5a7813b14c1dabba5914991c3553cbbae8b36a941c0f8a05b4fdc9230d30fe0", 100);
-	genesis.addTransaction(tx);
+
+	// Create 5 transactions for the creators public key.
+	for (size_t i = 1; i <= 5; i++)
+	{
+		Transaction tx = testTransaction(publicKey, i * 20);
+		genesis.addTransaction(tx);
+	}
+
+	//Transaction tx = testTransaction("a5003765b6dced81b6b83ca4e5dcbb786a8c0a7d2235614a813b81139554d100:b5a7813b14c1dabba5914991c3553cbbae8b36a941c0f8a05b4fdc9230d30fe0", 100);
+	//genesis.addTransaction(tx);
+
 	genesis.setHash(genesis.calculateHash());
 	return genesis;
 }

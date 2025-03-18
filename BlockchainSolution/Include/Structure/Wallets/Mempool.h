@@ -7,9 +7,17 @@
 // This class represents a collection of pending transactions.
 class Mempool {
 public:
-    Mempool() {};
+    // Retrieve the singleton instance
+    static Mempool* getInstance() {
+        if (!_instance)
+            _instance = new Mempool();
+        return _instance;
+    }
 
-    ~Mempool() = default;
+    // Delete copy constructor and assignment operator to enforce singleton
+    Mempool(const Mempool&) = delete;
+    Mempool& operator=(const Mempool&) = delete;
+
 
     // Add a new transaction to the mempool
     void addTransaction(const Transaction& tx);
@@ -30,6 +38,13 @@ public:
     size_t getPendingTransactionsAmount() const;
 
 private:
+    // Private constructor to enforce singleton usage
+    Mempool() = default;
+
+    // The singleton instance
+    static Mempool* _instance;
+
+
     // Pending transactions mapped by their transaction IDs.
     std::unordered_map<std::string, Transaction> _pendingTransactions;
 

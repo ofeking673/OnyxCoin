@@ -6,8 +6,8 @@
 class Blockchain
 {
 public:
-	// Create with genesis block
-	Blockchain();
+	// Create with genesis block - that stores transactions for the corresponding public key
+	Blockchain(const std::string& publicKey);
 	// Create without genesis block
 	Blockchain(int);
 	~Blockchain();
@@ -62,10 +62,11 @@ private:
 	std::vector<Block> _chain;
 	
 	//std::vector<Transaction> _pendingTransactions;
-	Mempool mempool;
+	Mempool* mempool;
 
 	UTXOSet* utxo;
-	Block createGenesisBlock();
+	// Create genesis block with transaction for the corresponding public key
+	Block createGenesisBlock(const std::string& publicKey);
 
 	// Random
 	std::mt19937_64 gen;                             // 64-bit Mersenne Twister engine.

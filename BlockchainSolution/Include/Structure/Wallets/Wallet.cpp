@@ -274,12 +274,18 @@ std::pair<std::vector<OutPoint>, size_t> Wallet::selectUTXOs(uint64_t amount) co
 	std::vector<std::pair<OutPoint, uint64_t>> utxos;
 	utxos.reserve(myUTXOs.size());
 
+	Mempool* mempool = Mempool::getInstance();
+
 	// Populate the vector
 	for (const auto& kv : myUTXOs)
 	{
 		const OutPoint& outpoint = kv.first;
 		const UTXOData& data = kv.second;
-		utxos.emplace_back(outpoint, data.getValue());
+		// Add the utxos that are not reserved in the pending transaction pool
+		if (!mempool->isUTXOReserved(outpoint))
+		{
+			utxos.emplace_back(outpoint, data.getValue());
+		}
 	}
 
 	// Sort by ascending value

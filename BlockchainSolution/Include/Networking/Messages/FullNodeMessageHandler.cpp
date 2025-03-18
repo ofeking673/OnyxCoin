@@ -8,7 +8,7 @@ FullNodeMessageHandler::FullNodeMessageHandler(P2PNode* node, bool isGenesis)
     if (isGenesis)
     {
         // Create chain with genesis block
-        _blockchain = new Blockchain();
+        _blockchain = new Blockchain(_node->getMyPublicKey());
         // Update the wallet utxos with the genesis block
         _node->walletProcessNewBlock(_blockchain->getLatestBlock());
     }

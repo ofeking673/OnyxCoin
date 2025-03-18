@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Mempool.h"
 
+Mempool* Mempool::_instance = nullptr;
+
 void Mempool::addTransaction(const Transaction& tx)
 {
     // Reserve UTXOs referenced by this transaction
