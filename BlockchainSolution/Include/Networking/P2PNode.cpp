@@ -805,7 +805,12 @@ void P2PNode::signMessage(MessageP2P& msg)
 {
     ECDSASigner ecd;
     msg.setSignature(""); // Clear signature if there is any; signing the message without the signature
-    msg.setSignature(ecd.signMessage(cpp_int("0x" + m_myPrivateKey), msg.toJson().dump())->ToString());
+    //msg.setSignature(ecd.signMessage(cpp_int("0x" + m_myPrivateKey), msg.toJson().dump())->ToString());
+    Point* pointSignature = ecd.signMessage(cpp_int("0x" + m_myPrivateKey), msg.toJson().dump());
+    std::string hexSignature = Point::usePointToHex(pointSignature);
+    msg.setSignature(hexSignature);
+
+    delete pointSignature;
 }
 
 void P2PNode::pingInactivePeers()

@@ -1,47 +1,47 @@
 #include "pch.h"
 #include "Point.h"
 
-Point* Point::reverseToStringNoSeperator(const std::string& s)
-{
-	// Convert the hex string to a cpp_int.
-	cpp_int combined;
-	std::stringstream ss(s);
-	ss >> std::hex >> combined;
-
-	// When outputting, cpp_int will drop any leading zeros.
-	// So we need to re-pad the hex string to ensure it is 128 characters.
-	std::stringstream paddedStream;
-	paddedStream << std::setw(128) << std::setfill('0') << std::hex << combined;
-	std::string padded = paddedStream.str();
-
-	// Split into two halves of 64 characters each.
-	std::string xStr = padded.substr(0, 64);
-	std::string yStr = padded.substr(64, 64);
-
-	// Convert each hex string back to cpp_int.
-	cpp_int x = ECDSASigner::hexStringToCppInt(xStr);
-	cpp_int y = ECDSASigner::hexStringToCppInt(yStr);
-
-	return new Point(x, y);
-}
-
-Point* Point::parseHexStringPoint(const std::string& hexString)
-{
-	if (hexString.size() != 128) {
-		// Invalid format; expected exactly 128 hex characters.
-		return nullptr;
-	}
-
-	// Split the string in half
-	std::string firstHalf = hexString.substr(0, 64);
-	std::string secondHalf = hexString.substr(64, 64);
-
-	// Convert each half from hex to a cpp_int.
-	cpp_int firstValue = ECDSASigner::hexStringToCppInt(firstHalf);
-	cpp_int secondValue = ECDSASigner::hexStringToCppInt(secondHalf);
-
-	return new Point(firstValue, secondValue);
-}
+//Point* Point::reverseToStringNoSeperator(const std::string& s)
+//{
+//	// Convert the hex string to a cpp_int.
+//	cpp_int combined;
+//	std::stringstream ss(s);
+//	ss >> std::hex >> combined;
+//
+//	// When outputting, cpp_int will drop any leading zeros.
+//	// So we need to re-pad the hex string to ensure it is 128 characters.
+//	std::stringstream paddedStream;
+//	paddedStream << std::setw(128) << std::setfill('0') << std::hex << combined;
+//	std::string padded = paddedStream.str();
+//
+//	// Split into two halves of 64 characters each.
+//	std::string xStr = padded.substr(0, 64);
+//	std::string yStr = padded.substr(64, 64);
+//
+//	// Convert each hex string back to cpp_int.
+//	cpp_int x = ECDSASigner::hexStringToCppInt(xStr);
+//	cpp_int y = ECDSASigner::hexStringToCppInt(yStr);
+//
+//	return new Point(x, y);
+//}
+//
+//Point* Point::parseHexStringPoint(const std::string& hexString)
+//{
+//	if (hexString.size() != 128) {
+//		// Invalid format; expected exactly 128 hex characters.
+//		return nullptr;
+//	}
+//
+//	// Split the string in half
+//	std::string firstHalf = hexString.substr(0, 64);
+//	std::string secondHalf = hexString.substr(64, 64);
+//
+//	// Convert each half from hex to a cpp_int.
+//	cpp_int firstValue = ECDSASigner::hexStringToCppInt(firstHalf);
+//	cpp_int secondValue = ECDSASigner::hexStringToCppInt(secondHalf);
+//
+//	return new Point(firstValue, secondValue);
+//}
 
 std::string Point::usePointToHex(const Point* p)
 {

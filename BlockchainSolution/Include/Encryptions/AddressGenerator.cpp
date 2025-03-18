@@ -28,7 +28,8 @@ std::string AddressGenerator::generateAddressFromPrivateKey(std::string privateK
 	KeyGenerator ecc;
 	cpp_int privateK = ECDSASigner::hexStringToCppInt(privateKey);
 	Point* publicK = ecc.ECMul(privateK, ecc.GPoint);
-	std::string publicKey = publicK->ToStringNoSeperator();
+	//std::string publicKey = publicK->ToStringNoSeperator();
+	std::string publicKey = Point::usePointToHex(publicK);
 	std::string address = AddressGenerator::generateAddressFromPublicKey(publicKey);
 	return address;
 }

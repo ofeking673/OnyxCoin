@@ -31,7 +31,8 @@ Wallet::Wallet()
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKey, keyGenerator.GPoint);
 	std::cout <<std::hex << pointPublicKey->_x << std::endl << std::hex << pointPublicKey->_y << std::endl; 
-	_publicKey = pointPublicKey->ToStringNoSeperator();
+	//_publicKey = pointPublicKey->ToStringNoSeperator();
+	_publicKey = Point::usePointToHex(pointPublicKey);
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);
@@ -50,7 +51,8 @@ Wallet::Wallet(const std::string& seed, bool seedInitialize)
 
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKey, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToStringNoSeperator();
+	//_publicKey = pointPublicKey->ToStringNoSeperator();
+	_publicKey = Point::usePointToHex(pointPublicKey);
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);
@@ -95,7 +97,7 @@ uint64_t Wallet::getBalance() const
 	return balance;
 }
 
-Transaction Wallet::createTransaction(const std::string& toAddress, uint64_t amount)
+Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t amount)
 {
 	std::pair<std::vector<OutPoint>, size_t> selectedUTXOs = selectUTXOs(amount);
 	std::vector<OutPoint> outPoints = selectedUTXOs.first;
@@ -126,7 +128,7 @@ Transaction Wallet::createTransaction(const std::string& toAddress, uint64_t amo
 
 	//		Main output
 	//			scriptPubKey => type(1 byte)|pubKeyHash(20 bytes)
-	std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + toAddress; // **Check - Address here is the publci key
+	std::string scriptPubKey = std::to_string(REGULARE_TRANSACTION_TYPE) + Transaction::hashPublicKey(toPublicKey); // **Check - Address here is the publci key
 	TxOutput output(amount, scriptPubKey);
 	outputs.push_back(output);
 
@@ -222,24 +224,8 @@ void Wallet::loadWalletData(const std::string& filename)
 	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
 	//_publicKey = pointPublicKey->ToStringNoSeperator();
 	_publicKey = Point::usePointToHex(pointPublicKey);
-	std::cout << "[Check] Regular Public key: " << pointPublicKey->ToStringNoSeperator() << std::endl;
-	std::cout << "[Check] New Public key: " << Point::usePointToHex(pointPublicKey) << std::endl;
-
-	// ***************************
-	// Check
-	Point* checkPublicKey = Point::useHexToPoint(Point::usePointToHex(pointPublicKey));
-	if (checkPublicKey->_x == pointPublicKey->_x && checkPublicKey->_y == pointPublicKey->_y)
-	{
-		std::cout << "[Check] 2 Works" << std::endl;
-	}
-	else
-	{
-		std::cout << "[Check] 2 DOESN'T Work" << std::endl;
-	}
-
-	std::cout << "[Check] Check Public Key: " << checkPublicKey->_x << ":" << checkPublicKey->_y << std::endl;
-	std::cout << "[Check] Point Public Key: " << pointPublicKey->_x << ":" << pointPublicKey->_y << std::endl;
-	// ***************************
+	//std::cout << "[Check] Regular Public key: " << pointPublicKey->ToStringNoSeperator() << std::endl;
+	//std::cout << "[Check] New Public key: " << Point::usePointToHex(pointPublicKey) << std::endl;
 
 
 	// Calculate Address
@@ -270,7 +256,8 @@ void Wallet::calculateData()
 	_privateKey = ECDSASigner::cppIntToHexString(privateKeyCppInt);
 	// Calculate public key
 	Point* pointPublicKey = keyGenerator.ECMul(privateKeyCppInt, keyGenerator.GPoint);
-	_publicKey = pointPublicKey->ToStringNoSeperator();
+	//_publicKey = pointPublicKey->ToStringNoSeperator();
+	_publicKey = Point::usePointToHex(pointPublicKey);
 
 	// Calculate Address
 	_address = AddressGenerator::generateAddressFromPublicKey(_publicKey);
