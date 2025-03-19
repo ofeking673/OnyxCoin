@@ -1,4 +1,5 @@
 #include "P2PNode.h"
+#include "P2PNode.h"
 #include "pch.h"
 #include "P2PNode.h"
 #include "Messages/MessageParser.h"
@@ -310,6 +311,11 @@ void P2PNode::recieveBlockchain()
     // Send get headers message to leader
     std::string leaderPublicKey = getPeerInfoByID(getLeaderIndex()).publicKey;
     sendMessageTo(getHeadersMsg, leaderPublicKey);
+}
+
+std::vector<std::string> P2PNode::getUTXOs()
+{
+    return m_myWallet.getTransactions();
 }
 
 

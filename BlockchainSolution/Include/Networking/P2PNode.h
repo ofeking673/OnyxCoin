@@ -64,6 +64,7 @@ public:
     void sendDiscovery(SOCKET sock);
     void recieveBlockchain();
 
+    std::vector<std::string> getUTXOs();
     // Send a message to a specific peer
     bool sendMessageTo(MessageP2P& msg, const std::string toPublicKey);
 

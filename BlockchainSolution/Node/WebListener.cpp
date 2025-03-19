@@ -28,7 +28,7 @@ WebListener::WebListener() {
 		std::string dst = query_params.get("dst");
 		int amt = std::stoi(query_params.get("amt"));
 
-		if (!node && node->createTransaction(dst, amt)) {
+		if (node && node->createTransaction(dst, amt)) {
 			return crow::response("success");
 		}
 		return crow::response("failed");
@@ -36,10 +36,16 @@ WebListener::WebListener() {
 		});
 
 	CROW_ROUTE(app, "/blockchain")([this]() {
-		if(!node)
+		if(node)
 			return crow::response(node->getBlockchain()->getChain());
 		return crow::response("failed");
 	});
+
+	CROW_ROUTE(app, "/transactions")([this]() {
+		if (!node)
+			return crow::response("failed");
+		return crow::response(json(node->getUTXOs()).dump());
+		});
 }
 
 void WebListener::start(int port)
