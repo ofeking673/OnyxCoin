@@ -190,6 +190,9 @@ protected:
     // Sign a message with my private key
     void signMessage(MessageP2P& msg);
 
+    // When recieving a message, verify the signature
+    bool verifySignature(const MessageP2P& msg);
+
     // Checks peers last contact time, and send ping messages.
     void pingInactivePeers();
 

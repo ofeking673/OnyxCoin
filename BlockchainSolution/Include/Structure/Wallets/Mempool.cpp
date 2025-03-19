@@ -5,6 +5,8 @@ Mempool* Mempool::_instance = nullptr;
 
 void Mempool::addTransaction(const Transaction& tx)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
     // Reserve UTXOs referenced by this transaction
     for (const auto& input : tx.getInputs()) 
     {
@@ -15,6 +17,8 @@ void Mempool::addTransaction(const Transaction& tx)
 
 void Mempool::removeTransaction(const std::string& txID)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
     // Release reservations for UTXOs used in this transaction
     auto it = _pendingTransactions.find(txID);
     if (it != _pendingTransactions.end()) 
@@ -29,11 +33,15 @@ void Mempool::removeTransaction(const std::string& txID)
 
 bool Mempool::isUTXOReserved(const OutPoint& op) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
     return _reservedUTXOs.find(op) != _reservedUTXOs.end();
 }
 
 Transaction Mempool::getTransaction(const std::string& txID) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
     auto it = _pendingTransactions.find(txID);
     if (it != _pendingTransactions.end()) 
     {
@@ -45,10 +53,14 @@ Transaction Mempool::getTransaction(const std::string& txID) const
 
 std::unordered_map<std::string, Transaction> Mempool::getPendingTransactions() const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
     return _pendingTransactions;
 }
 
 size_t Mempool::getPendingTransactionsAmount() const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
     return _pendingTransactions.size();
 }

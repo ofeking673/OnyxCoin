@@ -3,6 +3,7 @@
 #include <string>
 #include "Transaction.h"
 #include "OutPoint.h"
+#include <mutex>
 
 // This class represents a collection of pending transactions.
 class Mempool {
@@ -44,6 +45,9 @@ private:
     // The singleton instance
     static Mempool* _instance;
 
+    // Allows the same thread to lock multiple times.
+    // Declare as mutable so it can be locked in const functions.
+    mutable std::recursive_mutex _mutex;
 
     // Pending transactions mapped by their transaction IDs.
     std::unordered_map<std::string, Transaction> _pendingTransactions;

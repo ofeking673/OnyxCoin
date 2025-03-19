@@ -21,6 +21,9 @@ public:
     std::vector<MessageP2P> dispatch(const MessageP2P& msg);
 
     Blockchain* getChain() const;
+    
+    // Indicate we created the finalized chain, from now on blockchain is singleton.
+    void setBlockchainSingleton();
 private:
     FullNodeMessageHandler* _handler;
     static std::unordered_map<MessageType, std::function<std::vector<MessageP2P>(IMessageHandler*, const MessageP2P&)>> _dispatchTable;

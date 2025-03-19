@@ -19,6 +19,8 @@ public:
         uint32_t length,
         json payload);
 
+    MessageP2P(const MessageP2P& other);
+
     /// Getters
     const std::string& getSignature() const;
     const std::string& getAuthor() const;

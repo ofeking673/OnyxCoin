@@ -6,10 +6,25 @@
 class Blockchain
 {
 public:
-	// Create with genesis block - that stores transactions for the corresponding public key
-	Blockchain(const std::string& publicKey);
-	// Create without genesis block
-	Blockchain(int);
+	// Retrieve the singleton instance
+	//		Create with genesis block - that stores transactions for the corresponding public key
+	static Blockchain* getInstance(const std::string& publicKey) {
+		if (!_instance || !_isSignleton)
+			_instance = new Blockchain(publicKey);
+		return _instance;
+	}
+	//		Create without genesis block
+	static Blockchain* getInstance(const int&) {
+		if (!_instance || !_isSignleton)
+			_instance = new Blockchain(0);
+		return _instance;
+	}
+
+
+	// Delete copy constructor and assignment operator to enforce singleton
+	Blockchain(const Blockchain&) = delete;
+	Blockchain& operator=(const Blockchain&) = delete;
+
 	~Blockchain();
 
 	// Get the latest Block in the chain
@@ -55,18 +70,36 @@ public:
 
 	// Function to generate and return a random uint64_t.
 	uint64_t getRandom();
+
+	// Set the isSingleton to true
+	void setSingleton();
 private:
+	// Create with genesis block - that stores transactions for the corresponding public key
+	explicit Blockchain(const std::string& publicKey);
+	// Create without genesis block
+	explicit Blockchain(int);
+
 	Transaction testTransaction(std::string address, uint64_t amt);
 	void addRewardTransaction(const std::string& address, Block& newBlock);
+	
+	// Create genesis block with transaction for the corresponding public key
+	Block createGenesisBlock(const std::string& publicKey);
 
 	std::vector<Block> _chain;
 	
-	//std::vector<Transaction> _pendingTransactions;
 	Mempool* mempool;
 
 	UTXOSet* utxo;
-	// Create genesis block with transaction for the corresponding public key
-	Block createGenesisBlock(const std::string& publicKey);
+
+	// The singleton instance
+	static Blockchain* _instance;
+
+	// Allows the same thread to lock multiple times.
+	// Declare as mutable so it can be locked in const functions.
+	mutable std::recursive_mutex _mutex; 
+
+	// Indicate when intialized proper blockchain (Because we know if we should create a new one, only after handshake, and by that the blockchain is already intialized...)
+	static bool _isSignleton;
 
 	// Random
 	std::mt19937_64 gen;                             // 64-bit Mersenne Twister engine.

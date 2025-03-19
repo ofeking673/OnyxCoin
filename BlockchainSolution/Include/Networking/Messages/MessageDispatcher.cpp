@@ -95,6 +95,11 @@ Blockchain* MessageDispatcher::getChain() const
     return _handler->_blockchain;
 }
 
+void MessageDispatcher::setBlockchainSingleton()
+{
+    _handler->_blockchain->setSingleton();
+}
+
 //std::string MessageDispatcher::sendClient(const std::string& pubkey, const MessageP2P& msg)
 //{
 //    if (isKnownUser(pubkey)) {

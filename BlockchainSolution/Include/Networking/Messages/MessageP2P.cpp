@@ -26,6 +26,15 @@ MessageP2P::MessageP2P(const std::string& signature,
 {
 }
 
+MessageP2P::MessageP2P(const MessageP2P& other)
+    : _signature(other._signature),
+    _author(other._author),
+    _type(other._type),
+    _payloadLength(other._payloadLength),
+    _payload(other._payload)
+{
+}
+
 // Getters
 const std::string& MessageP2P::getSignature() const
 {

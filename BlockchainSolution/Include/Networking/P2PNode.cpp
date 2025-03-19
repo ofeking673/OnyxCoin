@@ -289,8 +289,13 @@ void P2PNode::recieveBlockchain()
         std::lock_guard<std::mutex> lock(m_peerMutex);
         // Create instance of blockchain
         m_dispatcher = MessageDispatcher(this, true);
+        // Indicate this is the finalize blockchain and from now on the blockchain is singleton
+        m_dispatcher.setBlockchainSingleton();
         return;
     }
+    // Indicate this is the finalize blockchain and from now on the blockchain is singleton
+    m_dispatcher.setBlockchainSingleton();
+
     std::vector<std::pair<std::string, std::string>> blockHashes;
     MessageP2P getHeadersMsg = MessageManager::createGetHeadersMessage(getMyPublicKey(), blockHashes, "");
     
@@ -766,7 +771,8 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
             std::cout << "[Info] Recieved new message! " << data << std::endl;
             MessageP2P msg = MessageParser::parse(data);
 
-            if (msg.getType() == MessageType::HANDSHAKE) {
+            if (msg.getType() == MessageType::HANDSHAKE) 
+            {
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
                 
 
@@ -781,6 +787,15 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
                 {
                     std::lock_guard<std::mutex> lock(m_peerMutex);
                     PeerInfo peer = m_peers[msg.getAuthor()];
+
+                    // Verify signature of sender
+                    if (!verifySignature(msg))
+                    {
+                        std::cout << "[Warning] Wrong signature for message" << std::endl;
+                        continue;
+                    }
+
+                    // Refresh leader up time
                     if (peer.nodeId == getLeaderIndex()) refreshLeaderUptime();
                 }
                 // Handle the incoming message. Returns a vector of messages to send back.
@@ -811,6 +826,52 @@ void P2PNode::signMessage(MessageP2P& msg)
     msg.setSignature(hexSignature);
 
     delete pointSignature;
+}
+
+bool P2PNode::verifySignature(const MessageP2P& msg)
+{
+    std::string signature = msg.getSignature();
+    std::string publicKey = msg.getAuthor();
+
+    MessageP2P checkMsg(msg);
+    checkMsg.setSignature("");
+
+    // ECDSA verify:
+    //    Rebuild signature Point from signatureHex
+    Point* rs = Point::useHexToPoint(signature);
+    if (!rs)
+    {
+        std::cerr << "Invalid signature format in input " << "\n";
+        return false;
+    }
+
+    //    Rebuild public key Point from publicKey
+    Point* pubKeyPoint = Point::useHexToPoint(publicKey);
+    if (!pubKeyPoint)
+    {
+        std::cerr << "Invalid public key format in input " << "\n";
+        delete rs;
+        return false;
+    }
+
+    //std::cout << "[Verify] Public key: " << pubKeyPoint->_x << ":" << pubKeyPoint->_y << std::endl;
+    //std::cout << "[Verify] Signature: " << rs->_x << ":" << rs->_y << std::endl;
+
+    //    Verify ECDSA
+    ECDSASigner signer;
+    bool verified = signer.verifySignature(rs, SHA256::digest(checkMsg.toJson().dump()), pubKeyPoint);
+
+    // Cleanup
+    delete rs;
+    delete pubKeyPoint;
+
+    if (!verified)
+    {
+        std::cerr << "Signature verification failed in input " << "\n";
+        return false;
+    }
+
+    return true;
 }
 
 void P2PNode::pingInactivePeers()

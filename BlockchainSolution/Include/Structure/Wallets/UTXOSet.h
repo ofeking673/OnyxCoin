@@ -2,6 +2,7 @@
 #include "UTXOData.h"
 #include "OutPointHash.h"
 #include <unordered_map>
+#include <mutex>
 
 class UTXOSet
 {
@@ -33,6 +34,11 @@ private:
     UTXOSet() = default;
     // The global instance for this class
     static UTXOSet* _instance;
+
+    // Allows the same thread to lock multiple times.
+    // Declare as mutable so it can be locked in const functions.
+    mutable std::recursive_mutex _mutex;
+
     // The global UTXO set: key = OutPoint, value = UTXOData
     // This represents all unspent outputs across the entire blockchain.
     std::unordered_map<OutPoint, UTXOData, OutPointHash> _utxoSet;

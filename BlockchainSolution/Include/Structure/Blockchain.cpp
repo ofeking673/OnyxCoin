@@ -4,6 +4,10 @@
 #undef min
 #undef max
 
+Blockchain* Blockchain::_instance = nullptr;
+bool Blockchain::_isSignleton = false;
+
+
 Blockchain::Blockchain(const std::string& publicKey)
 	: gen(std::random_device{}()),
 	dis(0, std::numeric_limits<uint64_t>::max())
@@ -18,6 +22,7 @@ Blockchain::Blockchain(const std::string& publicKey)
 	// Add the genesis block to the UTXOs
 	addBlockToUtxo(genesisBlock);
 
+	 
 	std::random_device rd;
 	std::mt19937_64 gen(rd());
 	std::uniform_int_distribution<uint64_t> dis(0, std::numeric_limits<uint64_t>::max());
@@ -30,7 +35,9 @@ Blockchain::Blockchain(int)
 {
 	_chain.clear();
 	std::cout << std::endl << std::endl << "Chain size: " << _chain.size() << std::endl << std::endl;
+	
 	utxo = UTXOSet::getInstance();
+	mempool = Mempool::getInstance();
 
 	std::random_device rd;
 	std::mt19937_64 gen(rd());
@@ -39,14 +46,14 @@ Blockchain::Blockchain(int)
 
 Blockchain::~Blockchain()
 {
-	utxo = UTXOSet::getInstance();
 	_chain.clear();
-	//_pendingTransactions.clear();
 }
 
 
 void Blockchain::mineNewProposedBlock(Block& proposedBlock, const std::string& minerPublicKey)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	// Add the reward transaction to the miner (me)
 	addRewardTransaction(minerPublicKey, proposedBlock);
 
@@ -60,11 +67,22 @@ void Blockchain::mineNewProposedBlock(Block& proposedBlock, const std::string& m
 
 uint64_t Blockchain::getRandom()
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	return dis(gen);
+}
+
+void Blockchain::setSingleton()
+{
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
+
+	_isSignleton = true;
 }
 
 Transaction Blockchain::testTransaction(std::string address, uint64_t amt)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	Transaction trans(
 		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase")},
 		{ TxOutput(amt, std::to_string(REWARD_TRANSACTION_TYPE) + RIPEMD_160::hash(SHA256::digest(address))) });
@@ -75,6 +93,8 @@ Transaction Blockchain::testTransaction(std::string address, uint64_t amt)
 
 void Blockchain::addRewardTransaction(const std::string& address, Block& newBlock)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	uint64_t amt = newBlock.calculateBlockReward();
 	Transaction trans(
 		{ TxInput(OutPoint("00000000c017ba5e00000000c017ba5e", 0), "Coinbase Coinbase") },
@@ -84,11 +104,15 @@ void Blockchain::addRewardTransaction(const std::string& address, Block& newBloc
 
 Block Blockchain::getLatestBlock() const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	return _chain.back();
 }
 
 bool Blockchain::isBlockValid(const Block& block) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	BlockHeader lastBlock = getLatestBlock().getBlockHeader();
 	BlockHeader thisBlock = block.getBlockHeader();
 	bool isHeaderValid = (lastBlock.getIndex() == thisBlock.getIndex() - 1
@@ -102,6 +126,8 @@ bool Blockchain::isBlockValid(const Block& block) const
 
 bool Blockchain::addBlock(const Block& block)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	if (_chain.empty())
 	{
 		_chain.push_back(block);
@@ -117,6 +143,8 @@ bool Blockchain::addBlock(const Block& block)
 
 bool Blockchain::addFullBlockToFirstAwaitedHeader(const Block& block)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	// Find the index of the first awaited header
 	int awaitedHeaderIndex = -1;
 	for (size_t i = 0; i < _chain.size(); i++)
@@ -150,6 +178,8 @@ bool Blockchain::addFullBlockToFirstAwaitedHeader(const Block& block)
 
 void Blockchain::addTransaction(const Transaction& tx)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	// Check if new transaction is already in pending transactions.
 	Transaction trans = mempool->getTransaction(tx.getTransactionID());
 	if (trans.isErrorTransaction())
@@ -169,6 +199,8 @@ void Blockchain::addTransaction(const Transaction& tx)
 
 bool Blockchain::isAvailableToCommitBlock()
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	if (mempool->getPendingTransactionsAmount() >= 5)
 	{ // At least 5 Transactions to create a block.
 		return true;
@@ -178,6 +210,8 @@ bool Blockchain::isAvailableToCommitBlock()
 
 void Blockchain::displayBlockchain() const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	for (const auto& block : _chain)
 	{
 		block.displayBlock();
@@ -187,6 +221,8 @@ void Blockchain::displayBlockchain() const
 
 Block Blockchain::commitBlock(std::string leadersPublicKey)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	if (!isAvailableToCommitBlock())
 	{
 		return Block();
@@ -218,6 +254,8 @@ Block Blockchain::commitBlock(std::string leadersPublicKey)
 
 void Blockchain::addBlockToUtxo(Block& block)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	//for (Transaction& tx : block._transactions) {
 	//	//Need to compute outpoint and UTXOData
 	//	auto outputs = tx.getOutputs();
@@ -256,6 +294,8 @@ void Blockchain::addBlockToUtxo(Block& block)
 
 bool Blockchain::isChainValid() const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	for (int i = 1; i < _chain.size(); i++)
 	{
 		const Block& current = _chain[i];
@@ -276,6 +316,8 @@ bool Blockchain::isChainValid() const
 
 std::vector<Transaction> Blockchain::getPendingTransactions() const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	std::vector<Transaction> pendingTransactions;
 	std::unordered_map<std::string, Transaction> memTx = mempool->getPendingTransactions();
 	for (auto& tx : memTx)
@@ -292,25 +334,9 @@ std::vector<Transaction> Blockchain::getPendingTransactions() const
 /// <returns>Transaction if found. Else returns error transaction</returns>
 const Transaction Blockchain::findTransactionInPending(const std::string& txID) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	return mempool->getTransaction(txID);
-
-
-
-	//auto it = std::find_if(_pendingTransactions.begin(), _pendingTransactions.end(), [txID](const Transaction& tx)
-	//	{
-	//	return tx.getTransactionID() == txID;
-	//	});
-
-	//if (it != _pendingTransactions.end())
-	//{
-	//	// Found the transaction
-	//	return *it;
-	//}
-	//else 
-	//{
-	//	// Transaction ID not found
-	//	return Transaction();
-	//}
 }
 
 /// <summary>
@@ -320,6 +346,8 @@ const Transaction Blockchain::findTransactionInPending(const std::string& txID) 
 /// <returns>Transaction if found. Else returns error transaction</returns>
 const Transaction Blockchain::findTransactionInChain(const std::string& txID) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	for (auto& blk : _chain)
 	{
 		Transaction tx = blk.findTransaction(txID);
@@ -336,6 +364,8 @@ const Transaction Blockchain::findTransactionInChain(const std::string& txID) co
 
 const Block Blockchain::findBlock(const std::string& blockHash, const std::string& prevBlockHash) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	auto it = std::find_if(_chain.begin(), _chain.end(), [blockHash, prevBlockHash](const Block& block)
 		{
 			return block.getHash() == blockHash && block.getPreviousHash() == prevBlockHash;
@@ -355,6 +385,8 @@ const Block Blockchain::findBlock(const std::string& blockHash, const std::strin
 
 const BlockHeader Blockchain::findHeader(const std::string& blockHash, const std::string& prevBlockHash) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	auto it = std::find_if(_chain.begin(), _chain.end(), [blockHash, prevBlockHash](const Block& block)
 		{
 			return block.getHash() == blockHash && block.getPreviousHash() == prevBlockHash;
@@ -374,6 +406,8 @@ const BlockHeader Blockchain::findHeader(const std::string& blockHash, const std
 
 bool Blockchain::hasTransaction(const std::string& txID) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	if (findTransactionInPending(txID).isErrorTransaction() && findTransactionInChain(txID).isErrorTransaction())
 	{
 		return false;
@@ -383,6 +417,8 @@ bool Blockchain::hasTransaction(const std::string& txID) const
 
 bool Blockchain::hasBlock(const std::string& blockHash, const std::string& prevBlockHash) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	if (findBlock(blockHash, prevBlockHash).isErrorBlock())
 	{
 		return false;
@@ -393,6 +429,8 @@ bool Blockchain::hasBlock(const std::string& blockHash, const std::string& prevB
 // Append new headers to the chain if they are valid and follow the current chain.
 void Blockchain::appendHeaders(const std::vector<BlockHeader>& newHeaders)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	for (const auto& header : newHeaders) 
 	{
 		// Example check: the new header's previousHash matches the last chain header's hash
@@ -416,6 +454,8 @@ void Blockchain::appendHeaders(const std::vector<BlockHeader>& newHeaders)
 // Return the height (index) of a header if known, otherwise -1.
 int Blockchain::getHeightByHash(const std::string& hash) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	for (size_t i = 0; i < _chain.size(); i++) 
 	{
 		if (_chain[i].getHash() == hash)
@@ -429,6 +469,8 @@ int Blockchain::getHeightByHash(const std::string& hash) const
 // Get a sub-range of headers from a given index up to a count or stop hash.
 std::vector<BlockHeader> Blockchain::getHeadersFrom(int startIndex, int maxCount, const std::string& stopHash) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	std::vector<BlockHeader> result;
 	for (int i = startIndex; i < (int)_chain.size() && result.size() < (size_t)maxCount; i++) 
 	{
@@ -446,6 +488,8 @@ std::vector<BlockHeader> Blockchain::getHeadersFrom(int startIndex, int maxCount
 // In order to request the full blocks
 std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	for (size_t i = 0; i < _chain.size(); i++)
 	{
 		if (_chain[i]._isAwaitedHeaders)
@@ -458,11 +502,15 @@ std::vector<BlockHeader> Blockchain::getAppendedHeaders() const
 
 bool Blockchain::isUTXOLocked(const OutPoint& op) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	return mempool->isUTXOReserved(op);
 }
 
 Block Blockchain::createGenesisBlock(const std::string& publicKey)
 {
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
+
 	Block genesis(0, "0");
 
 	// Create 5 transactions for the creators public key.
@@ -471,9 +519,6 @@ Block Blockchain::createGenesisBlock(const std::string& publicKey)
 		Transaction tx = testTransaction(publicKey, i * 20);
 		genesis.addTransaction(tx);
 	}
-
-	//Transaction tx = testTransaction("a5003765b6dced81b6b83ca4e5dcbb786a8c0a7d2235614a813b81139554d100:b5a7813b14c1dabba5914991c3553cbbae8b36a941c0f8a05b4fdc9230d30fe0", 100);
-	//genesis.addTransaction(tx);
 
 	genesis.setHash(genesis.calculateHash());
 	return genesis;
