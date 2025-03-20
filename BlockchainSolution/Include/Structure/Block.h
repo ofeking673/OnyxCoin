@@ -49,6 +49,11 @@ public:
 	// Veerify the transactions in the block
 	bool verifyBlockTransactions() const;
 	
+	// Copy Assignment Operator
+	Block& operator=(const Block& other);
+
+
+
 	std::vector<Transaction> _transactions; // Make transactions public for later verifications
 	// After get_headers, there are awaited headers in the blockchain.
 	bool _isAwaitedHeaders = false;

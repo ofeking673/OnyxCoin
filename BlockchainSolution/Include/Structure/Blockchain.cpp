@@ -259,8 +259,9 @@ Block Blockchain::commitBlock(std::string leadersPublicKey)
 	// Indicate the block is not an awaited header
 	newBlock._isAwaitedHeaders = false;
 
-	_chain.push_back(newBlock);
-	addBlockToUtxo(newBlock);
+	// Should not add yet the block to the chain.
+	//_chain.push_back(newBlock);
+	//addBlockToUtxo(newBlock);
 	return newBlock;
 }
 

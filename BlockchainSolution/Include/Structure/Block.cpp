@@ -303,6 +303,28 @@ bool Block::verifyBlockTransactions() const
 	return areTransactionsValid;
 }
 
+Block& Block::operator=(const Block& other)
+{
+	if (this == &other) 
+	{ // Self-assignment check
+		return *this;
+	}
+
+	_transactions.clear();
+
+	// Step 3: Allocate new resource and copy data
+	_isAwaitedHeaders = other._isAwaitedHeaders;
+	_blockHeader = other._blockHeader;
+
+	for (auto& tx : other._transactions)
+	{
+		_transactions.push_back(tx);
+	}
+
+	// Return the current object by reference
+	return *this;
+}
+
 std::string Block::getPreviousHash() const
 {
 	return _blockHeader.getPreviousHash();

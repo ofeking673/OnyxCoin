@@ -122,6 +122,25 @@ std::vector<BlockHeader> BlockHeader::jsonToVector(json data)
 	return blockHeaders;
 }
 
+
+BlockHeader& BlockHeader::operator=(const BlockHeader& other)
+{
+	if (this == &other)
+	{ // Self-assignment check
+		return *this;
+	}
+
+	// Copy data
+	_index = other._index;
+	_timestamp = other._timestamp;
+	_previousHash = other._previousHash;
+	_hash = other._hash;
+	_nonce = other._nonce;
+
+	// Return the current object by reference
+	return *this;
+}
+
 bool BlockHeader::operator==(const BlockHeader& other) const
 {
 	// Check without nonce and hash. Check if the other block is the mined block of the current block

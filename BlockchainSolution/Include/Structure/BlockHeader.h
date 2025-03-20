@@ -27,6 +27,10 @@ public:
 	static nlohmann::json vectorToJson(const std::vector<BlockHeader>& blockHeaders);
 	static std::vector<BlockHeader> jsonToVector(nlohmann::json data);
 
+
+	// Copy Assignment Operator
+	BlockHeader& operator=(const BlockHeader& other);
+
 	// Compare this header with other block header. (Check if same block but the other can be mined)
 	bool operator==(const BlockHeader& other) const;
 private:

@@ -336,6 +336,11 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
 
             if (!newBlock.isErrorBlock())
             { // Created a new block
+
+                // Add a new phase state to track messages for the new Block
+                _node->addNewPhaseState(_node->getCurrentView(), newBlock.getBlockHeader().getIndex(), newBlock);
+
+
                 // Broadcast a preprepare message
                 std::vector<MessageP2P> messages;
                 MessageP2P prePrepareMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), newBlock, MessageType::PREPREPARE, _node->getCurrentView());
