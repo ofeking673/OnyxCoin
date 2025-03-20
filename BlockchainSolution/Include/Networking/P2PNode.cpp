@@ -1,3 +1,5 @@
+#include "P2PNode.h"
+#include "P2PNode.h"
 #include "pch.h"
 #include "P2PNode.h"
 #include "Messages/MessageParser.h"
@@ -11,6 +13,18 @@ P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) :
     , m_discoveryServerPort(DISCOVERY_SERVER_PORT)
     , m_discoveryServerIp(LOCALHOST)
     , m_myWallet(filePath)
+{
+    m_myPublicKey = m_myWallet.getPublicKey();
+    m_myPrivateKey = m_myWallet.getPrivateKey();
+}
+
+P2PNode::P2PNode(const std::string& seed) :
+    m_isRunning(false)
+    , m_isDiscoveryServer(false)
+    , m_dispatcher(this, false)
+    , m_discoveryServerPort(DISCOVERY_SERVER_PORT)
+    , m_discoveryServerIp(LOCALHOST)
+    , m_myWallet(seed, true)
 {
     m_myPublicKey = m_myWallet.getPublicKey();
     m_myPrivateKey = m_myWallet.getPrivateKey();
@@ -304,6 +318,11 @@ void P2PNode::recieveBlockchain()
     sendMessageTo(getHeadersMsg, leaderPublicKey);
 }
 
+std::vector<std::string> P2PNode::getUTXOs()
+{
+    return m_myWallet.getTransactions();
+}
+
 
 bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
 {
@@ -347,6 +366,19 @@ void P2PNode::broadcastMessage(MessageP2P& msg)
     {
         sendMessageTo(msg, peer.second.publicKey);
     }
+}
+
+bool P2PNode::createTransaction(const std::string& dst, int amount)
+{
+    Transaction tx = m_myWallet.createTransaction(dst, amount);
+    if (tx.getInputs().empty() && tx.getOutputs().empty())
+    {
+        return false;
+    }
+    // Create a P2P message wrapping the transaction
+    MessageP2P newTxMessage = MessageManager::createNewTransactionMessage(m_myWallet.getPublicKey(), tx);
+    broadcastMessage(newTxMessage);
+    return true;
 }
 
 void P2PNode::leaderUptime()

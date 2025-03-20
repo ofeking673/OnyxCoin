@@ -30,6 +30,8 @@ public:
 	// Get the latest Block in the chain
 	Block getLatestBlock() const;
 
+	std::string getChain() const;
+
 	bool isBlockValid(const Block& block) const;
 
 	bool addBlock(const Block& block);

@@ -109,6 +109,18 @@ Block Blockchain::getLatestBlock() const
 	return _chain.back();
 }
 
+std::string Blockchain::getChain() const
+{
+	std::stringstream ss;
+	for (int i = _chain.size(); i > _chain.size()-6; i--)
+	{
+		ss << _chain[i].toMessageString() << " ";
+	}
+	std::string final = ss.str();
+	final.pop_back();
+	return final;
+}
+
 bool Blockchain::isBlockValid(const Block& block) const
 {
     std::lock_guard<std::recursive_mutex> lock(_mutex);

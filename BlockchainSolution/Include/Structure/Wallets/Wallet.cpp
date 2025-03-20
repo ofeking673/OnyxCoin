@@ -97,7 +97,23 @@ uint64_t Wallet::getBalance() const
 	return balance;
 }
 
-Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t amount)
+std::vector<std::string> Wallet::getTransactions() const
+{
+	std::vector<std::string> transactions;
+	for (auto it = myUTXOs.begin(); it != myUTXOs.end(); it++) {
+		transactions.push_back(toString(it->first, it->second));
+	}
+	return transactions;
+}
+
+std::string Wallet::toString(OutPoint out, UTXOData data) const
+{
+	std::string dst = data.getScriptPubKey().substr(0, 64);
+	uint64_t amt = data.getValue();
+	return dst + std::to_string(amt);
+}
+
+Transaction Wallet::createTransaction(const std::string& toAddress, uint64_t amount)
 {
 	std::pair<std::vector<OutPoint>, size_t> selectedUTXOs = selectUTXOs(amount);
 	std::vector<OutPoint> outPoints = selectedUTXOs.first;

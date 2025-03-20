@@ -46,6 +46,8 @@ public:
     // Returns the total balance (sum of all UTXOs belonging to this wallet)
     uint64_t getBalance() const;
 
+    std::vector<std::string> getTransactions() const;
+    std::string toString(OutPoint out, UTXOData data) const;
     // Creates a new transaction to the specified recipient address with the given amount
     //  - selects enough UTXOs from myUTXOs
     //  - creates the inputs

@@ -47,7 +47,7 @@ class P2PNode
 {
 public:
     P2PNode(bool isDiscoveryServer = false, const std::string& filePath="");
-
+    P2PNode(const std::string& seed);
     ~P2PNode();
 
     virtual bool start(const std::string& listenAddress, uint16_t port);
@@ -64,12 +64,15 @@ public:
     void sendDiscovery(SOCKET sock);
     void recieveBlockchain();
 
+    std::vector<std::string> getUTXOs();
     // Send a message to a specific peer
     bool sendMessageTo(MessageP2P& msg, const std::string toPublicKey);
 
     // Broadcast a message to all connected peers
     void broadcastMessage(MessageP2P& msg);
-        
+
+    bool createTransaction(const std::string& dst, int amount);
+    
     void leaderUptime();
     void refreshLeaderUptime();
 
