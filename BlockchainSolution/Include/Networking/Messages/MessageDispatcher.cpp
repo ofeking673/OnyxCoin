@@ -62,6 +62,34 @@ MessageDispatcher::MessageDispatcher(P2PNode* node, bool isGenesis)
         {
             MessageType::HANDSHAKE,
             [](IMessageHandler* h, const MessageP2P& msg) { return h->onHandshake(msg); }
+        },
+        {
+            MessageType::PREPREPARE,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onPreprepare(msg); }
+        },
+        {
+            MessageType::PREPARE,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onPrepare(msg); }
+        },
+        {
+            MessageType::COMMIT,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onCommit(msg); }
+        },
+        {
+            MessageType::HASH_READY,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onHashReady(msg); }
+        },
+        {
+            MessageType::VIEW_CHANGE,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onViewChange(msg); }
+        },
+        {
+            MessageType::NEW_VIEW,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onNewView(msg); }
+        },
+        {
+            MessageType::GET_VIEW,
+            [](IMessageHandler* h, const MessageP2P& msg) { return h->onGetView(msg); }
         }
     };
 }

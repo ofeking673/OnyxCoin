@@ -42,7 +42,11 @@ public:
 
 	bool isAvailableToCommitBlock();
 	void displayBlockchain() const;
+
+	// Leader calls this function to create the block with the reward transaction of the leader
+	// Returns the block that will be proposed in pre prepare to other users to try to find the appropriate hash
 	Block commitBlock(std::string leadersPublicKey);
+
 	void addBlockToUtxo(Block& block); //Iterate over all transactions and add the outputs to the UTXO set
 	// Method to validate the chain
 	bool isChainValid() const;

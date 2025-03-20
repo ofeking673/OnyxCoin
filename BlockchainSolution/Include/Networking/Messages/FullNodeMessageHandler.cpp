@@ -331,6 +331,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
         if (_blockchain->isAvailableToCommitBlock())
         {
             // Create block if available (enough pending transactions)
+            // TO-DO ERR: Should not yet include the block in the chain. just crreate it.
             Block newBlock = _blockchain->commitBlock(_node->getMyPublicKey());
 
             if (!newBlock.isErrorBlock())
@@ -635,8 +636,13 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
 
 
 
-    // TO-DO: Verify signature. Verify that the leader is the one who sent it
-
+    // Verify that the leader is the one who sent it
+    PeerInfo leaderInfo = _node->getPeerInfoByID(_node->getLeaderIndex());
+    if (leaderInfo.publicKey != msg.getAuthor())
+    {
+        std::cout << "[Error] recieved pre prepare message not from leader" << std::endl;
+        return {};
+    }
 
     // The sequence of the message
     int sequence = msg.getPayload()["SEQUENCE"].get<int>();
@@ -929,6 +935,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHashReady(const MessageP2P& ms
 
 
     // Verify that there is a PRE PREPARE pending for that sequence and view.
+    // TO-DO ERR: Think haven't started a tracking state when being the leader... should change to actualy start
     if (!_node->isTrackingTheState(view, sequence))
     {
         // Got hash ready message, but it hasn't been preprepared

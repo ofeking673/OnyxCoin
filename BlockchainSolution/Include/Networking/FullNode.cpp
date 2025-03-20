@@ -84,7 +84,14 @@ void FullNode::createAndBroadcastTransaction(const std::string& recipientPublicK
     // When creating a transaction - 
     // Check transaction correctness and UTXO availability, update mempool
     // Handle the new transaction as if it was sent to you using the handler
-    _p2pNode.m_dispatcher.dispatch(newTxMessage);
+    std::vector<MessageP2P> retMsgs = _p2pNode.m_dispatcher.dispatch(newTxMessage);
+
+    // If we are the leader and we should intiate a pre prepare message
+    if (!retMsgs.empty())
+    {
+        // Send the pre prepare message constructed in the handler of new transaction
+        _p2pNode.broadcastMessage(retMsgs.back());
+    }
 }
 
 

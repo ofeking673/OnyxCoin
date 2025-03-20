@@ -113,7 +113,7 @@ std::string Wallet::toString(OutPoint out, UTXOData data) const
 	return dst + std::to_string(amt);
 }
 
-Transaction Wallet::createTransaction(const std::string& toAddress, uint64_t amount)
+Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t amount)
 {
 	std::pair<std::vector<OutPoint>, size_t> selectedUTXOs = selectUTXOs(amount);
 	std::vector<OutPoint> outPoints = selectedUTXOs.first;
