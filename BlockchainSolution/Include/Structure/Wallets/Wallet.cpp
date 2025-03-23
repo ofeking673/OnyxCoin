@@ -110,7 +110,10 @@ std::string Wallet::toString(OutPoint out, UTXOData data) const
 {
 	std::string dst = data.getScriptPubKey().substr(0, 64);
 	uint64_t amt = data.getValue();
-	return dst + std::to_string(amt);
+	json j;
+	j["dst"] = dst;
+	j["amt"] = amt;
+	return j.dump();
 }
 
 Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t amount)

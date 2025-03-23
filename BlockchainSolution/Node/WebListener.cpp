@@ -17,6 +17,7 @@ WebListener::WebListener() {
 			!node) {
 			node = new P2PNode(seed);
 			node->start("127.0.0.1", 1234);
+			std::cout << "[Info] New node was initialized on port 1234!\n";
 			return crow::response("success");
 		}
 

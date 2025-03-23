@@ -111,14 +111,24 @@ Block Blockchain::getLatestBlock() const
 
 std::string Blockchain::getChain() const
 {
-	std::stringstream ss;
-	for (int i = _chain.size(); i > _chain.size()-6; i--)
+	json j = json::array();
+	int startIndex = std::max(static_cast<int>(_chain.size()) - 6, 0);
+	for (int i = startIndex; i < _chain.size(); i--)
 	{
-		ss << _chain[i].toMessageString() << " ";
+		j.push_back(_chain[i].toJson());
 	}
-	std::string final = ss.str();
-	final.pop_back();
-	return final;
+	return j.dump();
+}
+
+json Blockchain::getChain(const int&) const
+{
+	json j = json::array();
+
+	for (const auto& block : _chain) {
+		j.push_back(block.toJson());
+	}
+
+	return j;
 }
 
 bool Blockchain::isBlockValid(const Block& block) const

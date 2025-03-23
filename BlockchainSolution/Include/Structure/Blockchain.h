@@ -32,6 +32,8 @@ public:
 
 	std::string getChain() const;
 
+	json getChain(const int&) const;
+
 	bool isBlockValid(const Block& block) const;
 
 	bool addBlock(const Block& block);
