@@ -22,9 +22,9 @@ public:
 	void setPrepared();
 	void setCommitted();
 
-	bool isHashReady();
-	bool isPrepared();
-	bool isCommitted();
+	bool isHashReady() const;
+	bool isPrepared() const;
+	bool isCommitted() const;
 private:
 	bool _prePrepared;
 	bool _hashReady;

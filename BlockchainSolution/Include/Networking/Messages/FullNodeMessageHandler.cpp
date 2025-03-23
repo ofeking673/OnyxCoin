@@ -314,7 +314,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewTransaction(const MessageP2
     for (const auto& input : tx.getInputs()) 
     {
         if (_blockchain->isUTXOLocked(input.getPreviousOutPoint())) 
-{
+        {
             std::cerr << "UTXO is already reserved by another pending transaction." << std::endl;
             return {};
         }
@@ -638,8 +638,8 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
     // Log the event
     std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PRE PREPARE from peer." << std::endl;
 
-
-
+    // Update last contact with peer
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Verify that the leader is the one who sent it
     PeerInfo leaderInfo = _node->getPeerInfoByID(_node->getLeaderIndex());
@@ -678,9 +678,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
         // create a hash ready message with the mined block if succeeded
         std::vector<MessageP2P> messages;
         messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::HASH_READY, _node->getCurrentView()));
-        return messages;
-
-        // TO-DO: Send only to the leader to indicate you have mined the block.
+        return messages; // Send only to the leader to indicate you have mined the block.
     }
 
     // Block isn't valid
@@ -697,7 +695,8 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
     // Log the event
     std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PREPARE from peer." << std::endl;
 
-
+    // Update last contact with peer
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Get the sequence, view and block of the message
     int sequence = msg.getPayload()["SEQUENCE"].get<int>();
@@ -755,7 +754,8 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
     // Log the event
     std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received COMMIT from peer." << std::endl;
 
-
+    // Update last contact with peer
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Get the sequence, view and block of the message
     int sequence = msg.getPayload()["SEQUENCE"].get<int>();
@@ -842,6 +842,9 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)
     // Log the event
     std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received NEW VIEW from peer." << std::endl;
 
+    // Update last contact with peer
+    _node->updatePeersLastContact(msg.getAuthor());
+
     //Parse the NEW_VIEW message
     uint32_t newView = 0;
     std::vector<MessageP2P> viewChangeMessages;
@@ -876,6 +879,9 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
     }
     // Log the event
     std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received VIEW CHANGE from peer." << std::endl;
+
+    // Update last contact with peer
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Parse VIEW_CHANGE message
     // Get the paramaters of view_change message (new view, last stable sequence, and the hash of the last checkpoint block)
@@ -921,6 +927,9 @@ std::vector<MessageP2P> FullNodeMessageHandler::onGetView(const MessageP2P& msg)
         _node->setCurrentView(msg.getPayload()["VIEW"]);
     }
 
+    // Update last contact with peer
+    _node->updatePeersLastContact(msg.getAuthor());
+
     return {};
 }
 
@@ -932,6 +941,9 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHashReady(const MessageP2P& ms
     }
     // Log the event
     std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received HASH READY from peer." << std::endl;
+
+    // Update last contact with peer
+    _node->updatePeersLastContact(msg.getAuthor());
 
     // Get the sequence, view and block of the message
     int sequence = msg.getPayload()["SEQUENCE"].get<int>();

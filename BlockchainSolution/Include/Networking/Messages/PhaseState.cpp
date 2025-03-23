@@ -100,17 +100,17 @@ void PhaseState::setCommitted()
 	_committed = true;
 }
 
-bool PhaseState::isHashReady()
+bool PhaseState::isHashReady() const
 {
 	return _hashReady;
 }
 
-bool PhaseState::isPrepared()
+bool PhaseState::isPrepared() const
 {
 	return _prepared;
 }
 
-bool PhaseState::isCommitted()
+bool PhaseState::isCommitted() const
 {
 	return _committed;
 }

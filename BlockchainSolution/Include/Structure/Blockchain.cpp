@@ -59,7 +59,7 @@ void Blockchain::mineNewProposedBlock(Block& proposedBlock, const std::string& m
 
 	// Start with random nonce and check it till reaches a good hash starts with 0s
 	uint64_t myNonce = getRandom();
-	while (proposedBlock.checkHash(myNonce))
+	while (!proposedBlock.checkHash(myNonce))
 	{
 		myNonce++;
 	}

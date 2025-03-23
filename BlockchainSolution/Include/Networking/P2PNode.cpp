@@ -13,6 +13,7 @@ P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) :
     , m_discoveryServerPort(DISCOVERY_SERVER_PORT)
     , m_discoveryServerIp(LOCALHOST)
     , m_myWallet(filePath)
+    , m_stopMining(false)
 {
     m_myPublicKey = m_myWallet.getPublicKey();
     m_myPrivateKey = m_myWallet.getPrivateKey();
@@ -25,6 +26,7 @@ P2PNode::P2PNode(const std::string& seed) :
     , m_discoveryServerPort(DISCOVERY_SERVER_PORT)
     , m_discoveryServerIp(LOCALHOST)
     , m_myWallet(seed, true)
+    , m_stopMining(false)
 {
     m_myPublicKey = m_myWallet.getPublicKey();
     m_myPrivateKey = m_myWallet.getPrivateKey();
@@ -130,6 +132,8 @@ void P2PNode::stop()
         }
     }
     m_peers.clear();
+
+    m_pingThread.join();
 }
 
 bool P2PNode::connectToNode(const std::string& ip, uint16_t port, const std::string& remotePublicKey, const uint64_t& remoteNodeId)
@@ -502,6 +506,8 @@ void P2PNode::setCurrentView(uint32_t newView)
 
 void P2PNode::addNewPhaseState(uint32_t view, int sequence, const Block& block)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     PhaseState phase(block);
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     m_phaseStates[viewSeq] = phase;
@@ -509,6 +515,8 @@ void P2PNode::addNewPhaseState(uint32_t view, int sequence, const Block& block)
 
 bool P2PNode::isTrackingTheState(uint32_t view, int sequence) const
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -520,6 +528,8 @@ bool P2PNode::isTrackingTheState(uint32_t view, int sequence) const
 
 void P2PNode::addPrepareMessage(uint32_t view, int sequence, const MessageP2P& prepareMessage)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -531,6 +541,8 @@ void P2PNode::addPrepareMessage(uint32_t view, int sequence, const MessageP2P& p
 
 void P2PNode::addCommitMessage(uint32_t view, int sequence, const MessageP2P& commitMessage)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -542,6 +554,8 @@ void P2PNode::addCommitMessage(uint32_t view, int sequence, const MessageP2P& co
 
 int P2PNode::getPrepareAmount(uint32_t view, int sequence)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -554,6 +568,8 @@ int P2PNode::getPrepareAmount(uint32_t view, int sequence)
 
 int P2PNode::getCommitAmount(uint32_t view, int sequence)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -566,6 +582,8 @@ int P2PNode::getCommitAmount(uint32_t view, int sequence)
 
 void P2PNode::setHashReady(uint32_t view, int sequence, const Block& block)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -576,6 +594,8 @@ void P2PNode::setHashReady(uint32_t view, int sequence, const Block& block)
 
 void P2PNode::setPrepared(uint32_t view, int sequence)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -586,6 +606,8 @@ void P2PNode::setPrepared(uint32_t view, int sequence)
 
 void P2PNode::setCommitted(uint32_t view, int sequence)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -594,8 +616,23 @@ void P2PNode::setCommitted(uint32_t view, int sequence)
     }
 }
 
-bool P2PNode::isPrepared(uint32_t view, int sequence)
+bool P2PNode::isHashReady(uint32_t view, int sequence) const
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        return it->second.isHashReady();
+    }
+    return false;
+}
+
+bool P2PNode::isPrepared(uint32_t view, int sequence) const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -605,8 +642,10 @@ bool P2PNode::isPrepared(uint32_t view, int sequence)
     return false;
 }
 
-bool P2PNode::isCommitted(uint32_t view, int sequence)
+bool P2PNode::isCommitted(uint32_t view, int sequence) const
 {
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
     std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
     auto it = m_phaseStates.find(viewSeq);
     if (it != m_phaseStates.end())
@@ -770,7 +809,7 @@ void P2PNode::acceptLoop()
 
 void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
 {
-    const int BUFFER_SIZE = 4096;
+    const int BUFFER_SIZE = 10000;
     char buffer[BUFFER_SIZE];
 
     while (m_isRunning)
@@ -833,10 +872,25 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
                 // Handle the incoming message. Returns a vector of messages to send back.
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
 
-                // Send back the response messages
-                for (auto& respMsg : responses)
+                // If should broadcast the returned messages
+                if (msg.getType() == MessageType::PREPREPARE
+                    || msg.getType() == MessageType::HASH_READY
+                    || msg.getType() == MessageType::PREPARE
+                    || msg.getType() == MessageType::COMMIT
+                    || msg.getType() == MessageType::VIEW_CHANGE)
                 {
-                    sendMessageTo(respMsg, msg.getAuthor());
+                    for (auto& respMsg : responses)
+                    {
+                        broadcastMessage(respMsg);
+                    }
+                }
+                else
+                {
+                    // Send back the response messages
+                    for (auto& respMsg : responses)
+                    {
+                        sendMessageTo(respMsg, msg.getAuthor());
+                    }
                 }
             }
         }
@@ -954,6 +1008,21 @@ void P2PNode::walletProcessNewBlock(const Block& newBlock)
 {
     m_myWallet.updateUTXOsFromNewBlock(newBlock._transactions);
 }
+
+//void P2PNode::startMining(Block& proposedBlock)
+//{
+//    // TO-DO: CHECK Might cause errors because working on copy of blockchain
+//    const Blockchain* blockchain = getBlockchain();
+//    // TO-DO: CHECK Might not change the block because of references. 
+//    m_miningThread = std::thread(&Blockchain::mineNewProposedBlock, &blockchain, proposedBlock, getMyPublicKey());
+//}
+//
+//void P2PNode::stopMining()
+//{
+//    // Indicate mining thread to stop mining
+//    m_stopMining.store(true, std::memory_order_release);
+//    m_miningThread.join();
+//}
 
 void P2PNode::printPeers()
 {

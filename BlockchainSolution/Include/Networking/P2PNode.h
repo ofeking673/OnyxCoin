@@ -27,6 +27,7 @@
 #include "Messages/MessageDispatcher.h"
 #include "Structure/Wallets/Wallet.h"
 #include "Messages/PhaseState.h"
+#include "Structure/Blockchain.h"
 
 #include <ws2tcpip.h>
 #include <iostream>
@@ -143,10 +144,12 @@ public:
     // Set the phase(view, seq) as committed
     void setCommitted(uint32_t view, int sequence);
 
+    // Check if the phase(view, seq) is hash ready (mined)
+    bool isHashReady(uint32_t view, int sequence) const;
     // Check if the phase(view, seq) is prepared
-    bool isPrepared(uint32_t view, int sequence);
+    bool isPrepared(uint32_t view, int sequence) const;
     // Check if the phase(view, seq) is committed
-    bool isCommitted(uint32_t view, int sequence);
+    bool isCommitted(uint32_t view, int sequence) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -177,6 +180,16 @@ public:
     // ---------------------------------------------------------------------------------------------------------
     // Update the wallet based on new block recieved
     void walletProcessNewBlock(const Block& newBlock);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------------------------------------------------------------
+    // Mining
+    // ---------------------------------------------------------------------------------------------------------
+    // Recieved new block from leader - start mining to find nonce for hash
+    //void startMining(Block& proposedBlock);
+    //void stopMining();
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -241,8 +254,16 @@ protected:
     // Map of (view, sequence) -> phase state of block
     std::map<std::pair<uint32_t, int>, PhaseState> m_phaseStates;
 
+    mutable std::recursive_mutex m_phaseStatesMutex;
+
     // Map of(new view) -> VIEW_CHANGE messages
     std::map<uint32_t, std::vector<MessageP2P>> m_viewChangeStates;
+
+    // Mining
+    // Mining thread
+    std::thread m_miningThread;
+    // Shared flag for stopping the mining thread if recieved a prepare message.
+    std::atomic<bool> m_stopMining;
 };
 
 
