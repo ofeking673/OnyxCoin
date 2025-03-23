@@ -393,7 +393,7 @@ json Transaction::toJson() const
 		inputObj["txid"] = in.getPreviousOutPoint().getTxID();
 		inputObj["index"] = in.getPreviousOutPoint().getIndex();
 		inputObj["scriptSig"] = in.getScriptSig();
-		inputsJson.push_back(inputObj);
+ 		inputsJson.push_back(inputObj);
 	}
 	//inputs = transaction references
 	j["inputs"] = inputsJson;

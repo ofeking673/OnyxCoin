@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99 d17.13
+VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlockchainCore", "BlockchainCore\BlockchainCore.vcxproj", "{7DDC6888-60E8-415B-9692-E20F10CAA81C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Node", "Node\Node.vcxproj", "{E174EC30-8F4C-45B4-8C20-CA481C830D93}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DiscoveryServer", "DiscoveryServer\DiscoveryServer.vcxproj", "{D351DC66-BA0B-424A-8B07-A410AA36FE4C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebNode", "WebNode\WebNode.vcxproj", "{A9976D5D-1C42-400F-9ECE-82934CEC23A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{D351DC66-BA0B-424A-8B07-A410AA36FE4C}.Release|x64.Build.0 = Release|x64
 		{D351DC66-BA0B-424A-8B07-A410AA36FE4C}.Release|x86.ActiveCfg = Release|Win32
 		{D351DC66-BA0B-424A-8B07-A410AA36FE4C}.Release|x86.Build.0 = Release|Win32
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Debug|x64.ActiveCfg = Debug|x64
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Debug|x64.Build.0 = Debug|x64
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Debug|x86.ActiveCfg = Debug|Win32
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Debug|x86.Build.0 = Debug|Win32
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Release|x64.ActiveCfg = Release|x64
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Release|x64.Build.0 = Release|x64
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Release|x86.ActiveCfg = Release|Win32
+		{A9976D5D-1C42-400F-9ECE-82934CEC23A4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
