@@ -64,3 +64,11 @@ size_t Mempool::getPendingTransactionsAmount() const
 
     return _pendingTransactions.size();
 }
+
+void Mempool::updateMempoolOnNewBlock(const Block& block)
+{
+    for (auto& tx : block._transactions)
+    {
+        removeTransaction(tx.getTransactionID());
+    }
+}

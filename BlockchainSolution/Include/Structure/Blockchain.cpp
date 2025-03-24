@@ -34,7 +34,6 @@ Blockchain::Blockchain(int)
 	dis(0, std::numeric_limits<uint64_t>::max())
 {
 	_chain.clear();
-	std::cout << std::endl << std::endl << "Chain size: " << _chain.size() << std::endl << std::endl;
 	
 	utxo = UTXOSet::getInstance();
 	mempool = Mempool::getInstance();
@@ -153,11 +152,13 @@ bool Blockchain::addBlock(const Block& block)
 	if (_chain.empty())
 	{
 		_chain.push_back(block);
+		mempool->updateMempoolOnNewBlock(block);
 		return true;
 	}
 	else if (isBlockValid(block))
 	{
 		_chain.push_back(block);
+		mempool->updateMempoolOnNewBlock(block);
 		return true;
 	}
 	return false;

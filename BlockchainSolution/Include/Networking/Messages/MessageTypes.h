@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-
+#include <string>
+#include <iostream>
 
 #define DISCOVERY_PAYLOAD_LISTEN_IP "LISTEN_IP"
 #define DISCOVERY_PAYLOAD_LISTEN_PORT "LISTEN_PORT"
@@ -35,3 +36,10 @@ enum class MessageType : uint16_t
     NEW_VIEW,
     GET_VIEW,
 };
+
+
+// Function prototype to convert a MessageType to its string representation.
+std::string to_string(MessageType type);
+
+// Overload the stream insertion operator for MessageType.
+std::ostream& operator<<(std::ostream& os, MessageType type);

@@ -36,6 +36,7 @@ public:
 
 	bool isBlockValid(const Block& block) const;
 
+	// Add a new block to the chain. Remove pending transactions from mempool if committed in block
 	bool addBlock(const Block& block);
 	// There are awaited headers. Recieved a block, than add it if available to the first wawaited header.
 	bool addFullBlockToFirstAwaitedHeader(const Block& block);

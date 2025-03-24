@@ -338,7 +338,7 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
     auto it = m_peers.find(toPublicKey);
     if (it == m_peers.end())
     {
-        std::cerr << "{" << m_myPort << "} " << "[Warning] Peer not found: " << toPublicKey << std::endl;
+        std::cerr << "{" << m_myPort << "} " << "[Warning] Peer not found: &" << toPublicKey.substr(0, 4) << std::endl;
         return false;
     }
 
@@ -359,6 +359,7 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
         return false;
     }
 
+    std::cout << "[Info] Sent " << msg.getType() << " to &" << toPublicKey.substr(0, 4) << std::endl;
     return true;
 }
 
@@ -548,7 +549,7 @@ void P2PNode::addCommitMessage(uint32_t view, int sequence, const MessageP2P& co
     if (it != m_phaseStates.end())
     {
         // Add the commit message to the phase state container
-        it->second.addPrepareMessage(commitMessage);
+        it->second.addCommitMessage(commitMessage);
     }
 }
 
@@ -651,6 +652,56 @@ bool P2PNode::isCommitted(uint32_t view, int sequence) const
     if (it != m_phaseStates.end())
     {
         return it->second.isCommitted();
+    }
+    return false;
+}
+
+void P2PNode::setSentPrepare(uint32_t view, int sequence)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        it->second.setSentPrepare();
+    }
+}
+
+void P2PNode::setSentCommit(uint32_t view, int sequence)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        it->second.setSentCommit();
+    }
+}
+
+bool P2PNode::isSentPrepare(uint32_t view, int sequence)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        return it->second.isSentPrepare();
+    }
+    return false;
+}
+
+bool P2PNode::isSentCommit(uint32_t view, int sequence)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_phaseStatesMutex);
+
+    std::pair<uint32_t, int> viewSeq = std::pair<uint32_t, int>(view, sequence);
+    auto it = m_phaseStates.find(viewSeq);
+    if (it != m_phaseStates.end())
+    {
+        return it->second.isSentCommit();
     }
     return false;
 }
@@ -826,11 +877,11 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
             int err = WSAGetLastError();
             if (err == WSAECONNRESET)
             {
-                std::cerr << "{" << m_myPort << "} " << "[Warning] Connection reset by peer: " << peerPublicKey << std::endl;
+                std::cerr << "{" << m_myPort << "} " << "[Warning] Connection reset by peer: " << peerPublicKey.substr(0, 4) << std::endl;
             }
             else
             {
-                std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed for peer " << peerPublicKey << ": " << err << std::endl;
+                std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed for peer " << peerPublicKey.substr(0, 4) << ": " << err << std::endl;
             }
             break;
         }
@@ -839,8 +890,8 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
             // We have data to process
             std::string data(buffer, bytesReceived);
             // In real code, you might have to handle partial messages or multiple messages in one recv.
-            std::cout << "[Info] Recieved new message! " << data << std::endl;
             MessageP2P msg = MessageParser::parse(data);
+            //std::cout << "[Info] Recieved new message! " << data << std::endl;
 
             if (msg.getType() == MessageType::HANDSHAKE) 
             {
@@ -872,11 +923,9 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
                 // Handle the incoming message. Returns a vector of messages to send back.
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
 
-                // If should broadcast the returned messages
-                if (msg.getType() == MessageType::PREPREPARE
-                    || msg.getType() == MessageType::HASH_READY
+                // Should broadcast the returned messages
+                if (   msg.getType() == MessageType::HASH_READY
                     || msg.getType() == MessageType::PREPARE
-                    || msg.getType() == MessageType::COMMIT
                     || msg.getType() == MessageType::VIEW_CHANGE)
                 {
                     for (auto& respMsg : responses)
@@ -991,7 +1040,7 @@ void P2PNode::pingInactivePeers()
             MessageP2P pingMsg = MessageManager::createPingMessage(m_myPublicKey);
             signMessage(pingMsg);
             sendMessageTo(pingMsg, pubKey);
-            std::cout << "{" << m_myPort << "} " << "[Ping] Sent ping to peer: " << pubKey << std::endl;
+            std::cout << "{" << m_myPort << "} " << "[Ping] Sent ping to peer: &" << pubKey.substr(0, 4) << std::endl;
         }
 
         // 3) Sleep until the next check

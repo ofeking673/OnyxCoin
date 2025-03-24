@@ -123,20 +123,20 @@ void Transaction::signTransaction(const std::string& privateKey)
 
 	// Derive public key from private key
 	Point* pointPublicKey = keyGenerator.ECMul(ECDSASigner::hexStringToCppInt(privateKey), keyGenerator.GPoint);
-	std::cout << "[Sign] Public key: " << pointPublicKey->_x << "|" << pointPublicKey->_y << std::endl;
+	//std::cout << "[Sign] Public key: " << pointPublicKey->_x << "|" << pointPublicKey->_y << std::endl;
 	//std::string publicKey = pointPublicKey->ToStringNoSeperator();
 	std::string publicKey = Point::usePointToHex(pointPublicKey); // --Try
 
 	// Sign transaction
 	Point* pointSignature = signer.signMessage(ECDSASigner::hexStringToCppInt(privateKey), transactionMessageToSign());
-	std::cout << "[Sign] Signature: " << pointSignature->_x << "|" << pointSignature->_y << std::endl;
+	//std::cout << "[Sign] Signature: " << pointSignature->_x << "|" << pointSignature->_y << std::endl;
 	//std::string signature = pointSignature->ToStringNoSeperator();
 	std::string signature = Point::usePointToHex(pointSignature); // --Try
 
 	// Script signature = <signature + public key>
 	std::string scriptSig = signature + " " + publicKey;
 
-	std::cout << "[Sign] Script sig: " << scriptSig << std::endl;
+	//std::cout << "[Sign] Script sig: " << scriptSig << std::endl;
 	// Set script signature of all transaction inputs 
 	for (auto& input : _inputs)
 	{
@@ -179,8 +179,8 @@ bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::
 			return false;
 		}
 
-		std::cout << "[Verify] Public key str: " << publicKeyHex << std::endl;
-		std::cout << "[Verify] Signature str: " << signatureHex << std::endl;
+		//std::cout << "[Verify] Public key str: " << publicKeyHex << std::endl;
+		//std::cout << "[Verify] Signature str: " << signatureHex << std::endl;
 
 		if (publicKeyHex == "Coinbase")
 		{
@@ -236,8 +236,8 @@ bool Transaction::verifyTransactionSignature(const UTXOSet& utxoset/*const std::
 			return false;
 		}
 
-		std::cout << "[Verify] Public key: " << pubKeyPoint->_x << ":" << pubKeyPoint->_y << std::endl;
-		std::cout << "[Verify] Signature: " << rs->_x << ":" << rs->_y << std::endl;
+		//std::cout << "[Verify] Public key: " << pubKeyPoint->_x << ":" << pubKeyPoint->_y << std::endl;
+		//std::cout << "[Verify] Signature: " << rs->_x << ":" << rs->_y << std::endl;
 
 		//    Verify ECDSA
 		ECDSASigner signer;

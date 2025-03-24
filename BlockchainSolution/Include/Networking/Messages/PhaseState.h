@@ -25,12 +25,22 @@ public:
 	bool isHashReady() const;
 	bool isPrepared() const;
 	bool isCommitted() const;
+
+	bool isSentPrepare() const;
+	bool isSentCommit() const;
+
+	void setSentPrepare();
+	void setSentCommit();
+
 private:
 	bool _prePrepared;
 	bool _hashReady;
 	bool _prepared;
 	bool _committed;
 	
+	bool _sentPrepare;
+	bool _sentCommit;
+
 	std::vector<MessageP2P> _prepareMessages;
 	std::vector<MessageP2P> _commitMessages;
 

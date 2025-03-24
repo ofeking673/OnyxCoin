@@ -150,7 +150,16 @@ public:
     bool isPrepared(uint32_t view, int sequence) const;
     // Check if the phase(view, seq) is committed
     bool isCommitted(uint32_t view, int sequence) const;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Set that sent a prepare message for this state
+    void setSentPrepare(uint32_t view, int sequence);
+    // Set that sent a commit message for this state
+    void setSentCommit(uint32_t view, int sequence);
+    
+    // Check if sent a prepare message for this state
+    bool isSentPrepare(uint32_t view, int sequence);
+    // Check if sent a commit message for this state
+    bool isSentCommit(uint32_t view, int sequence);    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

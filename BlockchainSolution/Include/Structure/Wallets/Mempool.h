@@ -38,6 +38,8 @@ public:
     // Get amount of pending transactions
     size_t getPendingTransactionsAmount() const;
 
+    // When adding a new block to the chain, remove all pending transactions that are committed in the block
+    void updateMempoolOnNewBlock(const Block& block);
 private:
     // Private constructor to enforce singleton usage
     Mempool() = default;

@@ -636,7 +636,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
         return {};
     }
     // Log the event
-    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PRE PREPARE from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PRE PREPARE from peer. &" << msg.getAuthor().substr(0, 4) << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -693,10 +693,12 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
         return {};
     }
     // Log the event
-    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PREPARE from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received PREPARE from peer. &" << msg.getAuthor().substr(0, 4) << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
+
+    //system("pause");
 
     // Get the sequence, view and block of the message
     int sequence = msg.getPayload()["SEQUENCE"].get<int>();
@@ -711,12 +713,19 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
         return {};
     }
 
+    // Check if the block already prepared
+    if (_node->isPrepared(view, sequence))
+    {
+        std::cout << "Block is already prepared." << std::endl;
+        return {};
+    }
+
     // Add the prepare message to the tracker of the messages
     _node->addPrepareMessage(view, sequence, msg);
 
 
     // Check if reached 2f + 1 prepare messages
-    int networkSize = _node->getAllClients().size();
+    int networkSize = _node->getAllClients().size() + 1 /*include myself*/;
     /*
         Total nodes: X = 3F + 1
         Maximum faulty nodes: F = (X-1)/3
@@ -734,10 +743,31 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
         // Set the block as prepared
         _node->setPrepared(view, sequence);
 
+        std::cout << "Block is set to prepared" << std::endl;
+        //system("pause");
+
         // Broadcast commit message
         std::vector<MessageP2P> messages;
         MessageP2P commitMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::COMMIT, view);
         messages.push_back(commitMsg);
+
+        // Set that sent a commit message
+        _node->setSentCommit(view, sequence);
+
+        return messages;
+    }
+
+    // If haven't sent yet a prepare message for this state
+    if (!_node->isSentPrepare(view, sequence))
+    {
+        // Broadcast a prepare message
+        std::vector<MessageP2P> messages;
+        MessageP2P prepareMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, view);
+        messages.push_back(prepareMsg);
+
+        // Set that sent a prepare message
+        _node->setSentPrepare(view, sequence);
+
         return messages;
     }
 
@@ -752,7 +782,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
         return {};
     }
     // Log the event
-    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received COMMIT from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received COMMIT from peer. &" << msg.getAuthor().substr(0, 4) << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -775,7 +805,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
 
 
     // Check if reached 2f + 1 prepare messages
-    int networkSize = _node->getAllClients().size();
+    int networkSize = _node->getAllClients().size() + 1 /*include myself*/;
     /*
         Total nodes: X = 3F + 1
         Maximum faulty nodes: F = (X-1)/3
@@ -790,16 +820,21 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
         // Reached minimum of 2f + 1 prepaers.
         // And it hasn't already been committed
         
+        std::cout << "Block is set to committed" << std::endl;
 
         // Set the block as prepared
         _node->setCommitted(view, sequence);
 
         // Add the block to the blockchain     
-        Block newBlock = Block::fromJson(msg.getPayload()["BLOCK"]);
-        _blockchain->addBlock(newBlock);
+        _blockchain->addBlock(block);
         
+        std::cout << "Added new block" << std::endl;
+
         // Update the wallet UTXO based on the new block
-        _node->walletProcessNewBlock(newBlock);
+        _node->walletProcessNewBlock(block);
+        // Update whole blockchain UTXOs
+        _blockchain->addBlockToUtxo(block);
+
         
         return {};
     }
@@ -840,7 +875,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onNewView(const MessageP2P& msg)
         return {};
     }
     // Log the event
-    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received NEW VIEW from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received NEW VIEW from peer. &" << msg.getAuthor().substr(0, 4) << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -878,7 +913,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onViewChange(const MessageP2P& m
         return {};
     }
     // Log the event
-    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received VIEW CHANGE from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received VIEW CHANGE from peer. &" << msg.getAuthor().substr(0, 4) << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -940,7 +975,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHashReady(const MessageP2P& ms
         return {};
     }
     // Log the event
-    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received HASH READY from peer." << std::endl;
+    std::cout << "{" << _node->getMyPort() << "} " << "[FullNodeMessageHandler] Received HASH READY from peer. &" << msg.getAuthor().substr(0, 4) << std::endl;
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
@@ -959,6 +994,12 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHashReady(const MessageP2P& ms
         return {};
     }
 
+    if (_node->isHashReady(view, sequence))
+    {
+        // Already recieved a block with hash ready. Ignore this block because its late.
+        return {};
+    }
+
     // Check if the proposed block is valid
     if (!block.checkHash(block.getBlockHeader().getNonce()))
     { 
@@ -972,5 +1013,9 @@ std::vector<MessageP2P> FullNodeMessageHandler::onHashReady(const MessageP2P& ms
     // Send a prepare message
     std::vector<MessageP2P> messages;
     messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, _node->getCurrentView()));
+    
+    // Set that sent a prepare message for this state
+    _node->setSentPrepare(view, sequence);
+
     return messages;
 }

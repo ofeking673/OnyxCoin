@@ -6,6 +6,8 @@ PhaseState::PhaseState()
 	, _hashReady(false)
 	, _prepared(false)
 	, _committed(false)
+	, _sentPrepare(false)
+	, _sentCommit(false)
 {
 }
 
@@ -15,6 +17,8 @@ PhaseState::PhaseState(const Block& block)
 	, _hashReady(false)
 	, _prepared(false)
 	, _committed(false)
+	, _sentPrepare(false)
+	, _sentCommit(false)
 {
 }
 
@@ -26,6 +30,7 @@ void PhaseState::addPrepareMessage(const MessageP2P& prepareMessage)
 		if (!isRecievedPrepareMessageFromAuthorAlready(prepareMessage.getAuthor()))
 		{
 			_prepareMessages.push_back(prepareMessage);
+			std::cout << "Prepare messages: " << _prepareMessages.size() << std::endl;
 		}
 	}
 }
@@ -37,7 +42,9 @@ void PhaseState::addCommitMessage(const MessageP2P& commitMessage)
 		// Check if already pushed a message from that author.
 		if (!isRecievedCommitMessageFromAuthorAlready(commitMessage.getAuthor()))
 		{
-			_prepareMessages.push_back(commitMessage);
+			_commitMessages.push_back(commitMessage);
+			std::cout << "Commit messages: " << _commitMessages.size() << std::endl;
+
 		}
 	}
 }
@@ -113,4 +120,24 @@ bool PhaseState::isPrepared() const
 bool PhaseState::isCommitted() const
 {
 	return _committed;
+}
+
+bool PhaseState::isSentPrepare() const
+{
+	return _sentPrepare;
+}
+
+bool PhaseState::isSentCommit() const
+{
+	return _sentCommit;
+}
+
+void PhaseState::setSentPrepare()
+{
+	_sentPrepare = true;
+}
+
+void PhaseState::setSentCommit()
+{
+	_sentCommit = true;
 }
