@@ -77,6 +77,13 @@ public:
 	// Mine a new block. Find a correct nonce to produce hash starts with 0s
 	void mineNewProposedBlock(Block& proposedBlock, const std::string& minerPublicKey);
 
+	// Stop mining because received a prepare message
+	void stopMining();
+
+	// Check if mining was canceled before finding the right nonce (due to receiveing a valid block via prepare message)
+	bool wasMiningCanceled() const;
+
+
 	// Function to generate and return a random uint64_t.
 	uint64_t getRandom();
 
@@ -109,6 +116,11 @@ private:
 
 	// Indicate when intialized proper blockchain (Because we know if we should create a new one, only after handshake, and by that the blockchain is already intialized...)
 	static bool _isSignleton;
+
+
+	// Flag that the mining thread checks to decide whether to stop.
+	std::atomic<bool> m_cancelMining;
+
 
 	// Random
 	std::mt19937_64 gen;                             // 64-bit Mersenne Twister engine.

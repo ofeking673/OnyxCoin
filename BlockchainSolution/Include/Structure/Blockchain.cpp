@@ -11,6 +11,7 @@ bool Blockchain::_isSignleton = false;
 Blockchain::Blockchain(const std::string& publicKey)
 	: gen(std::random_device{}()),
 	dis(0, std::numeric_limits<uint64_t>::max())
+	, m_cancelMining(false)
 {
 	// Create the genesis block
 	Block genesisBlock = createGenesisBlock(publicKey);
@@ -32,6 +33,7 @@ Blockchain::Blockchain(const std::string& publicKey)
 Blockchain::Blockchain(int)
 	: gen(std::random_device{}()),
 	dis(0, std::numeric_limits<uint64_t>::max())
+	, m_cancelMining(false)
 {
 	_chain.clear();
 	
@@ -53,15 +55,32 @@ void Blockchain::mineNewProposedBlock(Block& proposedBlock, const std::string& m
 {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
 
+	// Reset cancellation flag before starting.
+	m_cancelMining.store(false);
+
 	// Add the reward transaction to the miner (me)
 	addRewardTransaction(minerPublicKey, proposedBlock);
 
 	// Start with random nonce and check it till reaches a good hash starts with 0s
 	uint64_t myNonce = getRandom();
-	while (!proposedBlock.checkHash(myNonce))
+	while (!m_cancelMining.load() && !proposedBlock.checkHash(myNonce))
 	{
 		myNonce++;
 	}
+}
+
+void Blockchain::stopMining()
+{
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
+
+	m_cancelMining.store(true);
+}
+
+bool Blockchain::wasMiningCanceled() const
+{
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
+
+	return m_cancelMining.load();
 }
 
 uint64_t Blockchain::getRandom()

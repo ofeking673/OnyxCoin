@@ -670,15 +670,69 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
         // Add the corresponding message to the phase state
         _node->addNewPhaseState(curView, sequence, block);
 
-        // Mine the proposed block. Try to find the nonce for a good hash
-        // TO-DO: Detach a thread to mine, and when recieved a new message of someone
-        //        That already mined the block, stop mining it.
-        _blockchain->mineNewProposedBlock(block, _node->getMyPublicKey());
 
-        // create a hash ready message with the mined block if succeeded
-        std::vector<MessageP2P> messages;
-        messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::HASH_READY, _node->getCurrentView()));
-        return messages; // Send only to the leader to indicate you have mined the block.
+        // Start a detached mining thread.
+        std::thread miningThread([this, block, curView]() mutable {
+            // The mining function performs the loop and returns the mined block 
+            _blockchain->mineNewProposedBlock(block, _node->getMyPublicKey());
+
+            // After the mining loop, check if mining was canceled.
+            if (_blockchain->wasMiningCanceled())
+            {
+                std::cout << "[Mining] Mining canceled due to a prepare message." << std::endl;
+                return; // Exit the thread if canceled.
+            }
+
+            // If we did not cancel, verify that the nonce is valid.
+            //if (block.checkHash(nonce))
+            //{
+            
+
+            // Update the block with the found nonce.
+            std::cout << "[Mining] Valid nonce found" << std::endl;
+
+            // Create a HASH_READY message with the mined block.
+            // Assume we want to send this only to the leader.
+            std::string leaderKey = _node->getPeerInfoByID(_node->getLeaderIndex()).publicKey;
+            MessageP2P hashReadyMsg = MessageManager::createLeaderMessage(
+                _node->getMyPublicKey(), block, MessageType::HASH_READY, curView);
+
+            // Send the message to the leader.
+            _node->sendMessageTo(hashReadyMsg, leaderKey);
+            
+            //else
+            //{
+            //    std::cout << "[Mining] Mining terminated without finding a valid nonce." << std::endl;
+            //}
+
+
+            });
+        miningThread.detach();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //// Mine the proposed block. Try to find the nonce for a good hash
+        //// TO-DO: Detach a thread to mine, and when recieved a new message of someone
+        ////        That already mined the block, stop mining it.
+        //_blockchain->mineNewProposedBlock(block, _node->getMyPublicKey());
+
+        //// create a hash ready message with the mined block if succeeded
+        //std::vector<MessageP2P> messages;
+        //messages.push_back(MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::HASH_READY, _node->getCurrentView()));
+        //return messages; // Send only to the leader to indicate you have mined the block.
     }
 
     // Block isn't valid
@@ -700,6 +754,9 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
 
     //system("pause");
 
+    // Stop mining thread because already received a block.
+    _blockchain->stopMining();
+
     // Get the sequence, view and block of the message
     int sequence = msg.getPayload()["SEQUENCE"].get<int>();
     uint32_t view = msg.getPayload()["CURRENT_VIEW"].get<uint32_t>();
@@ -711,6 +768,19 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
     {
         // Got prepare message, but it hasn't been preprepared
         return {};
+    }
+
+    std::vector<MessageP2P> messages;
+
+    // If haven't sent yet a prepare message for this state
+    if (!_node->isSentPrepare(view, sequence))
+    {
+        // Broadcast a prepare message
+        MessageP2P prepareMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, view);
+        messages.push_back(prepareMsg);
+
+        // Set that sent a prepare message
+        _node->setSentPrepare(view, sequence);
     }
 
     // Check if the block already prepared
@@ -747,32 +817,15 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
         //system("pause");
 
         // Broadcast commit message
-        std::vector<MessageP2P> messages;
         MessageP2P commitMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::COMMIT, view);
         messages.push_back(commitMsg);
 
         // Set that sent a commit message
         _node->setSentCommit(view, sequence);
-
-        return messages;
-    }
-
-    // If haven't sent yet a prepare message for this state
-    if (!_node->isSentPrepare(view, sequence))
-    {
-        // Broadcast a prepare message
-        std::vector<MessageP2P> messages;
-        MessageP2P prepareMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, view);
-        messages.push_back(prepareMsg);
-
-        // Set that sent a prepare message
-        _node->setSentPrepare(view, sequence);
-
-        return messages;
     }
 
     // Wait for more prepare messages
-    return {};
+    return messages;
 }
 
 std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)

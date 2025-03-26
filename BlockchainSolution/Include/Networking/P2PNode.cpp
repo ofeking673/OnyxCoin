@@ -14,6 +14,7 @@ P2PNode::P2PNode(bool isDiscoveryServer, const std::string& filePath) :
     , m_discoveryServerIp(LOCALHOST)
     , m_myWallet(filePath)
     , m_stopMining(false)
+    , m_pausePing(false)
 {
     m_myPublicKey = m_myWallet.getPublicKey();
     m_myPrivateKey = m_myWallet.getPrivateKey();
@@ -27,6 +28,7 @@ P2PNode::P2PNode(const std::string& seed) :
     , m_discoveryServerIp(LOCALHOST)
     , m_myWallet(seed, true)
     , m_stopMining(false)
+    , m_pausePing(false)
 {
     m_myPublicKey = m_myWallet.getPublicKey();
     m_myPrivateKey = m_myWallet.getPrivateKey();
@@ -133,6 +135,7 @@ void P2PNode::stop()
     }
     m_peers.clear();
 
+    resumePinging();
     m_pingThread.join();
 }
 
@@ -920,8 +923,15 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
                     // Refresh leader up time
                     if (peer.nodeId == getLeaderIndex()) refreshLeaderUptime();
                 }
+
+                // Pause pinging thread while handling message
+                pausePinging();
+
                 // Handle the incoming message. Returns a vector of messages to send back.
                 std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
+
+                // Resume pinging thread after finished handling the message
+                resumePinging();
 
                 // Should broadcast the returned messages
                 if (   msg.getType() == MessageType::HASH_READY
@@ -1014,8 +1024,23 @@ void P2PNode::pingInactivePeers()
     const auto inactivityThreshold = std::chrono::seconds(30);
     const auto checkInterval = std::chrono::seconds(5);
 
-    while (m_isRunning)
+    while (m_isRunning.load())
     {
+        // Check if pinging should be paused.
+        {
+            std::unique_lock<std::mutex> lock(m_cvMutex);
+            if (m_pausePing.load()) {
+                // When paused, wait indefinitely until m_pausePing becomes false.
+                m_cv.wait(lock, [this]() { return !m_pausePing.load() || !m_isRunning.load(); });
+            }
+            else {
+                // When not paused, wait for the checkInterval duration (or until pause becomes true).
+                m_cv.wait_for(lock, checkInterval, [this]() { return m_pausePing.load() || !m_isRunning.load(); });
+            }
+        }
+
+        if (!m_isRunning.load()) break;  // Exit early if shutting down
+
         // Collect peers we need to ping.
         std::vector<std::string> peersToPing; // Store their public keys
         {
@@ -1042,10 +1067,18 @@ void P2PNode::pingInactivePeers()
             sendMessageTo(pingMsg, pubKey);
             std::cout << "{" << m_myPort << "} " << "[Ping] Sent ping to peer: &" << pubKey.substr(0, 4) << std::endl;
         }
-
-        // 3) Sleep until the next check
-        std::this_thread::sleep_for(checkInterval);
     }
+}
+
+void P2PNode::pausePinging()
+{
+    m_pausePing.store(true);
+}
+
+void P2PNode::resumePinging()
+{
+    m_pausePing.store(false);
+    m_cv.notify_all();
 }
 
 void P2PNode::incrementView()

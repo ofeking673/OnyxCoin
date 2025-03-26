@@ -36,7 +36,7 @@
 #include <winsock2.h>
 #include <Windows.h>
 #include <exception>
-
+#include <condition_variable>
 
 // ---------------------------------------------------------------------------
 // Third-Party Library Includes

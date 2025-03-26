@@ -277,6 +277,7 @@ bool Block::checkIfBlockMined(const Block& minedBlock) const
 				{ // More than one unfound transaction
 					// Should be only one - the mined transaction
 
+					std::cout << "Too many unfound transactions..." << std::endl;
 					// Not the proper mined block
 					return false;
 				}

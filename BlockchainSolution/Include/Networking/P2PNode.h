@@ -221,6 +221,10 @@ protected:
     // Checks peers last contact time, and send ping messages.
     void pingInactivePeers();
 
+    // Resume/Pause pinging thread while handling messages
+    void pausePinging();
+    void resumePinging();
+
     // Increment view number
 
     // Testing
@@ -257,7 +261,12 @@ protected:
 
     Wallet m_myWallet;
 
+    // Ping
     std::thread m_pingThread;  // Thread that will run ping logic
+    std::atomic<bool> m_pausePing{ false }; // Indicator wether should pause ping thread
+    std::condition_variable m_cv; // Condition variable for pausing ping
+    std::mutex m_cvMutex; // Mutex for the condition variable
+
 
     // PBFT state
     // Map of (view, sequence) -> phase state of block
