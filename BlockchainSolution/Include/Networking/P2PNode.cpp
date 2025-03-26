@@ -860,7 +860,7 @@ void P2PNode::acceptLoop()
 
 void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
 {
-    const int BUFFER_SIZE = 10000;
+    const int BUFFER_SIZE = 100000;
     char buffer[BUFFER_SIZE];
 
     while (m_isRunning)

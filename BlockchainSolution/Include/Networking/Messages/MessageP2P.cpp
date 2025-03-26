@@ -105,7 +105,9 @@ json MessageP2P::toJson() const
 MessageP2P MessageP2P::fromJson(json data)
 {
     json j = data;
-
+    if (static_cast<MessageType>(j["type"].get<uint16_t>()) == MessageType::PREPREPARE) {
+        std::cout << "A";
+    }
     std::string signature = j["signature"].get<std::string>();
     std::string author = j["author"].get<std::string>();
 

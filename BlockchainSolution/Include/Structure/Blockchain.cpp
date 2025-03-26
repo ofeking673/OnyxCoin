@@ -149,13 +149,7 @@ bool Blockchain::addBlock(const Block& block)
 {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
 
-	if (_chain.empty())
-	{
-		_chain.push_back(block);
-		mempool->updateMempoolOnNewBlock(block);
-		return true;
-	}
-	else if (isBlockValid(block))
+	if (isBlockValid(block) || _chain.empty())
 	{
 		_chain.push_back(block);
 		mempool->updateMempoolOnNewBlock(block);

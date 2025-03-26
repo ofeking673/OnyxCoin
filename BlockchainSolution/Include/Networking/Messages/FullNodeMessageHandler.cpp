@@ -754,6 +754,16 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
         // Set that sent a commit message
         _node->setSentCommit(view, sequence);
 
+        _blockchain->addBlock(block);
+
+
+        std::cout << "Added new block" << std::endl;
+
+        // Update the wallet UTXO based on the new block
+        _node->walletProcessNewBlock(block);
+        // Update whole blockchain UTXOs
+        _blockchain->addBlockToUtxo(block);
+
         return messages;
     }
 
