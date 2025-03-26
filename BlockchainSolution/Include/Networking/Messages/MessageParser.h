@@ -37,6 +37,8 @@ public:
     // Parses NEW_VIEW message
     // Returns the new view, and the vector of proof view change messages
     static const void parseNewViewMessage(const MessageP2P& msg, uint32_t& newView, std::vector<MessageP2P>& viewChangeMessages);
+
+    static const MessageP2P parseLeaderMessage(const MessageP2P& msg);
 private:
     // Private constructor to prevent instantiation; all methods are static.
     MessageParser() = default;
