@@ -806,7 +806,7 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
     int expectedMinimum = 2 * (networkSize - 1) / 3;
 
     if (!_node->isPrepared(view, sequence) && _node->getPrepareAmount(view, sequence) >= expectedMinimum)
-    { 
+    {
         // Reached minimum of 2f + 1 prepaers.
         // And the it hasn't already been prepared
 
@@ -824,10 +824,21 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
         _node->setSentCommit(view, sequence);
     }
 
-    // Wait for more prepare messages
+    //// If haven't sent yet a prepare message for this state
+    //if (!_node->isSentPrepare(view, sequence))
+    //{
+    //    // Broadcast a prepare message
+    //    std::vector<MessageP2P> messages;
+    //    MessageP2P prepareMsg = MessageManager::createLeaderMessage(_node->getMyPublicKey(), block, MessageType::PREPARE, view);
+    //    messages.push_back(prepareMsg);
+
+    //    // Set that sent a prepare message
+    //    _node->setSentPrepare(view, sequence);
+
+    //    return messages;
+    //}
     return messages;
 }
-
 std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
 {
     if (msg.getType() != MessageType::COMMIT)
