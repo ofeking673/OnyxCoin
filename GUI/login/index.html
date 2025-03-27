@@ -35,7 +35,6 @@
     fetch(`http://localhost:8080/login?${params}`)
     .then(res => res.text())
     .then(text => {
-      console.log(text);
       if(text.includes("success")) {
         window.location.href = "../mainPage/index.html";
       }

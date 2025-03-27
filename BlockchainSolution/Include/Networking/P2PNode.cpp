@@ -376,16 +376,36 @@ void P2PNode::broadcastMessage(MessageP2P& msg)
     }
 }
 
+
 bool P2PNode::createTransaction(const std::string& dst, int amount)
 {
     Transaction tx = m_myWallet.createTransaction(dst, amount);
+    std::cout << "[Info] Transaction created" << std::endl;
     if (tx.getInputs().empty() && tx.getOutputs().empty())
     {
+        std::cerr << "[Error] Transaction creation failed (insufficient funds?)" << std::endl;
         return false;
     }
+
+
+
     // Create a P2P message wrapping the transaction
     MessageP2P newTxMessage = MessageManager::createNewTransactionMessage(m_myWallet.getPublicKey(), tx);
+    std::cout << __FUNCTION__": [Info] Broadcasting message!\n";
     broadcastMessage(newTxMessage);
+    std::cout << "[Info] Transaction broadcasted." << std::endl;
+
+    // When creating a transaction - 
+    // Check transaction correctness and UTXO availability, update mempool
+    // Handle the new transaction as if it was sent to you using the handler
+    std::vector<MessageP2P> retMsgs = m_dispatcher.dispatch(newTxMessage);
+
+    // If we are the leader and we should intiate a pre prepare message
+    if (!retMsgs.empty())
+    {
+        // Send the pre prepare message constructed in the handler of new transaction
+        broadcastMessage(retMsgs.back());
+    }
     return true;
 }
 
@@ -477,6 +497,11 @@ uint16_t P2PNode::getMyPort() const
 PeerInfo P2PNode::getMyInfo() const
 {
     return PeerInfo(m_myIP, m_myPort, m_myPublicKey, m_myNodeId);
+}
+
+uint64_t P2PNode::getBalance() const
+{
+    return m_myWallet.getBalance();
 }
 
 Block P2PNode::getLastBlock() const

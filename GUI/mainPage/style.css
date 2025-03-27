@@ -26,6 +26,13 @@
   left: 20px;
 }
 
+.balance-container {
+  display: flex; /* Use flexbox to align items horizontally */
+  align-items: center; /* Vertically align the balance and icon */
+  gap: 8px; /* Add spacing between the balance and the icon */
+  margin-top: 25px;
+}
+
 .box .text-wrapper {
   position: absolute;
   width: 342px;
@@ -39,11 +46,7 @@
   line-height: normal;
 }
 
-.box .div {
-  position: absolute;
-  width: 216px;
-  top: 30px;
-  left: 0;
+.box .bal {
   font-family: "Onest-Regular", Helvetica;
   font-weight: 400;
   color: #ffffff;
@@ -52,18 +55,29 @@
   line-height: normal;
 }
 
-.box .text-wrapper-2 {
-  position: absolute;
-  width: 35px;
-  top: 37px;
-  left: 175px;
+.coin-icon {
   font-family: "Onest-Regular", Helvetica;
   font-weight: 400;
-  color: #ffffff;
-  font-size: 24.4px;
-  letter-spacing: 0;
-  line-height: normal;
-  white-space: nowrap;
+  position: relative;
+  display: inline-block;
+  width: 30px; /* Adjust size as needed */
+  height: 30px;
+}
+
+.coin-icon .o {
+  position: absolute;
+  font-size: 36px; /* Adjust size as needed */
+  color: white; /* Gold color for the "O" */
+  left: 0;
+  top: 0;
+}
+
+.coin-icon .n {
+  position: absolute;
+  font-size: 25px; /* Slightly smaller size for the "N" */
+  color: white; /* Black color for the "N" */
+  top:4px;
+  left:5px;
 }
 
 .box .text-wrapper-3 {
@@ -90,6 +104,7 @@
     rgb(59,36,85) 0%,
     rgb(68,63,106) 100%
   );
+  display:flex;
 }
 
 .box .blockchain-status {

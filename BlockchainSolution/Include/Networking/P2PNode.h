@@ -97,6 +97,8 @@ public:
     std::string getMyPublicKey() const;
     uint16_t getMyPort() const;
     PeerInfo getMyInfo() const;
+    
+    uint64_t getBalance() const;
 
     Block getLastBlock() const;
     const Blockchain* getBlockchain() const;

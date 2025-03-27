@@ -75,6 +75,21 @@ WebListener::WebListener() {
 		res.add_header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allowed headers
 		return res;
 		});
+
+	CROW_ROUTE(app, "/balance") ([this]() {
+		if (!node) {
+			crow::response res("failed");
+			res.add_header("Access-Control-Allow-Origin", "*"); // CORS header
+			res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE"); // Allowed methods
+			res.add_header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allowed headers
+			return res;
+		}
+		crow::response res(std::to_string(node->getBalance()));
+		res.add_header("Access-Control-Allow-Origin", "*"); // CORS header
+		res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE"); // Allowed methods
+		res.add_header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allowed headers
+		return res;
+		});
 }
 
 void WebListener::start(int port)
