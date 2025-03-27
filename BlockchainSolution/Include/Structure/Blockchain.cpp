@@ -53,7 +53,7 @@ Blockchain::~Blockchain()
 
 void Blockchain::mineNewProposedBlock(Block& proposedBlock, const std::string& minerPublicKey)
 {
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
+    //std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	// Reset cancellation flag before starting.
 	m_cancelMining.store(false);
@@ -71,8 +71,7 @@ void Blockchain::mineNewProposedBlock(Block& proposedBlock, const std::string& m
 
 void Blockchain::stopMining()
 {
-	std::lock_guard<std::recursive_mutex> lock(_mutex);
-
+	//std::lock_guard<std::recursive_mutex> lock(_mutex);
 	m_cancelMining.store(true);
 }
 

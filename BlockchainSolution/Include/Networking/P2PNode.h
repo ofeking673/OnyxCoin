@@ -267,6 +267,7 @@ protected:
     std::condition_variable m_cv; // Condition variable for pausing ping
     std::mutex m_cvMutex; // Mutex for the condition variable
 
+    std::mutex m_handlerMutex;
 
     // PBFT state
     // Map of (view, sequence) -> phase state of block

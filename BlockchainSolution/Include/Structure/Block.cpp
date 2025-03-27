@@ -249,9 +249,10 @@ uint64_t Block::calculateBlockReward()
 
 bool Block::checkHash(const uint64_t& nonce)
 {
+	const size_t zerosSize = 3;
 	setNonce(nonce);
 	std::string calcHash = calculateHash();
-	if (calcHash.size() >= 2 && calcHash.compare(0, 2, "00") == 0)
+	if (calcHash.size() >= zerosSize && calcHash.compare(0, zerosSize, "000") == 0)
 	{ // Check if starts with "00"
 		return true;
 	}
