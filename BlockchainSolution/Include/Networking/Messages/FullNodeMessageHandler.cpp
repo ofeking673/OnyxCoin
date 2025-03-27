@@ -742,6 +742,9 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
 
 std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
 {
+    // Stop mining thread because already received a block.
+    _blockchain->stopMining();
+
     if (msg.getType() != MessageType::PREPARE)
     {
         return {};
@@ -751,11 +754,6 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPrepare(const MessageP2P& msg)
 
     // Update last contact with peer
     _node->updatePeersLastContact(msg.getAuthor());
-
-    //system("pause");
-
-    // Stop mining thread because already received a block.
-    _blockchain->stopMining();
 
     // Get the sequence, view and block of the message
     int sequence = msg.getPayload()["SEQUENCE"].get<int>();
@@ -896,9 +894,12 @@ std::vector<MessageP2P> FullNodeMessageHandler::onCommit(const MessageP2P& msg)
 
         // Update the wallet UTXO based on the new block
         _node->walletProcessNewBlock(block);
+
         // Update whole blockchain UTXOs
         _blockchain->addBlockToUtxo(block);
 
+        // Increment view to move to the next leader
+        _node->incrementView();
         
         return {};
     }

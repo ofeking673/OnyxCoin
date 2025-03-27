@@ -355,6 +355,8 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
     json j = msg.toJson();
     std::string wire = j.dump();
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    
     int result = send(sock, wire.c_str(), wire.size(), 0);
     if (result == SOCKET_ERROR)
     {
@@ -856,7 +858,11 @@ void P2PNode::acceptLoop()
                 // Handle the incoming handshake message.
                 // Handler adds the peer to the peer list
                 // Returns a vector of messages to send back (PEER_LIST).
-                std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
+                std::vector<MessageP2P> responses;
+                {
+                    std::lock_guard<std::mutex> lock(m_handlerMutex);
+                    responses = m_dispatcher.dispatch(msg);
+                }
 
 
                 // Add the new peer
@@ -923,7 +929,11 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
 
             if (msg.getType() == MessageType::HANDSHAKE) 
             {
-                std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
+                std::vector<MessageP2P> responses;
+                {
+                    std::lock_guard<std::mutex> lock(m_handlerMutex);
+                    responses = m_dispatcher.dispatch(msg);
+                }
                 
 
                 // Send back the response messages
@@ -946,14 +956,18 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
                     }
 
                     // Refresh leader up time
-                    if (peer.nodeId == getLeaderIndex()) refreshLeaderUptime();
+                    //if (peer.nodeId == getLeaderIndex()) refreshLeaderUptime();
                 }
 
                 // Pause pinging thread while handling message
                 pausePinging();
 
                 // Handle the incoming message. Returns a vector of messages to send back.
-                std::vector<MessageP2P> responses = m_dispatcher.dispatch(msg);
+                std::vector<MessageP2P> responses;
+                {
+                    std::lock_guard<std::mutex> lock(m_handlerMutex);
+                    responses = m_dispatcher.dispatch(msg);
+                }
 
                 // Resume pinging thread after finished handling the message
                 resumePinging();
@@ -1046,8 +1060,8 @@ bool P2PNode::verifySignature(const MessageP2P& msg)
 
 void P2PNode::pingInactivePeers()
 {
-    const auto inactivityThreshold = std::chrono::seconds(30);
-    const auto checkInterval = std::chrono::seconds(5);
+    const auto inactivityThreshold = std::chrono::seconds(60);
+    const auto checkInterval = std::chrono::seconds(20);
 
     while (m_isRunning.load())
     {
