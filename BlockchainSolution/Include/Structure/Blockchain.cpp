@@ -236,7 +236,7 @@ bool Blockchain::isAvailableToCommitBlock()
 {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
 
-	if (mempool->getPendingTransactionsAmount() >= 5)
+	if (mempool->getPendingTransactionsAmount() >= MIN_TRANSACTIONS_FOR_BLOCK)
 	{ // At least 5 Transactions to create a block.
 		return true;
 	}

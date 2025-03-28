@@ -672,7 +672,8 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
 
 
         // Start a detached mining thread.
-        std::thread miningThread([this, block, curView]() mutable {
+        std::thread miningThread([this, block, curView]() mutable 
+            {
             // The mining function performs the loop and returns the mined block 
             _blockchain->mineNewProposedBlock(block, _node->getMyPublicKey());
 
@@ -697,15 +698,13 @@ std::vector<MessageP2P> FullNodeMessageHandler::onPreprepare(const MessageP2P& m
             MessageP2P hashReadyMsg = MessageManager::createLeaderMessage(
                 _node->getMyPublicKey(), block, MessageType::HASH_READY, curView);
 
-            // Send the message to the leader.
-            _node->sendMessageTo(hashReadyMsg, leaderKey);
-            
-            //else
-            //{
-            //    std::cout << "[Mining] Mining terminated without finding a valid nonce." << std::endl;
-            //}
-
-
+            // Check again if mining was canceled
+            // Maybe received prepare message already...
+            if (!_blockchain->wasMiningCanceled())
+            {
+                // Send the message to the leader.
+                _node->sendMessageTo(hashReadyMsg, leaderKey);
+            }
             });
         miningThread.detach();
 

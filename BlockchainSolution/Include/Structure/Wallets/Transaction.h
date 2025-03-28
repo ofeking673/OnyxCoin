@@ -16,7 +16,7 @@
 #include "Networking/json.hpp"
 
 #define TRANSACTION_ID_LENGTH 16 // 16 bytes
-#define TAX_RATE 0.5
+#define TAX_RATE 0.05
 
 // Transaction types (first 1 byte in scriptPubKey)
 #define REGULARE_TRANSACTION_TYPE 10 

@@ -812,7 +812,7 @@ uint32_t P2PNode::getRemoteViewChangeMessageSize(uint32_t view)
 uint32_t P2PNode::getLeaderIndex()
 {
     if (m_peers.size() == 0) return 0;
-    uint32_t leaderIndex = m_currentView % m_peers.size();
+    uint32_t leaderIndex = m_currentView % (m_peers.size() + 1/*Include myself*/);
     return leaderIndex;
 }
 
@@ -1063,9 +1063,16 @@ void P2PNode::pingInactivePeers()
 {
     const auto inactivityThreshold = std::chrono::seconds(60);
     const auto checkInterval = std::chrono::seconds(20);
+    Mempool* mempool = Mempool::getInstance();
 
     while (m_isRunning.load())
     {
+        // If we are close to starting consensus -> stop pinging
+        // In one more transaction wwe will start consensus
+        if (mempool->getPendingTransactionsAmount() >= MIN_TRANSACTIONS_FOR_BLOCK - 1)
+        {
+            continue;
+        }
         // Check if pinging should be paused.
         {
             std::unique_lock<std::mutex> lock(m_cvMutex);

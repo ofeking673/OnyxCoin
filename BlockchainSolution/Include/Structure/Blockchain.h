@@ -3,6 +3,8 @@
 #include "Wallets/UTXOSet.h"
 #include "Wallets/Mempool.h"
 
+#define MIN_TRANSACTIONS_FOR_BLOCK 5
+
 class Blockchain
 {
 public:
