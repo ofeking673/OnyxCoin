@@ -975,7 +975,8 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
                 // Should broadcast the returned messages
                 if (   msg.getType() == MessageType::HASH_READY
                     || msg.getType() == MessageType::PREPARE
-                    || msg.getType() == MessageType::VIEW_CHANGE)
+                    || msg.getType() == MessageType::VIEW_CHANGE
+                    || msg.getType() == MessageType::NEW_TRANSACTION)
                 {
                     for (auto& respMsg : responses)
                     {

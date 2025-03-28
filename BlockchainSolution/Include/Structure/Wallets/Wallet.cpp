@@ -170,7 +170,7 @@ Transaction Wallet::createTransaction(const std::string& toPublicKey, uint64_t a
 }
 
 
-void Wallet::updateUTXOsWithTransaction(Transaction tx)
+void Wallet::updateUTXOsWithTransaction(const Transaction& tx)
 {
 	//  - If a TxOutput's scriptPubKey matches my address, add to myUTXOs
 	std::string myPubKeyHash = Transaction::hashPublicKey(_publicKey);
@@ -190,9 +190,10 @@ void Wallet::updateUTXOsWithTransaction(Transaction tx)
 		if (myPubKeyHash == outputPubKeyHash)
 		{
 			UTXOData utxodata(output.getValue(), output.getScriptPubKey());
-			OutPoint outpoint = OutPoint(tx.getTransactionID(), i);
+			uint32_t index = static_cast<uint32_t>(i);
+			OutPoint outpoint = OutPoint(tx.getTransactionID(), index);
 
-			auto result = myUTXOs.insert(std::make_pair(outpoint, utxodata));
+			auto result = myUTXOs.insert(std::make_pair(outpoint, utxodata)); // Crushes here!
 			if (!result.second) {
 				std::cout << outpoint << std::endl << std::endl; 
 				std::cout << "Insertion failed. Key already exists." << std::endl;
@@ -205,7 +206,7 @@ void Wallet::updateUTXOsWithTransaction(Transaction tx)
 void Wallet::updateUTXOsFromNewBlock(const std::vector<Transaction>& blockTransactions)
 {
 	
-	for (auto tx : blockTransactions)
+	for (auto& tx : blockTransactions)
 	{
 		updateUTXOsWithTransaction(tx);
 	}
