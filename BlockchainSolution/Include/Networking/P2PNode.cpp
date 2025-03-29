@@ -357,15 +357,25 @@ bool P2PNode::sendMessageTo(MessageP2P& msg, const std::string toPublicKey)
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     
-    int result = send(sock, wire.c_str(), wire.size(), 0);
-    if (result == SOCKET_ERROR)
+    try
     {
-        std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+        int result = send(sock, wire.c_str(), wire.size(), 0);
+        if (result == SOCKET_ERROR)
+        {
+            std::cerr << "{" << m_myPort << "} " << "[Error] send() failed: " << WSAGetLastError() << std::endl;
+            return false;
+        }
+
+        std::cout << "[Info] Sent " << msg.getType() << " to &" << toPublicKey.substr(0, 4) << std::endl;
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "{" << m_myPort << "} "
+            << "[Exception in receiveLoop] " << e.what() << std::endl;
         return false;
     }
-
-    std::cout << "[Info] Sent " << msg.getType() << " to &" << toPublicKey.substr(0, 4) << std::endl;
-    return true;
+    return false;
 }
 
 
@@ -835,58 +845,66 @@ void P2PNode::acceptLoop()
 
     while (m_isRunning)
     {
-        SOCKET clientSocket = accept(m_listenSocket, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
-        if (clientSocket == INVALID_SOCKET)
+        try
         {
-            if (m_isRunning)
+            SOCKET clientSocket = accept(m_listenSocket, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
+            if (clientSocket == INVALID_SOCKET)
             {
-                std::cerr << "{" << m_myPort << "} " << "[Error] accept() failed: " << WSAGetLastError() << std::endl;
+                if (m_isRunning)
+                {
+                    std::cerr << "{" << m_myPort << "} " << "[Error] accept() failed: " << WSAGetLastError() << std::endl;
+                }
+                continue;
             }
-            continue;
+
+            int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+            if (bytesReceived > 0)
+            {
+                // Get the handshake message
+                std::string data(buffer, bytesReceived);
+
+                MessageP2P msg = MessageParser::parse(data);
+
+                if (msg.getType() == MessageType::HANDSHAKE)
+                {
+                    // Handle the incoming handshake message.
+                    // Handler adds the peer to the peer list
+                    // Returns a vector of messages to send back (PEER_LIST).
+                    std::vector<MessageP2P> responses;
+                    {
+                        std::lock_guard<std::mutex> lock(m_handlerMutex);
+                        responses = m_dispatcher.dispatch(msg);
+                    }
+
+
+                    // Add the new peer
+                    PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
+                    // Add the socket connected to the new peer
+                    newPeer.socket = clientSocket;
+
+                    addPeer(newPeer);
+
+
+                    std::string remotePublicKey = newPeer.publicKey;
+
+
+                    // Send back the response messages
+                    for (auto& respMsg : responses)
+                    {
+                        sendMessageTo(respMsg, msg.getAuthor());
+                    }
+
+                    std::cout << "{" << m_myPort << "} " << "[Info] Accepted connection from a peer (socket=" << clientSocket << ")" << std::endl;
+
+                    // Start a thread to receive messages from this new peer
+                    std::thread(&P2PNode::receiveLoop, this, clientSocket, remotePublicKey).detach();
+                }
+            }
         }
-
-        int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
-        if (bytesReceived > 0)
+        catch (const std::exception& e)
         {
-            // Get the handshake message
-            std::string data(buffer, bytesReceived);
-
-            MessageP2P msg = MessageParser::parse(data);
-
-            if (msg.getType() == MessageType::HANDSHAKE)
-            {
-                // Handle the incoming handshake message.
-                // Handler adds the peer to the peer list
-                // Returns a vector of messages to send back (PEER_LIST).
-                std::vector<MessageP2P> responses;
-                {
-                    std::lock_guard<std::mutex> lock(m_handlerMutex);
-                    responses = m_dispatcher.dispatch(msg);
-                }
-
-
-                // Add the new peer
-                PeerInfo newPeer = PeerInfo::fromJson(msg.getPayload());
-                // Add the socket connected to the new peer
-                newPeer.socket = clientSocket;
-
-                addPeer(newPeer);
-
-
-                std::string remotePublicKey = newPeer.publicKey;
-
-
-                // Send back the response messages
-                for (auto& respMsg : responses)
-                {
-                    sendMessageTo(respMsg, msg.getAuthor());
-                }
-
-                std::cout << "{" << m_myPort << "} " << "[Info] Accepted connection from a peer (socket=" << clientSocket << ")" << std::endl;
-
-                // Start a thread to receive messages from this new peer
-                std::thread(&P2PNode::receiveLoop, this, clientSocket, remotePublicKey).detach();
-            }
+            std::cerr << "{" << m_myPort << "} "
+                << "[Exception in receiveLoop] " << e.what() << std::endl;
         }
     }
 }
@@ -899,99 +917,107 @@ void P2PNode::receiveLoop(SOCKET sock, const std::string& peerPublicKey)
 
     while (m_isRunning)
     {
-        int bytesReceived = recv(sock, buffer, BUFFER_SIZE, 0);
-        if (bytesReceived == 0)
+        try
         {
-            std::cout << "{" << m_myPort << "} " << "[Info] Connection closed by peer: " << peerPublicKey << std::endl;
-            break;
-        }
-        else if (bytesReceived < 0)
-        {
-            // Error or maybe the peer shut down
-            int err = WSAGetLastError();
-            if (err == WSAECONNRESET)
+            int bytesReceived = recv(sock, buffer, BUFFER_SIZE, 0);
+            if (bytesReceived == 0)
             {
-                std::cerr << "{" << m_myPort << "} " << "[Warning] Connection reset by peer: " << peerPublicKey.substr(0, 4) << std::endl;
+                std::cout << "{" << m_myPort << "} " << "[Info] Connection closed by peer: " << peerPublicKey << std::endl;
+                break;
             }
-            else
+            else if (bytesReceived < 0)
             {
-                std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed for peer " << peerPublicKey.substr(0, 4) << ": " << err << std::endl;
-            }
-            break;
-        }
-        else
-        {
-            // We have data to process
-            std::string data(buffer, bytesReceived);
-            // In real code, you might have to handle partial messages or multiple messages in one recv.
-            MessageP2P msg = MessageParser::parse(data);
-            //std::cout << "[Info] Recieved new message! " << data << std::endl;
-
-            if (msg.getType() == MessageType::HANDSHAKE) 
-            {
-                std::vector<MessageP2P> responses;
+                // Error or maybe the peer shut down
+                int err = WSAGetLastError();
+                if (err == WSAECONNRESET)
                 {
-                    std::lock_guard<std::mutex> lock(m_handlerMutex);
-                    responses = m_dispatcher.dispatch(msg);
-                }
-                
-
-                // Send back the response messages
-                for (auto& respMsg : responses)
-                {
-                    sendMessageTo(respMsg, msg.getAuthor());
-                }
-            }
-            else if (msg.getType() != MessageType::ERROR_MESSAGE)
-            {
-                {
-                    std::lock_guard<std::mutex> lock(m_peerMutex);
-                    PeerInfo peer = m_peers[msg.getAuthor()];
-
-                    // Verify signature of sender
-                    if (!verifySignature(msg))
-                    {
-                        std::cout << "[Warning] Wrong signature for message" << std::endl;
-                        continue;
-                    }
-
-                    // Refresh leader up time
-                    //if (peer.nodeId == getLeaderIndex()) refreshLeaderUptime();
-                }
-
-                // Pause pinging thread while handling message
-                pausePinging();
-
-                // Handle the incoming message. Returns a vector of messages to send back.
-                std::vector<MessageP2P> responses;
-                {
-                    std::lock_guard<std::mutex> lock(m_handlerMutex);
-                    responses = m_dispatcher.dispatch(msg);
-                }
-
-                // Resume pinging thread after finished handling the message
-                resumePinging();
-
-                // Should broadcast the returned messages
-                if (   msg.getType() == MessageType::HASH_READY
-                    || msg.getType() == MessageType::PREPARE
-                    || msg.getType() == MessageType::VIEW_CHANGE
-                    || msg.getType() == MessageType::NEW_TRANSACTION)
-                {
-                    for (auto& respMsg : responses)
-                    {
-                        broadcastMessage(respMsg);
-                    }
+                    std::cerr << "{" << m_myPort << "} " << "[Warning] Connection reset by peer: " << peerPublicKey.substr(0, 4) << std::endl;
                 }
                 else
                 {
+                    std::cerr << "{" << m_myPort << "} " << "[Error] recv() failed for peer " << peerPublicKey.substr(0, 4) << ": " << err << std::endl;
+                }
+                break;
+            }
+            else
+            {
+                // We have data to process
+                std::string data(buffer, bytesReceived);
+                // In real code, you might have to handle partial messages or multiple messages in one recv.
+                MessageP2P msg = MessageParser::parse(data);
+                //std::cout << "[Info] Recieved new message! " << data << std::endl;
+
+                if (msg.getType() == MessageType::HANDSHAKE)
+                {
+                    std::vector<MessageP2P> responses;
+                    {
+                        std::lock_guard<std::mutex> lock(m_handlerMutex);
+                        responses = m_dispatcher.dispatch(msg);
+                    }
+
+
                     // Send back the response messages
                     for (auto& respMsg : responses)
                     {
                         sendMessageTo(respMsg, msg.getAuthor());
                     }
                 }
+                else if (msg.getType() != MessageType::ERROR_MESSAGE)
+                {
+                    {
+                        std::lock_guard<std::mutex> lock(m_peerMutex);
+                        PeerInfo peer = m_peers[msg.getAuthor()];
+
+                        // Verify signature of sender
+                        if (!verifySignature(msg))
+                        {
+                            std::cout << "[Warning] Wrong signature for message" << std::endl;
+                            continue;
+                        }
+
+                        // Refresh leader up time
+                        //if (peer.nodeId == getLeaderIndex()) refreshLeaderUptime();
+                    }
+
+                    // Pause pinging thread while handling message
+                    pausePinging();
+
+                    // Handle the incoming message. Returns a vector of messages to send back.
+                    std::vector<MessageP2P> responses;
+                    {
+                        std::lock_guard<std::mutex> lock(m_handlerMutex);
+                        responses = m_dispatcher.dispatch(msg);
+                    }
+
+                    // Resume pinging thread after finished handling the message
+                    resumePinging();
+
+                    // Should broadcast the returned messages
+                    if (msg.getType() == MessageType::HASH_READY
+                        || msg.getType() == MessageType::PREPARE
+                        || msg.getType() == MessageType::VIEW_CHANGE
+                        || msg.getType() == MessageType::NEW_TRANSACTION)
+                    {
+                        for (auto& respMsg : responses)
+                        {
+                            broadcastMessage(respMsg);
+                        }
+                    }
+                    else
+                    {
+                        // Send back the response messages
+                        for (auto& respMsg : responses)
+                        {
+                            sendMessageTo(respMsg, msg.getAuthor());
+                        }
+                    }
+                }
             }
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "{" << m_myPort << "} "
+                << "[Exception in receiveLoop] " << e.what() << std::endl;
         }
     }
 
