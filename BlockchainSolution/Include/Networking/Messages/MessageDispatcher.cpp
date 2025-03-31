@@ -127,22 +127,3 @@ void MessageDispatcher::setBlockchainSingleton()
 {
     _handler->_blockchain->setSingleton();
 }
-
-//std::string MessageDispatcher::sendClient(const std::string& pubkey, const MessageP2P& msg)
-//{
-//    if (isKnownUser(pubkey)) {
-//        return _handler->sendMessage(pubkey, msg);
-//    }
-//    return "";
-//}
-//
-//bool MessageDispatcher::isKnownUser(const std::string& pubkey)
-//{
-//    auto clients = _handler->getAllPublicKeys();
-//    return std::find(clients.begin(), clients.end(), pubkey) != clients.end();
-//}
-//
-//void MessageDispatcher::addPeer(const std::string& pubkey, SOCKET sock)
-//{
-//    _handler->addPeer(pubkey, sock);
-//}

@@ -130,7 +130,7 @@ std::string Blockchain::getChain() const
 {
 	json j = json::array();
 	int startIndex = std::max(static_cast<int>(_chain.size()) - 6, 0);
-	for (int i = startIndex; i < _chain.size(); i--)
+	for (int i = startIndex; i < _chain.size(); i++)
 	{
 		j.push_back(_chain[i].toJson());
 	}
