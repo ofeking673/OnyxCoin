@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../globals.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="box">
+      <div class="login">
+        <div class="overlap-group">
+          <p class="don-t-have-an">
+            <span class="text-wrapper">Don't have an account? </span> <span class="span">Create one now</span>
+          </p>
+          <div class="frame">
+            <div class="div">Seed phrase</div>
+            <div class="frame-2">
+                <input type="text" class="p" placeholder="arrive bound across grit nest pond rapid sketch...">
+              <button onclick="handleClick()" class="button" >
+                <div class="state-layer" ><div class="label-text">Log in</div></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  function handleClick() {
+    const seed = document.getElementsByClassName("p")[0].value;
+    let params = new URLSearchParams({seed: seed});
+    fetch(`http://localhost:8080/login?${params}`)
+    .then(res => res.text())
+    .then(text => {
+      if(text.includes("success")) {
+        window.location.href = "../mainPage/index.html";
+      }
+      else {
+        document.getElementsByClassName("p")[0].value = "";
+      }
+    });
+  }
+</script>

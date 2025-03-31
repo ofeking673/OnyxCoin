@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{14e33558-b0bd-4571-b567-a31cb3d36298}</ProjectGuid>
-    <RootNamespace>BlockchainProject</RootNamespace>
+    <ProjectGuid>{A9976D5D-1C42-400F-9ECE-82934CEC23A4}</ProjectGuid>
+    <RootNamespace>WebNode</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -76,6 +76,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -102,14 +105,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)Include;$(ProjectDir);$(SolutionDir)x64\Debug\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -129,91 +131,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AddressGenerator.h" />
-    <ClInclude Include="Block.h" />
-    <ClInclude Include="Blockchain.h" />
-    <ClInclude Include="BlockHeader.h" />
-    <ClInclude Include="DiscoveryServer.h" />
-    <ClInclude Include="Encryptions\AES256CBC.h" />
-    <ClInclude Include="Encryptions\Argon2.h" />
-    <ClInclude Include="Encryptions\Base58.h" />
-    <ClInclude Include="Encryptions\BIP39SeedMaker.h" />
-    <ClInclude Include="Encryptions\Blake2b.h" />
-    <ClInclude Include="Encryptions\ECDSASigner.h" />
-    <ClInclude Include="Encryptions\KeyGenerator.h" />
-    <ClInclude Include="Encryptions\RIPEMD_160.h" />
-    <ClInclude Include="Encryptions\SHA256.h" />
-    <ClInclude Include="Encryptions\Test.h" />
-    <ClInclude Include="FullNode.h" />
-    <ClInclude Include="FullNodeMessageHandler.h" />
-    <ClInclude Include="HelperT.h" />
-    <ClInclude Include="IMessageHandler.h" />
-    <ClInclude Include="InventoryData.h" />
-    <ClInclude Include="json.hpp" />
-    <ClInclude Include="JsonPacketDeserializer.h" />
-    <ClInclude Include="JsonPacketSerializer.h" />
-    <ClInclude Include="MessageDispatcher.h" />
-    <ClInclude Include="MessageManager.h" />
-    <ClInclude Include="MessageP2P.h" />
-    <ClInclude Include="MessageParser.h" />
-    <ClInclude Include="MessageTypes.h" />
-    <ClInclude Include="Networking\WSAInitializer.h" />
-    <ClInclude Include="OutPoint.h" />
-    <ClInclude Include="OutPointHash.h" />
-    <ClInclude Include="P2PNode.h" />
-    <ClInclude Include="PeerInfo.h" />
-    <ClInclude Include="PhaseState.h" />
-    <ClInclude Include="Point.h" />
-    <ClInclude Include="RequestHandler.h" />
-    <ClInclude Include="Transaction.h" />
-    <ClInclude Include="TxInput.h" />
-    <ClInclude Include="TxOutput.h" />
-    <ClInclude Include="UTXO.h" />
-    <ClInclude Include="UTXOData.h" />
-    <ClInclude Include="UTXOSet.h" />
-    <ClInclude Include="Wallet.h" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="WebListener.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AddressGenerator.cpp" />
-    <ClCompile Include="Block.cpp" />
-    <ClCompile Include="Blockchain.cpp" />
-    <ClCompile Include="BlockHeader.cpp" />
-    <ClCompile Include="DiscoveryServer.cpp" />
-    <ClCompile Include="Encryptions\AES256CBC.cpp" />
-    <ClCompile Include="Encryptions\Argon2.cpp" />
-    <ClCompile Include="Encryptions\Base58.cpp" />
-    <ClCompile Include="Encryptions\BIP39SeedMaker.cpp" />
-    <ClCompile Include="Encryptions\Blake2b.cpp" />
-    <ClCompile Include="Encryptions\ECDSASigner.cpp" />
-    <ClCompile Include="Encryptions\KeyGenerator.cpp" />
-    <ClCompile Include="Encryptions\RIPEMD_160.cpp" />
-    <ClCompile Include="Encryptions\SHA256.cpp" />
-    <ClCompile Include="Encryptions\Test.cpp" />
-    <ClCompile Include="FullNode.cpp" />
-    <ClCompile Include="FullNodeMessageHandler.cpp" />
-    <ClCompile Include="HelperT.cpp" />
-    <ClCompile Include="IMessageHandler.cpp" />
-    <ClCompile Include="InventoryData.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MessageDispatcher.cpp" />
-    <ClCompile Include="MessageManager.cpp" />
-    <ClCompile Include="MessageP2P.cpp" />
-    <ClCompile Include="MessageParser.cpp" />
-    <ClCompile Include="MessageTypes.cpp" />
-    <ClCompile Include="Networking\WSAInitializer.cpp" />
-    <ClCompile Include="OutPoint.cpp" />
-    <ClCompile Include="OutPointHash.cpp" />
-    <ClCompile Include="P2PNode.cpp" />
-    <ClCompile Include="PeerInfo.cpp" />
-    <ClCompile Include="PhaseState.cpp" />
-    <ClCompile Include="Point.cpp" />
-    <ClCompile Include="Transaction.cpp" />
-    <ClCompile Include="TxInput.cpp" />
-    <ClCompile Include="TxOutput.cpp" />
-    <ClCompile Include="UTXO.cpp" />
-    <ClCompile Include="UTXOData.cpp" />
-    <ClCompile Include="UTXOSet.cpp" />
-    <ClCompile Include="Wallet.cpp" />
+    <ProjectReference Include="..\BlockchainCore\BlockchainCore.vcxproj">
+      <Project>{7ddc6888-60e8-415b-9692-e20f10caa81c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\framework.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="WebListener.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
