@@ -1,0 +1,300 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Encryptions">
+      <UniqueIdentifier>{8cd71adb-2b94-4298-ba20-3d76ed931cb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EncryptionCPP">
+      <UniqueIdentifier>{f34e2b79-c4c4-45f8-b87a-e9c4e8dbd35f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Networking">
+      <UniqueIdentifier>{88e93381-2c73-4828-aa51-21c4bbd682e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Networking">
+      <UniqueIdentifier>{412f9c91-a22b-4e23-bfee-07530ee43f41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Wallet">
+      <UniqueIdentifier>{cb6cb116-0b1d-493f-897c-9e2a95df995d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Wallet">
+      <UniqueIdentifier>{f67c0d0a-3e93-4e02-92ce-9c913ccd7e2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Blockchain structure">
+      <UniqueIdentifier>{cdb1192f-b48a-4b30-87e3-d6c018f5349f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Blockchain structure">
+      <UniqueIdentifier>{3e16c3c5-de58-4768-bc5a-1ad4ab84ccef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MessageHandling">
+      <UniqueIdentifier>{497de56b-e73b-49df-8250-4c8eac1b0dc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MessageHandling">
+      <UniqueIdentifier>{4046e586-e188-47eb-bee1-98b236de17f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Encryptions\AES256CBC.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\Base58.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\BIP39SeedMaker.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\ECDSASigner.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\KeyGenerator.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\SHA256.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\Test.h">
+      <Filter>Header Files\Encryptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\WSAInitializer.h">
+      <Filter>Header Files\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Wallet.h">
+      <Filter>Header Files\Wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Blockchain.h">
+      <Filter>Header Files\Blockchain structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Block.h">
+      <Filter>Header Files\Blockchain structure</Filter>
+    </ClInclude>
+    <ClInclude Include="HelperT.h">
+      <Filter>Header Files\Blockchain structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Header Files\Blockchain structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Transaction.h">
+      <Filter>Header Files\Blockchain structure</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonPacketDeserializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddressGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\Argon2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\Blake2b.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encryptions\RIPEMD_160.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonPacketSerializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutPointHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TxInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TxOutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UTXO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UTXOData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UTXOSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FullNodeMessageHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMessageHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageDispatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageP2P.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="P2PNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscoveryServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhaseState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FullNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\AES256CBC.cpp">
+      <Filter>Source Files\EncryptionCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\Base58.cpp">
+      <Filter>Source Files\EncryptionCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\BIP39SeedMaker.cpp">
+      <Filter>Source Files\EncryptionCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\ECDSASigner.cpp">
+      <Filter>Source Files\EncryptionCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\KeyGenerator.cpp">
+      <Filter>Source Files\EncryptionCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\SHA256.cpp">
+      <Filter>Source Files\EncryptionCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\Test.cpp">
+      <Filter>Source Files\EncryptionCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\WSAInitializer.cpp">
+      <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Wallet.cpp">
+      <Filter>Source Files\Wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="HelperT.cpp">
+      <Filter>Source Files\Blockchain structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Blockchain.cpp">
+      <Filter>Source Files\Blockchain structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Block.cpp">
+      <Filter>Source Files\Blockchain structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Transaction.cpp">
+      <Filter>Source Files\Blockchain structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Point.cpp">
+      <Filter>Source Files\Blockchain structure</Filter>
+    </ClCompile>
+    <ClCompile Include="AddressGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\Argon2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\Blake2b.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encryptions\RIPEMD_160.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutPointHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TxInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TxOutput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UTXO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UTXOData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UTXOSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FullNodeMessageHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMessageHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageDispatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageP2P.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="P2PNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscoveryServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PeerInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PhaseState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FullNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

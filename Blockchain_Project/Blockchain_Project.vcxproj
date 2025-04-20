@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{14e33558-b0bd-4571-b567-a31cb3d36298}</ProjectGuid>
+    <RootNamespace>BlockchainProject</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AddressGenerator.h" />
+    <ClInclude Include="Block.h" />
+    <ClInclude Include="Blockchain.h" />
+    <ClInclude Include="BlockHeader.h" />
+    <ClInclude Include="DiscoveryServer.h" />
+    <ClInclude Include="Encryptions\AES256CBC.h" />
+    <ClInclude Include="Encryptions\Argon2.h" />
+    <ClInclude Include="Encryptions\Base58.h" />
+    <ClInclude Include="Encryptions\BIP39SeedMaker.h" />
+    <ClInclude Include="Encryptions\Blake2b.h" />
+    <ClInclude Include="Encryptions\ECDSASigner.h" />
+    <ClInclude Include="Encryptions\KeyGenerator.h" />
+    <ClInclude Include="Encryptions\RIPEMD_160.h" />
+    <ClInclude Include="Encryptions\SHA256.h" />
+    <ClInclude Include="Encryptions\Test.h" />
+    <ClInclude Include="FullNode.h" />
+    <ClInclude Include="FullNodeMessageHandler.h" />
+    <ClInclude Include="HelperT.h" />
+    <ClInclude Include="IMessageHandler.h" />
+    <ClInclude Include="InventoryData.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="JsonPacketDeserializer.h" />
+    <ClInclude Include="JsonPacketSerializer.h" />
+    <ClInclude Include="MessageDispatcher.h" />
+    <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="MessageP2P.h" />
+    <ClInclude Include="MessageParser.h" />
+    <ClInclude Include="MessageTypes.h" />
+    <ClInclude Include="Networking\WSAInitializer.h" />
+    <ClInclude Include="OutPoint.h" />
+    <ClInclude Include="OutPointHash.h" />
+    <ClInclude Include="P2PNode.h" />
+    <ClInclude Include="PeerInfo.h" />
+    <ClInclude Include="PhaseState.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="RequestHandler.h" />
+    <ClInclude Include="Transaction.h" />
+    <ClInclude Include="TxInput.h" />
+    <ClInclude Include="TxOutput.h" />
+    <ClInclude Include="UTXO.h" />
+    <ClInclude Include="UTXOData.h" />
+    <ClInclude Include="UTXOSet.h" />
+    <ClInclude Include="Wallet.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AddressGenerator.cpp" />
+    <ClCompile Include="Block.cpp" />
+    <ClCompile Include="Blockchain.cpp" />
+    <ClCompile Include="BlockHeader.cpp" />
+    <ClCompile Include="DiscoveryServer.cpp" />
+    <ClCompile Include="Encryptions\AES256CBC.cpp" />
+    <ClCompile Include="Encryptions\Argon2.cpp" />
+    <ClCompile Include="Encryptions\Base58.cpp" />
+    <ClCompile Include="Encryptions\BIP39SeedMaker.cpp" />
+    <ClCompile Include="Encryptions\Blake2b.cpp" />
+    <ClCompile Include="Encryptions\ECDSASigner.cpp" />
+    <ClCompile Include="Encryptions\KeyGenerator.cpp" />
+    <ClCompile Include="Encryptions\RIPEMD_160.cpp" />
+    <ClCompile Include="Encryptions\SHA256.cpp" />
+    <ClCompile Include="Encryptions\Test.cpp" />
+    <ClCompile Include="FullNode.cpp" />
+    <ClCompile Include="FullNodeMessageHandler.cpp" />
+    <ClCompile Include="HelperT.cpp" />
+    <ClCompile Include="IMessageHandler.cpp" />
+    <ClCompile Include="InventoryData.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MessageDispatcher.cpp" />
+    <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="MessageP2P.cpp" />
+    <ClCompile Include="MessageParser.cpp" />
+    <ClCompile Include="MessageTypes.cpp" />
+    <ClCompile Include="Networking\WSAInitializer.cpp" />
+    <ClCompile Include="OutPoint.cpp" />
+    <ClCompile Include="OutPointHash.cpp" />
+    <ClCompile Include="P2PNode.cpp" />
+    <ClCompile Include="PeerInfo.cpp" />
+    <ClCompile Include="PhaseState.cpp" />
+    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Transaction.cpp" />
+    <ClCompile Include="TxInput.cpp" />
+    <ClCompile Include="TxOutput.cpp" />
+    <ClCompile Include="UTXO.cpp" />
+    <ClCompile Include="UTXOData.cpp" />
+    <ClCompile Include="UTXOSet.cpp" />
+    <ClCompile Include="Wallet.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
